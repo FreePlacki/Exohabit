@@ -1,7 +1,4 @@
-import 'package:exohabit/auth/auth_providers.dart';
-import 'package:exohabit/providers/habit_providers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AuthFailure {
   final String message;
@@ -48,20 +45,34 @@ class AuthRepository {
   }
 
   String _mapError(FirebaseAuthException e) {
-    return e.message ?? 'Authentication error occurred.';
     switch (e.code) {
       case 'invalid-email':
         return 'Invalid email format.';
       case 'user-not-found':
-        return 'No account found with this email.';
+        return 'Invalid email or password.';
       case 'wrong-password':
         return 'Incorrect password.';
       case 'email-already-in-use':
         return 'This email is already registered.';
       case 'weak-password':
         return 'Password is too weak.';
+      case 'invalid-credential':
+        return 'Invalid email or password.';
+      case 'too-many-requests':
+        return 'Too many failed attempts. Please try again later.';
+      case 'user-disabled':
+        return 'This account has been disabled.';
+      case 'operation-not-allowed':
+        return 'This sign-in method is not enabled.';
+      case 'network-request-failed':
+        return 'Network error. Please check your connection.';
       default:
-        return 'Authentication failed. Try again.';
+        final firebaseMessage = e.message?.toLowerCase() ?? '';
+        if (firebaseMessage.contains('internal error') ||
+            firebaseMessage.contains('an error occurred')) {
+          return 'Invalid email or password.';
+        }
+        return 'Authentication failed. Please check your email and password.';
     }
   }
 }

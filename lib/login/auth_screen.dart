@@ -1,9 +1,5 @@
-
-import 'package:exohabit/auth/auth_providers.dart';
 import 'package:exohabit/login/auth_form.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
