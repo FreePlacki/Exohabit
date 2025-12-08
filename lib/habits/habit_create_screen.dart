@@ -5,24 +5,48 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class HabitCreateScreen extends ConsumerStatefulWidget {
-  const HabitCreateScreen({super.key});
+class HabitEditScreen extends ConsumerStatefulWidget {
+  final Habit? habit; // null for create, non-null for edit
+
+  const HabitEditScreen({super.key, this.habit});
 
   @override
-  ConsumerState<HabitCreateScreen> createState() => _HabitCreatePageState();
+  ConsumerState<HabitEditScreen> createState() => _HabitEditPageState();
 }
 
-class _HabitCreatePageState extends ConsumerState<HabitCreateScreen> {
-  final titleCtrl = TextEditingController();
-  final descCtrl = TextEditingController();
-  int freq = 3; // default frequency
+class _HabitEditPageState extends ConsumerState<HabitEditScreen> {
+  late final TextEditingController titleCtrl;
+  late final TextEditingController descCtrl;
+  late int freq;
 
   bool isLoading = false;
   String? error;
 
+  bool get isEditing => widget.habit != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (isEditing) {
+      titleCtrl = TextEditingController(text: widget.habit!.title);
+      descCtrl = TextEditingController(text: widget.habit!.description);
+      freq = widget.habit!.frequencyPerWeek;
+    } else {
+      titleCtrl = TextEditingController();
+      descCtrl = TextEditingController();
+      freq = 3;
+    }
+  }
+
+  @override
+  void dispose() {
+    titleCtrl.dispose();
+    descCtrl.dispose();
+    super.dispose();
+  }
+
   bool get canSubmit {
-    return titleCtrl.text.trim().isNotEmpty &&
-           !isLoading;
+    return titleCtrl.text.trim().isNotEmpty && !isLoading;
   }
 
   Future<void> submit() async {
@@ -34,7 +58,7 @@ class _HabitCreatePageState extends ConsumerState<HabitCreateScreen> {
     final userId = ref.read(currentUserIdProvider);
     if (userId == null) {
       setState(() {
-        error = 'You must be logged in to create a habit';
+        error = 'You must be logged in to ${isEditing ? 'edit' : 'create'} a habit';
         isLoading = false;
       });
       return;
@@ -43,15 +67,19 @@ class _HabitCreatePageState extends ConsumerState<HabitCreateScreen> {
     final repo = ref.read(habitRepositoryProvider);
 
     final habit = Habit(
-      id: "", // Firestore sets this
+      id: widget.habit?.id ?? "", // Use existing ID for edit, empty for create
       title: titleCtrl.text.trim(),
       description: descCtrl.text.trim(),
       frequencyPerWeek: freq,
-      createdAt: DateTime.now(),
+      createdAt: widget.habit?.createdAt ?? DateTime.now(), // Preserve original date for edit
     );
 
     try {
-      await repo.createHabit(habit, userId);
+      if (isEditing) {
+        await repo.updateHabit(habit, userId);
+      } else {
+        await repo.createHabit(habit, userId);
+      }
       if (!mounted) return;
       context.pop();
     } catch (e) {
@@ -66,7 +94,7 @@ class _HabitCreatePageState extends ConsumerState<HabitCreateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('New Habit')),
+      appBar: AppBar(title: Text(isEditing ? 'Edit Habit' : 'New Habit')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -122,7 +150,7 @@ class _HabitCreatePageState extends ConsumerState<HabitCreateScreen> {
                         width: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text("Create Habit"),
+                    : Text(isEditing ? "Update Habit" : "Create Habit"),
               ),
             ),
           ],

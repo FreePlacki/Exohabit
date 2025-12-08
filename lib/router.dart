@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:exohabit/habits/habit_create_screen.dart';
 import 'package:exohabit/habits/habits_screen.dart';
 import 'package:exohabit/login/auth_screen.dart';
+import 'package:exohabit/models/habit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -34,7 +35,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/auth', builder: (context, state) => AuthScreen()),
       GoRoute(
         path: '/create-habit',
-        builder: (context, state) => const HabitCreateScreen(),
+        builder: (context, state) => const HabitEditScreen(),
+      ),
+      GoRoute(
+        path: '/edit-habit',
+        builder: (context, state) {
+          final habit = state.extra as Habit?;
+          return HabitEditScreen(habit: habit);
+        },
       ),
     ],
   );
