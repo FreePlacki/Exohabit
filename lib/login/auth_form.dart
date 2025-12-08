@@ -1,17 +1,17 @@
+import 'package:exohabit/auth/auth_providers.dart';
 import 'package:exohabit/auth/auth_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AuthForm extends StatefulWidget {
+class AuthForm extends ConsumerStatefulWidget {
   final bool isLogin;
   const AuthForm({super.key, required this.isLogin});
 
   @override
-  State<AuthForm> createState() => _AuthFormState();
+  ConsumerState<AuthForm> createState() => _AuthFormState();
 }
 
-class _AuthFormState extends State<AuthForm> {
+class _AuthFormState extends ConsumerState<AuthForm> {
   final email = TextEditingController();
   final password = TextEditingController();
 
@@ -36,7 +36,7 @@ class _AuthFormState extends State<AuthForm> {
       remoteError = null;
     });
 
-    final repo = AuthRepository();
+    final repo = ref.read(authRepositoryProvider);
 
     final (user, error) = widget.isLogin
         ? await repo.signIn(email.text.trim(), password.text.trim())
