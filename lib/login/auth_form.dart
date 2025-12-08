@@ -14,9 +14,16 @@ class AuthForm extends ConsumerStatefulWidget {
 class _AuthFormState extends ConsumerState<AuthForm> {
   final email = TextEditingController();
   final password = TextEditingController();
+  final passwordFocusNode = FocusNode();
 
   bool isLoading = false;
   AuthFailure? remoteError;
+
+  @override
+  void dispose() {
+    passwordFocusNode.dispose();
+    super.dispose();
+  }
 
   bool get isValidEmail {
     final text = email.text.trim();
@@ -57,15 +64,26 @@ class _AuthFormState extends ConsumerState<AuthForm> {
         TextField(
           controller: email,
           keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
           decoration: const InputDecoration(labelText: 'Email'),
           onChanged: (_) => setState(() {}),
+          onSubmitted: (_) {
+            passwordFocusNode.requestFocus();
+          },
         ),
         const SizedBox(height: 12),
         TextField(
           controller: password,
+          focusNode: passwordFocusNode,
           obscureText: true,
+          textInputAction: TextInputAction.done,
           decoration: const InputDecoration(labelText: 'Password'),
           onChanged: (_) => setState(() {}),
+          onSubmitted: (_) {
+            if (canSubmit) {
+              submit();
+            }
+          },
         ),
         const SizedBox(height: 16),
 
