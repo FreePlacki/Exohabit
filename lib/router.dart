@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:exohabit/exoplanets/exoplanets_screen.dart';
 import 'package:exohabit/habits/habit_create_screen.dart';
 import 'package:exohabit/habits/habits_screen.dart';
 import 'package:exohabit/login/auth_screen.dart';
@@ -43,6 +44,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           final habit = state.extra as Habit?;
           return HabitEditScreen(habit: habit);
         },
+      ),
+      GoRoute(
+        path: '/exoplanets',
+        builder: (context, state) => const ExoplanetsScreen(),
       ),
     ],
   );

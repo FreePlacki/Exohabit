@@ -1,5 +1,7 @@
 import 'package:exohabit/auth/auth_providers.dart';
+import 'package:exohabit/exoplanets/exoplanets_screen.dart';
 import 'package:exohabit/models/habit.dart';
+import 'package:exohabit/providers/completion_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,11 +17,54 @@ class HabitsScreen extends ConsumerWidget {
     final habits = ref.watch(habitsProvider);
     final authState = ref.watch(authStateProvider);
     final userEmail = authState.value!.email;
+    final exoplanets = ref.watch(exoplanetsProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: Text("Your Habits - $userEmail"),
         actions: [
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.rocket_launch),
+                onPressed: () {
+                  context.push('/exoplanets');
+                },
+                tooltip: 'View Exoplanets',
+              ),
+              exoplanets.when(
+                data: (list) {
+                  if (list.isEmpty) return const SizedBox.shrink();
+                  return Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        '${list.length}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  );
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+              ),
+            ],
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
@@ -94,7 +139,7 @@ void _showDeleteDialog(BuildContext context, WidgetRef ref, Habit habit) {
   );
 }
 
-class _HabitListItem extends StatelessWidget {
+class _HabitListItem extends ConsumerStatefulWidget {
   final Habit habit;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
@@ -106,27 +151,146 @@ class _HabitListItem extends StatelessWidget {
   });
 
   @override
+  ConsumerState<_HabitListItem> createState() => _HabitListItemState();
+}
+
+class _HabitListItemState extends ConsumerState<_HabitListItem> {
+  bool _isCompleting = false;
+
+  Future<void> _handleCompletion() async {
+    if (_isCompleting) return;
+
+    final userId = ref.read(currentUserIdProvider);
+    if (userId == null) return;
+
+    final canComplete = ref.read(canCompleteTodayProvider(widget.habit.id));
+    if (!canComplete) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Already completed today!')),
+        );
+      }
+      return;
+    }
+
+    setState(() {
+      _isCompleting = true;
+    });
+
+    try {
+      final habitRepo = ref.read(habitRepositoryProvider);
+      final completionId = await habitRepo.recordCompletion(
+        widget.habit.id,
+        userId,
+        DateTime.now(),
+      );
+
+      // Award exoplanet
+      final rewardService = ref.read(rewardServiceProvider);
+      final exoplanetId = await rewardService.awardExoplanet(
+          widget.habit.id, userId, completionId);
+
+      if (mounted) {
+        // Show success with option to view exoplanets
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Exoplanet discovered!'),
+            backgroundColor: Colors.green,
+            action: SnackBarAction(
+              label: 'View',
+              textColor: Colors.white,
+              onPressed: () {
+                context.push('/exoplanets');
+              },
+            ),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error completing habit: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCompleting = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(habit.title),
-      subtitle: Text(habit.description),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text("${habit.frequencyPerWeek}x / week"),
-          const SizedBox(width: 8),
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: onEdit,
-            tooltip: 'Edit habit',
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: onDelete,
-            tooltip: 'Delete habit',
-            color: Colors.red,
-          ),
-        ],
+    final weeklyProgress = ref.watch(weeklyProgressProvider(widget.habit.id));
+    final canComplete = ref.watch(canCompleteTodayProvider(widget.habit.id));
+    final progressPercent = widget.habit.frequencyPerWeek > 0
+        ? (weeklyProgress / widget.habit.frequencyPerWeek).clamp(0.0, 1.0)
+        : 0.0;
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: ListTile(
+        title: Text(widget.habit.title),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(widget.habit.description),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: LinearProgressIndicator(
+                    value: progressPercent,
+                    backgroundColor: Colors.grey[300],
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      progressPercent >= 1.0 ? Colors.green : Colors.blue,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '$weeklyProgress / ${widget.habit.frequencyPerWeek}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ],
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Completion button
+            _isCompleting
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : IconButton(
+                    icon: Icon(
+                      canComplete ? Icons.check_circle_outline : Icons.check_circle,
+                      color: canComplete ? Colors.grey : Colors.green,
+                    ),
+                    onPressed: canComplete && !_isCompleting ? _handleCompletion : null,
+                    tooltip: canComplete ? 'Mark complete' : 'Already completed today',
+                  ),
+            const SizedBox(width: 8),
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: widget.onEdit,
+              tooltip: 'Edit habit',
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: widget.onDelete,
+              tooltip: 'Delete habit',
+              color: Colors.red,
+            ),
+          ],
+        ),
       ),
     );
   }
