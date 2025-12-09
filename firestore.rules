@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow users to read/write their own habits
+    match /habits/{userId}/items/{habitId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Allow users to read/write their own completions
+    match /habits/{userId}/items/{habitId}/completions/{completionId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Allow collection group queries for completions (needed for home stats)
+    match /{path=**}/completions/{completionId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
+    // Allow users to read/write their own exoplanets
+    match /users/{userId}/exoplanets/{exoplanetId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

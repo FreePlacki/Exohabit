@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:exohabit/exoplanets/exoplanets_screen.dart';
 import 'package:exohabit/habits/habit_create_screen.dart';
 import 'package:exohabit/habits/habits_screen.dart';
+import 'package:exohabit/home/home_screen.dart';
 import 'package:exohabit/login/auth_screen.dart';
 import 'package:exohabit/models/habit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -32,7 +33,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(path: '/', builder: (context, state) => const HabitsScreen()),
+      GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
+      GoRoute(path: '/habits', builder: (context, state) => const HabitsScreen()),
       GoRoute(path: '/auth', builder: (context, state) => AuthScreen()),
       GoRoute(
         path: '/create-habit',
