@@ -2,14 +2,36 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exohabit/models/habit.dart';
 import 'package:exohabit/models/habit_completion.dart';
 
-class HabitRepository {
-  final _db = FirebaseFirestore.instance;
+abstract class HabitRepository {
+  Future<void> createHabit(Habit habit, String userId);
+
+  Future<void> deleteHabit(String id, String userId);
+
+  Future<void> updateHabit(Habit habit, String userId);
+
+  Stream<List<Habit>> watchHabits(String userId);
+
+  Future<String> recordCompletion(String habitId, String userId, DateTime completedAt);
+
+  Stream<List<HabitCompletion>> getCompletionsForHabit(String habitId, String userId);
+
+  Future<List<HabitCompletion>> getCompletionsForWeek(
+      String habitId, String userId, DateTime weekStart);
+
+  Future<bool> isCompletedToday(String habitId, String userId);
+}
+
+class FirestoreHabitRepository implements HabitRepository {
+  final FirebaseFirestore _db;
+
+  FirestoreHabitRepository({FirebaseFirestore? firestore})
+      : _db = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> _userHabits(String userId) =>
       _db.collection('habits').doc(userId).collection('items').withConverter<Map<String, dynamic>>(
-        fromFirestore: (snap, _) => snap.data()!,
-        toFirestore: (map, _) => map,
-      );
+            fromFirestore: (snap, _) => snap.data()!,
+            toFirestore: (map, _) => map,
+          );
 
   CollectionReference<Map<String, dynamic>> _habitCompletions(String userId, String habitId) =>
       _db
@@ -23,20 +45,22 @@ class HabitRepository {
             toFirestore: (map, _) => map,
           );
 
+  @override
   Future<void> createHabit(Habit habit, String userId) async {
     await _userHabits(userId).add(habit.toMap());
   }
 
+  @override
   Future<void> deleteHabit(String id, String userId) async {
     await _userHabits(userId).doc(id).delete();
   }
 
+  @override
   Future<void> updateHabit(Habit habit, String userId) async {
-    await _userHabits(userId)
-        .doc(habit.id)
-        .update(habit.toMap());
+    await _userHabits(userId).doc(habit.id).update(habit.toMap());
   }
 
+  @override
   Stream<List<Habit>> watchHabits(String userId) {
     return _userHabits(userId)
         .orderBy('createdAt', descending: true)
@@ -44,6 +68,7 @@ class HabitRepository {
         .map((snap) => snap.docs.map(Habit.fromDoc).toList());
   }
 
+  @override
   Future<String> recordCompletion(String habitId, String userId, DateTime completedAt) async {
     final completion = HabitCompletion(
       id: '', // Will be set by Firestore
@@ -55,6 +80,7 @@ class HabitRepository {
     return docRef.id;
   }
 
+  @override
   Stream<List<HabitCompletion>> getCompletionsForHabit(String habitId, String userId) {
     return _habitCompletions(userId, habitId)
         .orderBy('completedAt', descending: true)
@@ -62,6 +88,7 @@ class HabitRepository {
         .map((snap) => snap.docs.map(HabitCompletion.fromDoc).toList());
   }
 
+  @override
   Future<List<HabitCompletion>> getCompletionsForWeek(
       String habitId, String userId, DateTime weekStart) async {
     final weekEnd = weekStart.add(const Duration(days: 7));
@@ -74,6 +101,7 @@ class HabitRepository {
     return snap.docs.map(HabitCompletion.fromDoc).toList();
   }
 
+  @override
   Future<bool> isCompletedToday(String habitId, String userId) async {
     final now = DateTime.now();
     final todayStart = DateTime(now.year, now.month, now.day);

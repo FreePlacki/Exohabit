@@ -5,9 +5,13 @@ import 'package:exohabit/repositories/habit_repository.dart';
 import 'package:exohabit/services/reward_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final habitRepositoryProvider = Provider((ref) => HabitRepository());
+final habitRepositoryProvider = Provider<HabitRepository>(
+  (ref) => FirestoreHabitRepository(),
+);
 
-final exoplanetRepositoryProvider = Provider((ref) => ExoplanetRepository());
+final exoplanetRepositoryProvider = Provider<ExoplanetRepository>(
+  (ref) => FirestoreExoplanetRepository(),
+);
 
 final rewardServiceProvider = Provider((ref) {
   final exoplanetRepo = ref.read(exoplanetRepositoryProvider);

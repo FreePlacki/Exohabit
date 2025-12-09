@@ -16,7 +16,7 @@ class HabitsScreen extends ConsumerWidget {
     final authRepo = ref.read(authRepositoryProvider);
     final habits = ref.watch(habitsProvider);
     final authState = ref.watch(authStateProvider);
-    final userEmail = authState.value!.email;
+    final userEmail = authState.value?.email ?? 'Signed out';
     final exoplanets = ref.watch(exoplanetsProvider);
 
     return Scaffold(
@@ -187,7 +187,7 @@ class _HabitListItemState extends ConsumerState<_HabitListItem> {
 
       // Award exoplanet
       final rewardService = ref.read(rewardServiceProvider);
-      final exoplanetId = await rewardService.awardExoplanet(
+      await rewardService.awardExoplanet(
           widget.habit.id, userId, completionId);
 
       if (mounted) {
