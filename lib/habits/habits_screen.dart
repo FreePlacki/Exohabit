@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:exohabit/auth/auth_providers.dart';
 import 'package:exohabit/exoplanets/exoplanets_screen.dart';
 import 'package:exohabit/models/habit.dart';
@@ -61,7 +63,7 @@ class HabitsScreen extends ConsumerWidget {
                   );
                 },
                 loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
               ),
             ],
           ),
@@ -178,17 +180,10 @@ class _HabitListItemState extends ConsumerState<_HabitListItem> {
     });
 
     try {
-      final habitRepo = ref.read(habitRepositoryProvider);
-      final completionId = await habitRepo.recordCompletion(
-        widget.habit.id,
-        userId,
-        DateTime.now(),
-      );
-
-      // Award exoplanet
-      final rewardService = ref.read(rewardServiceProvider);
-      await rewardService.awardExoplanet(
-          widget.habit.id, userId, completionId);
+      await Future.any([
+        _performCompletion(userId),
+        Future.delayed(const Duration(seconds: 15), () => throw TimeoutException('Completion timed out')),
+      ]);
 
       if (mounted) {
         // Show success with option to view exoplanets
@@ -209,8 +204,11 @@ class _HabitListItemState extends ConsumerState<_HabitListItem> {
       }
     } catch (e) {
       if (mounted) {
+        final errorMessage = e.toString().contains('Connection') || e is TimeoutException
+            ? 'Connection issue. Check your internet and try again.'
+            : 'Error completing habit';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error completing habit: $e')),
+          SnackBar(content: Text(errorMessage)),
         );
       }
     } finally {
@@ -220,6 +218,24 @@ class _HabitListItemState extends ConsumerState<_HabitListItem> {
         });
       }
     }
+  }
+
+  Future<void> _performCompletion(String userId) async {
+    final habitRepo = ref.read(habitRepositoryProvider);
+    print('📝 Recording completion...');
+    final completionId = await habitRepo.recordCompletion(
+      widget.habit.id,
+      userId,
+      DateTime.now(),
+    );
+    print('✅ Completion recorded: $completionId');
+
+    // Award exoplanet
+    print('🎁 Awarding exoplanet...');
+    final rewardService = ref.read(rewardServiceProvider);
+    await rewardService.awardExoplanet(
+        widget.habit.id, userId, completionId);
+    print('🎉 Exoplanet awarded successfully');
   }
 
   @override

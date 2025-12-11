@@ -1,4 +1,3 @@
-import 'package:exohabit/auth/auth_providers.dart';
 import 'package:exohabit/models/habit_completion.dart';
 import 'package:exohabit/providers/completion_providers.dart';
 import 'package:exohabit/providers/habit_providers.dart';
@@ -44,8 +43,9 @@ final homeStatsProvider = Provider<AsyncValue<HomeStats>>((ref) {
       }
 
       // Check if any completion stream has an error
-      final errorCompletion = completionAsyncs.firstWhere((c) => c.hasError, orElse: () => completionAsyncs.first);
-      if (errorCompletion.hasError) {
+      final errorCompletions = completionAsyncs.where((c) => c.hasError);
+      if (errorCompletions.isNotEmpty) {
+        final errorCompletion = errorCompletions.first;
         return AsyncError(errorCompletion.error!, errorCompletion.stackTrace ?? StackTrace.current);
       }
 

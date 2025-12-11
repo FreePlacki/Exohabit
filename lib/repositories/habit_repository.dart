@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:exohabit/models/habit.dart';
 import 'package:exohabit/models/habit_completion.dart';
 
@@ -27,23 +30,28 @@ class FirestoreHabitRepository implements HabitRepository {
   FirestoreHabitRepository({FirebaseFirestore? firestore})
       : _db = firestore ?? FirebaseFirestore.instance;
 
+  /// Helper to run a Firestore operation with timeout protection
+  Future<T> _withTimeout<T>(Future<T> operation, [Duration timeout = const Duration(seconds: 10)]) {
+    return Future.any([
+      operation,
+      Future.delayed(timeout, () => throw Exception('Firestore operation timed out')),
+    ]);
+  }
+
   CollectionReference<Map<String, dynamic>> _userHabits(String userId) =>
       _db.collection('habits').doc(userId).collection('items').withConverter<Map<String, dynamic>>(
             fromFirestore: (snap, _) => snap.data()!,
             toFirestore: (map, _) => map,
           );
 
-  CollectionReference<Map<String, dynamic>> _habitCompletions(String userId, String habitId) =>
-      _db
-          .collection('habits')
-          .doc(userId)
-          .collection('items')
-          .doc(habitId)
-          .collection('completions')
-          .withConverter<Map<String, dynamic>>(
-            fromFirestore: (snap, _) => snap.data()!,
-            toFirestore: (map, _) => map,
-          );
+  CollectionReference<Map<String, dynamic>> get _completionsCollection {
+    return _db
+        .collection('completions')
+        .withConverter<Map<String, dynamic>>(
+          fromFirestore: (snap, _) => snap.data()!,
+          toFirestore: (map, _) => map,
+        );
+  }
 
   @override
   Future<void> createHabit(Habit habit, String userId) async {
@@ -70,35 +78,66 @@ class FirestoreHabitRepository implements HabitRepository {
 
   @override
   Future<String> recordCompletion(String habitId, String userId, DateTime completedAt) async {
+    // Verify authentication
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null || currentUser.uid != userId) {
+      throw Exception('Authentication required');
+    }
+
     final completion = HabitCompletion(
-      id: '', // Will be set by Firestore
+      id: '',
       habitId: habitId,
       userId: userId,
       completedAt: completedAt,
     );
-    final docRef = await _habitCompletions(userId, habitId).add(completion.toMap());
-    return docRef.id;
+
+    try {
+      final docRef = await _withTimeout(
+        _completionsCollection.add(completion.toMap()),
+        const Duration(seconds: 15),
+      );
+      return docRef.id;
+    } catch (e) {
+      if (e.toString().contains('thread') || e is TimeoutException) {
+        throw Exception('Connection issue. Check your internet and try again.');
+      }
+      rethrow;
+    }
   }
 
   @override
   Stream<List<HabitCompletion>> getCompletionsForHabit(String habitId, String userId) {
-    return _habitCompletions(userId, habitId)
-        .orderBy('completedAt', descending: true)
+    return _completionsCollection
+        .where('userId', isEqualTo: userId)
         .snapshots()
-        .map((snap) => snap.docs.map(HabitCompletion.fromDoc).toList());
+        .map((snap) {
+          final completions = snap.docs.map(HabitCompletion.fromDoc).toList();
+          return completions
+              .where((c) => c.habitId == habitId)
+              .toList()
+            ..sort((a, b) => b.completedAt.compareTo(a.completedAt));
+        });
   }
 
   @override
   Future<List<HabitCompletion>> getCompletionsForWeek(
       String habitId, String userId, DateTime weekStart) async {
     final weekEnd = weekStart.add(const Duration(days: 7));
-    final snap = await _habitCompletions(userId, habitId)
-        .where('completedAt',
-            isGreaterThanOrEqualTo: Timestamp.fromDate(weekStart),
-            isLessThan: Timestamp.fromDate(weekEnd))
-        .orderBy('completedAt', descending: true)
+    final snap = await _completionsCollection
+        .where('userId', isEqualTo: userId)
         .get();
-    return snap.docs.map(HabitCompletion.fromDoc).toList();
+
+    final allUserCompletions = snap.docs.map(HabitCompletion.fromDoc).toList();
+    // Filter in memory
+    final weekCompletions = allUserCompletions.where((c) {
+      return c.habitId == habitId &&
+             c.completedAt.isAfter(weekStart) &&
+             c.completedAt.isBefore(weekEnd);
+    }).toList();
+
+    // Sort in memory
+    weekCompletions.sort((a, b) => b.completedAt.compareTo(a.completedAt));
+    return weekCompletions;
   }
 
   @override
@@ -107,13 +146,16 @@ class FirestoreHabitRepository implements HabitRepository {
     final todayStart = DateTime(now.year, now.month, now.day);
     final todayEnd = todayStart.add(const Duration(days: 1));
 
-    final snap = await _habitCompletions(userId, habitId)
-        .where('completedAt',
-            isGreaterThanOrEqualTo: Timestamp.fromDate(todayStart),
-            isLessThan: Timestamp.fromDate(todayEnd))
-        .limit(1)
+    final snap = await _completionsCollection
+        .where('userId', isEqualTo: userId)
         .get();
 
-    return snap.docs.isNotEmpty;
+    // Filter in memory
+    return snap.docs.any((doc) {
+      final completion = HabitCompletion.fromDoc(doc);
+      return completion.habitId == habitId &&
+             completion.completedAt.isAfter(todayStart) &&
+             completion.completedAt.isBefore(todayEnd);
+    });
   }
 }

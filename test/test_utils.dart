@@ -124,9 +124,11 @@ class FakeHabitRepository implements HabitRepository {
 
 class FakeExoplanetRepository implements ExoplanetRepository {
   FakeExoplanetRepository({List<Exoplanet>? initial})
-      : _items = List.from(initial ?? []);
+      : _items = List.from(initial ?? []),
+        _cacheItems = List.from(initial ?? []);
 
   final List<Exoplanet> _items;
+  final List<Exoplanet> _cacheItems;
 
   @override
   Future<String> createExoplanet(Exoplanet exoplanet, String userId) async {
@@ -137,6 +139,15 @@ class FakeExoplanetRepository implements ExoplanetRepository {
         name: exoplanet.name,
         discoveryDate: exoplanet.discoveryDate,
         habitCompletionId: exoplanet.habitCompletionId,
+        hostname: exoplanet.hostname,
+        planetRadius: exoplanet.planetRadius,
+        planetMass: exoplanet.planetMass,
+        orbitalPeriod: exoplanet.orbitalPeriod,
+        equilibriumTemperature: exoplanet.equilibriumTemperature,
+        discoveryMethod: exoplanet.discoveryMethod,
+        discoveryYear: exoplanet.discoveryYear,
+        distance: exoplanet.distance,
+        isAwarded: exoplanet.isAwarded,
       ),
     );
     return newId;
@@ -145,6 +156,43 @@ class FakeExoplanetRepository implements ExoplanetRepository {
   @override
   Stream<List<Exoplanet>> watchExoplanets(String userId) {
     return Stream.value(List.unmodifiable(_items));
+  }
+
+  @override
+  Future<List<Exoplanet>> getAvailablePlanets({int limit = 50}) async {
+    return _cacheItems.where((p) => !p.isAwarded).take(limit).toList();
+  }
+
+  @override
+  Future<void> refreshCache() async {
+    // No-op for tests
+  }
+
+  @override
+  Future<bool> shouldRefreshCache() async {
+    return false; // Never refresh in tests
+  }
+
+  @override
+  Future<void> markPlanetAwarded(String planetName) async {
+    final index = _cacheItems.indexWhere((p) => p.name == planetName);
+    if (index != -1) {
+      _cacheItems[index] = Exoplanet(
+        id: _cacheItems[index].id,
+        name: _cacheItems[index].name,
+        discoveryDate: _cacheItems[index].discoveryDate,
+        habitCompletionId: _cacheItems[index].habitCompletionId,
+        hostname: _cacheItems[index].hostname,
+        planetRadius: _cacheItems[index].planetRadius,
+        planetMass: _cacheItems[index].planetMass,
+        orbitalPeriod: _cacheItems[index].orbitalPeriod,
+        equilibriumTemperature: _cacheItems[index].equilibriumTemperature,
+        discoveryMethod: _cacheItems[index].discoveryMethod,
+        discoveryYear: _cacheItems[index].discoveryYear,
+        distance: _cacheItems[index].distance,
+        isAwarded: true,
+      );
+    }
   }
 }
 

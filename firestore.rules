@@ -6,9 +6,10 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Allow users to read/write their own completions
-    match /habits/{userId}/items/{habitId}/completions/{completionId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    // Allow users to read/write their own completions (flat structure)
+    match /completions/{completionId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
 
     // Allow collection group queries for completions (needed for home stats)
@@ -19,6 +20,17 @@ service cloud.firestore {
     // Allow users to read/write their own exoplanets
     match /users/{userId}/exoplanets/{exoplanetId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Allow read/write access to exoplanet cache (shared across all users)
+    match /exoplanet_cache/{planetId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Allow read access to metadata collection for cache checks, write requires auth
+    match /metadata/{docId} {
+      allow read: if true; // Allow anyone to read cache metadata for checks
+      allow write: if request.auth != null; // Require auth for writes
     }
   }
 }
