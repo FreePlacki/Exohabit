@@ -1,11 +1,11 @@
-import 'package:exohabit/auth/auth_providers.dart';
-import 'package:exohabit/auth/auth_repository.dart';
+import 'package:exohabit/login/auth_screen.dart';
+import 'package:exohabit/login/login_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AuthForm extends ConsumerStatefulWidget {
-  final bool isLogin;
-  const AuthForm({super.key, required this.isLogin});
+  const AuthForm({super.key, required this.authMode});
+  final AuthMode authMode;
 
   @override
   ConsumerState<AuthForm> createState() => _AuthFormState();
@@ -16,11 +16,10 @@ class _AuthFormState extends ConsumerState<AuthForm> {
   final password = TextEditingController();
   final passwordFocusNode = FocusNode();
 
-  bool isLoading = false;
-  AuthFailure? remoteError;
-
   @override
   void dispose() {
+    email.dispose();
+    password.dispose();
     passwordFocusNode.dispose();
     super.dispose();
   }
@@ -35,30 +34,29 @@ class _AuthFormState extends ConsumerState<AuthForm> {
     return text.isNotEmpty;
   }
 
-  bool get canSubmit => isValidEmail && isValidPassword && !isLoading;
+  bool canSubmit(AuthFormState state) =>
+      isValidEmail && isValidPassword && !state.isLoading;
 
   Future<void> submit() async {
-    setState(() {
-      isLoading = true;
-      remoteError = null;
-    });
+    final controller = ref.read(loginControllerProvider.notifier);
 
-    final repo = ref.read(authRepositoryProvider);
-
-    final (user, error) = widget.isLogin
-        ? await repo.signIn(email.text.trim(), password.text.trim())
-        : await repo.signUp(email.text.trim(), password.text.trim());
-
-    if (!mounted) return;
-
-    setState(() {
-      isLoading = false;
-      remoteError = error;
-    });
+    switch (widget.authMode) {
+      case AuthMode.login:
+        await controller.submitLogin(
+          email: email.text.trim(),
+          password: password.text.trim(),
+        );
+      case AuthMode.signup:
+        await controller.submitSignup(
+          email: email.text.trim(),
+          password: password.text.trim(),
+        );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(loginControllerProvider);
     return Column(
       children: [
         TextField(
@@ -80,18 +78,18 @@ class _AuthFormState extends ConsumerState<AuthForm> {
           decoration: const InputDecoration(labelText: 'Password'),
           onChanged: (_) => setState(() {}),
           onSubmitted: (_) {
-            if (canSubmit) {
+            if (canSubmit(state)) {
               submit();
             }
           },
         ),
         const SizedBox(height: 16),
 
-        if (remoteError != null)
+        if (state.error != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
-              remoteError!.message,
+              state.error!,
               style: const TextStyle(color: Colors.red, fontSize: 13),
             ),
           ),
@@ -99,14 +97,17 @@ class _AuthFormState extends ConsumerState<AuthForm> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: canSubmit ? submit : null,
-            child: isLoading
+            onPressed: canSubmit(state) ? submit : null,
+            child: state.isLoading
                 ? const SizedBox(
                     height: 16,
                     width: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : Text(widget.isLogin ? 'Sign In' : 'Sign Up'),
+                : Text(switch (widget.authMode) {
+                    AuthMode.login => 'Log In',
+                    AuthMode.signup => 'Sign Up',
+                  }),
           ),
         ),
       ],

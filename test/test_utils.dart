@@ -1,14 +1,17 @@
 import 'dart:async';
 
-import 'package:exohabit/auth/auth_repository.dart';
+import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/models/exoplanet.dart';
 import 'package:exohabit/models/habit.dart';
 import 'package:exohabit/models/habit_completion.dart';
 import 'package:exohabit/repositories/exoplanet_repository.dart';
 import 'package:exohabit/repositories/habit_repository.dart';
 import 'package:exohabit/services/reward_service.dart';
+import 'package:exohabit/utils/result.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mocktail/mocktail.dart';
+
+import 'login/auth_repo_test.dart';
 
 Habit buildHabit({
   String id = 'habit-1',
@@ -22,7 +25,7 @@ Habit buildHabit({
     title: title,
     description: description,
     frequencyPerWeek: frequencyPerWeek,
-    createdAt: createdAt ?? DateTime.utc(2024, 1, 1),
+    createdAt: createdAt ?? DateTime.utc(2024),
   );
 }
 
@@ -198,12 +201,12 @@ class FakeExoplanetRepository implements ExoplanetRepository {
 
 class FakeAuthRepository implements AuthRepository {
   @override
-  Future<(User?, AuthFailure?)> signIn(String email, String password) async =>
-      (null, null);
+  Future<Result<User>> signIn(String email, String password) async =>
+      Result.ok(MockUser());
 
   @override
-  Future<(User?, AuthFailure?)> signUp(String email, String password) async =>
-      (null, null);
+  Future<Result<User>> signUp(String email, String password) async =>
+      Result.ok(MockUser());
 
   @override
   Future<void> signOut() async {}
@@ -227,4 +230,3 @@ class FakeUser extends Fake implements User {
 }
 
 class MockExoplanetRepository extends Mock implements ExoplanetRepository {}
-

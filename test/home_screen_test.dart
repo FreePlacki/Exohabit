@@ -1,9 +1,9 @@
-import 'package:exohabit/auth/auth_providers.dart';
+import 'package:exohabit/exoplanets/exoplanets_screen.dart';
 import 'package:exohabit/home/home_screen.dart';
+import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/providers/completion_providers.dart';
 import 'package:exohabit/providers/habit_providers.dart';
 import 'package:exohabit/providers/home_providers.dart';
-import 'package:exohabit/exoplanets/exoplanets_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

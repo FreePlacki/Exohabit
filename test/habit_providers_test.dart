@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:exohabit/auth/auth_providers.dart';
+import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/models/habit.dart';
 import 'package:exohabit/providers/habit_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

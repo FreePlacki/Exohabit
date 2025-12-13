@@ -1,4 +1,4 @@
-import 'package:exohabit/auth/auth_providers.dart';
+import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/models/habit.dart';
 import 'package:exohabit/providers/habit_providers.dart';
 import 'package:flutter/material.dart';
@@ -6,9 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class HabitEditScreen extends ConsumerStatefulWidget {
-  final Habit? habit; // null for create, non-null for edit
-
   const HabitEditScreen({super.key, this.habit});
+  // null for create, non-null for edit
+  final Habit? habit;
 
   @override
   ConsumerState<HabitEditScreen> createState() => _HabitEditPageState();
@@ -58,7 +58,8 @@ class _HabitEditPageState extends ConsumerState<HabitEditScreen> {
     final userId = ref.read(currentUserIdProvider);
     if (userId == null) {
       setState(() {
-        error = 'You must be logged in to ${isEditing ? 'edit' : 'create'} a habit';
+        error =
+            'You must be logged in to ${isEditing ? 'edit' : 'create'} a habit';
         isLoading = false;
       });
       return;
@@ -67,11 +68,13 @@ class _HabitEditPageState extends ConsumerState<HabitEditScreen> {
     final repo = ref.read(habitRepositoryProvider);
 
     final habit = Habit(
-      id: widget.habit?.id ?? "", // Use existing ID for edit, empty for create
+      id: widget.habit?.id ?? '', // Use existing ID for edit, empty for create
       title: titleCtrl.text.trim(),
       description: descCtrl.text.trim(),
       frequencyPerWeek: freq,
-      createdAt: widget.habit?.createdAt ?? DateTime.now(), // Preserve original date for edit
+      createdAt:
+          widget.habit?.createdAt ??
+          DateTime.now(), // Preserve original date for edit
     );
 
     try {
@@ -80,12 +83,16 @@ class _HabitEditPageState extends ConsumerState<HabitEditScreen> {
       } else {
         await repo.createHabit(habit, userId);
       }
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       context.pop();
-    } catch (e) {
-      if (!mounted) return;
+    } catch (err) {
+      if (!mounted) {
+        return;
+      }
       setState(() {
-        error = e.toString();
+        error = err.toString();
         isLoading = false;
       });
     }
@@ -101,29 +108,27 @@ class _HabitEditPageState extends ConsumerState<HabitEditScreen> {
           children: [
             TextField(
               controller: titleCtrl,
-              decoration: const InputDecoration(labelText: "Title"),
+              decoration: const InputDecoration(labelText: 'Title'),
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: descCtrl,
-              decoration: const InputDecoration(labelText: "Description"),
+              decoration: const InputDecoration(labelText: 'Description'),
             ),
             const SizedBox(height: 16),
 
             Row(
               children: [
-                const Text("Times per week:"),
+                const Text('Times per week:'),
                 const SizedBox(width: 16),
                 DropdownButton<int>(
                   value: freq,
                   onChanged: (v) => setState(() => freq = v!),
                   items: List.generate(
                     7,
-                    (i) => DropdownMenuItem(
-                      value: i + 1,
-                      child: Text("${i + 1}"),
-                    ),
+                    (i) =>
+                        DropdownMenuItem(value: i + 1, child: Text('${i + 1}')),
                   ),
                 ),
               ],
@@ -132,10 +137,7 @@ class _HabitEditPageState extends ConsumerState<HabitEditScreen> {
             if (error != null)
               Padding(
                 padding: const EdgeInsets.only(top: 20),
-                child: Text(
-                  error!,
-                  style: const TextStyle(color: Colors.red),
-                ),
+                child: Text(error!, style: const TextStyle(color: Colors.red)),
               ),
 
             const Spacer(),
@@ -150,7 +152,7 @@ class _HabitEditPageState extends ConsumerState<HabitEditScreen> {
                         width: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text(isEditing ? "Update Habit" : "Create Habit"),
+                    : Text(isEditing ? 'Update Habit' : 'Create Habit'),
               ),
             ),
           ],

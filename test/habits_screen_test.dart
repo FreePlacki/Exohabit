@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:exohabit/auth/auth_providers.dart';
 import 'package:exohabit/exoplanets/exoplanets_screen.dart';
 import 'package:exohabit/habits/habits_screen.dart';
+import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/providers/completion_providers.dart';
 import 'package:exohabit/providers/habit_providers.dart';
 import 'package:flutter/material.dart';

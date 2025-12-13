@@ -1,4 +1,4 @@
-import 'package:exohabit/auth/auth_providers.dart';
+import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/models/habit.dart';
 import 'package:exohabit/repositories/exoplanet_repository.dart';
 import 'package:exohabit/repositories/habit_repository.dart';

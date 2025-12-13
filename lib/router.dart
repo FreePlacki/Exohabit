@@ -4,13 +4,13 @@ import 'package:exohabit/exoplanets/exoplanets_screen.dart';
 import 'package:exohabit/habits/habit_create_screen.dart';
 import 'package:exohabit/habits/habits_screen.dart';
 import 'package:exohabit/home/home_screen.dart';
+import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/login/auth_screen.dart';
 import 'package:exohabit/models/habit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:exohabit/auth/auth_providers.dart';
+import 'package:go_router/go_router.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final auth = ref.watch(authStateProvider);

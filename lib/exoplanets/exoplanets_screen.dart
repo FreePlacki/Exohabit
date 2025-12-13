@@ -1,4 +1,4 @@
-import 'package:exohabit/auth/auth_providers.dart';
+import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/models/exoplanet.dart';
 import 'package:exohabit/providers/habit_providers.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final exoplanetsProvider = StreamProvider<List<Exoplanet>>((ref) {
   final userId = ref.watch(currentUserIdProvider);
-  if (userId == null) return const Stream.empty();
+  if (userId == null) {
+    return const Stream.empty();
+  }
 
   final repo = ref.read(exoplanetRepositoryProvider);
   return repo.watchExoplanets(userId);
@@ -35,10 +37,10 @@ class ExoplanetsScreen extends ConsumerWidget {
                     const SnackBar(content: Text('Planet cache refreshed!')),
                   );
                 }
-              } catch (e) {
+              } catch (err) {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to refresh cache: $e')),
+                    SnackBar(content: Text('Failed to refresh cache: $err')),
                   );
                 }
               }
@@ -61,18 +63,12 @@ class ExoplanetsScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   Text(
                     'No exoplanets discovered yet',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Complete habits to discover exoplanets!',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[500],
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                   ),
                 ],
               ),
@@ -104,9 +100,8 @@ class ExoplanetsScreen extends ConsumerWidget {
 }
 
 class _ExoplanetCard extends StatelessWidget {
-  final Exoplanet exoplanet;
-
   const _ExoplanetCard({required this.exoplanet});
+  final Exoplanet exoplanet;
 
   String _formatDate(DateTime date) {
     final months = [
@@ -121,7 +116,7 @@ class _ExoplanetCard extends StatelessWidget {
       'Sep',
       'Oct',
       'Nov',
-      'Dec'
+      'Dec',
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
@@ -150,11 +145,7 @@ class _ExoplanetCard extends StatelessWidget {
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: const Icon(
-                  Icons.public,
-                  color: Colors.white,
-                  size: 32,
-                ),
+                child: const Icon(Icons.public, color: Colors.white, size: 32),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -171,19 +162,14 @@ class _ExoplanetCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       'Discovered: ${_formatDate(exoplanet.discoveryDate)}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
-                    if (exoplanet.hostname != null && exoplanet.hostname!.isNotEmpty) ...[
+                    if (exoplanet.hostname != null &&
+                        exoplanet.hostname!.isNotEmpty) ...[
                       const SizedBox(height: 2),
                       Text(
                         'Host star: ${exoplanet.hostname}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[500],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                       ),
                     ],
                     const SizedBox(height: 4),
@@ -191,11 +177,7 @@ class _ExoplanetCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: Colors.grey[400],
-              ),
+              Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
             ],
           ),
         ),
@@ -207,9 +189,15 @@ class _ExoplanetCard extends StatelessWidget {
     // Color based on equilibrium temperature (if available)
     if (exoplanet.equilibriumTemperature != null) {
       final temp = exoplanet.equilibriumTemperature!;
-      if (temp < 273) return [Colors.blue.shade400, Colors.cyan.shade400]; // Cold
-      if (temp < 373) return [Colors.green.shade400, Colors.teal.shade400]; // Temperate
-      if (temp < 1000) return [Colors.orange.shade400, Colors.red.shade400]; // Hot
+      if (temp < 273) {
+        return [Colors.blue.shade400, Colors.cyan.shade400]; // Cold
+      }
+      if (temp < 373) {
+        return [Colors.green.shade400, Colors.teal.shade400]; // Temperate
+      }
+      if (temp < 1000) {
+        return [Colors.orange.shade400, Colors.red.shade400]; // Hot
+      }
       return [Colors.red.shade600, Colors.purple.shade600]; // Very hot
     }
     return [Colors.blue.shade400, Colors.purple.shade400]; // Default
@@ -231,26 +219,32 @@ class _ExoplanetCard extends StatelessWidget {
       stats.add('${exoplanet.equilibriumTemperature!.toInt()} K');
     }
 
-    if (stats.isEmpty) return const SizedBox.shrink();
+    if (stats.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     return Wrap(
       spacing: 8,
       runSpacing: 4,
-      children: stats.map((stat) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          stat,
-          style: TextStyle(
-            fontSize: 10,
-            color: Colors.grey.shade700,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      )).toList(),
+      children: stats
+          .map(
+            (stat) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                stat,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Colors.grey.shade700,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 
@@ -306,7 +300,8 @@ class _ExoplanetCard extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          if (exoplanet.hostname != null && exoplanet.hostname!.isNotEmpty)
+                          if (exoplanet.hostname != null &&
+                              exoplanet.hostname!.isNotEmpty)
                             Text(
                               exoplanet.hostname!,
                               style: TextStyle(
@@ -326,8 +321,14 @@ class _ExoplanetCard extends StatelessWidget {
                   if (exoplanet.discoveryMethod != null)
                     _buildDetailRow('Method', exoplanet.discoveryMethod!),
                   if (exoplanet.discoveryYear != null)
-                    _buildDetailRow('Year', exoplanet.discoveryYear!.toString()),
-                  _buildDetailRow('Earned', _formatDate(exoplanet.discoveryDate)),
+                    _buildDetailRow(
+                      'Year',
+                      exoplanet.discoveryYear!.toString(),
+                    ),
+                  _buildDetailRow(
+                    'Earned',
+                    _formatDate(exoplanet.discoveryDate),
+                  ),
                 ]),
 
                 // Physical properties
@@ -336,20 +337,36 @@ class _ExoplanetCard extends StatelessWidget {
                     exoplanet.equilibriumTemperature != null)
                   _buildDetailSection('Physical Properties', [
                     if (exoplanet.planetRadius != null)
-                      _buildDetailRow('Radius', '${exoplanet.planetRadius!.toStringAsFixed(2)} Earth radii'),
+                      _buildDetailRow(
+                        'Radius',
+                        '${exoplanet.planetRadius!.toStringAsFixed(2)} Earth radii',
+                      ),
                     if (exoplanet.planetMass != null)
-                      _buildDetailRow('Mass', '${exoplanet.planetMass!.toStringAsFixed(2)} Earth masses'),
+                      _buildDetailRow(
+                        'Mass',
+                        '${exoplanet.planetMass!.toStringAsFixed(2)} Earth masses',
+                      ),
                     if (exoplanet.equilibriumTemperature != null)
-                      _buildDetailRow('Temperature', '${exoplanet.equilibriumTemperature!.toInt()} K'),
+                      _buildDetailRow(
+                        'Temperature',
+                        '${exoplanet.equilibriumTemperature!.toInt()} K',
+                      ),
                   ]),
 
                 // Orbital properties
-                if (exoplanet.orbitalPeriod != null || exoplanet.distance != null)
+                if (exoplanet.orbitalPeriod != null ||
+                    exoplanet.distance != null)
                   _buildDetailSection('Orbital Properties', [
                     if (exoplanet.orbitalPeriod != null)
-                      _buildDetailRow('Orbital Period', '${exoplanet.orbitalPeriod!.toStringAsFixed(1)} days'),
+                      _buildDetailRow(
+                        'Orbital Period',
+                        '${exoplanet.orbitalPeriod!.toStringAsFixed(1)} days',
+                      ),
                     if (exoplanet.distance != null)
-                      _buildDetailRow('Distance', '${exoplanet.distance!.toStringAsFixed(1)} parsecs'),
+                      _buildDetailRow(
+                        'Distance',
+                        '${exoplanet.distance!.toStringAsFixed(1)} parsecs',
+                      ),
                   ]),
               ],
             ),
@@ -399,10 +416,7 @@ class _ExoplanetCard extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
-              ),
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
             ),
           ),
         ],
@@ -410,4 +424,3 @@ class _ExoplanetCard extends StatelessWidget {
     );
   }
 }
-

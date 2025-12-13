@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:exohabit/auth/auth_providers.dart';
 import 'package:exohabit/exoplanets/exoplanets_screen.dart';
+import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/models/habit.dart';
 import 'package:exohabit/providers/completion_providers.dart';
 import 'package:flutter/material.dart';
@@ -36,13 +36,15 @@ class HabitsScreen extends ConsumerWidget {
               ),
               exoplanets.when(
                 data: (list) {
-                  if (list.isEmpty) return const SizedBox.shrink();
+                  if (list.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
                   return Positioned(
                     right: 8,
                     top: 8,
                     child: Container(
                       padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.red,
                         shape: BoxShape.circle,
                       ),
@@ -84,7 +86,7 @@ class HabitsScreen extends ConsumerWidget {
       body: habits.when(
         data: (list) {
           if (list.isEmpty) {
-            return const Center(child: Text("No habits yet."));
+            return const Center(child: Text('No habits yet.'));
           }
           return ListView.builder(
             itemCount: list.length,
@@ -99,7 +101,7 @@ class HabitsScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text("Error: $e")),
+        error: (e, _) => Center(child: Text('Error: $e')),
       ),
     );
   }
@@ -120,15 +122,17 @@ void _showDeleteDialog(BuildContext context, WidgetRef ref, Habit habit) {
           onPressed: () async {
             Navigator.of(context).pop();
             final userId = ref.read(currentUserIdProvider);
-            if (userId == null) return;
-            
+            if (userId == null) {
+              return;
+            }
+
             try {
               final repo = ref.read(habitRepositoryProvider);
               await repo.deleteHabit(habit.id, userId);
-            } catch (e) {
+            } catch (err) {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error deleting habit: $e')),
+                  SnackBar(content: Text('Error deleting habit: $err')),
                 );
               }
             }
@@ -182,7 +186,10 @@ class _HabitListItemState extends ConsumerState<_HabitListItem> {
     try {
       await Future.any([
         _performCompletion(userId),
-        Future.delayed(const Duration(seconds: 15), () => throw TimeoutException('Completion timed out')),
+        Future.delayed(
+          const Duration(seconds: 15),
+          () => throw TimeoutException('Completion timed out'),
+        ),
       ]);
 
       if (mounted) {
@@ -204,12 +211,13 @@ class _HabitListItemState extends ConsumerState<_HabitListItem> {
       }
     } catch (e) {
       if (mounted) {
-        final errorMessage = e.toString().contains('Connection') || e is TimeoutException
+        final errorMessage =
+            e.toString().contains('Connection') || e is TimeoutException
             ? 'Connection issue. Check your internet and try again.'
             : 'Error completing habit';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(errorMessage)));
       }
     } finally {
       if (mounted) {
@@ -233,8 +241,7 @@ class _HabitListItemState extends ConsumerState<_HabitListItem> {
     // Award exoplanet
     print('🎁 Awarding exoplanet...');
     final rewardService = ref.read(rewardServiceProvider);
-    await rewardService.awardExoplanet(
-        widget.habit.id, userId, completionId);
+    await rewardService.awardExoplanet(widget.habit.id, userId, completionId);
     print('🎉 Exoplanet awarded successfully');
   }
 
@@ -287,11 +294,17 @@ class _HabitListItemState extends ConsumerState<_HabitListItem> {
                   )
                 : IconButton(
                     icon: Icon(
-                      canComplete ? Icons.check_circle_outline : Icons.check_circle,
+                      canComplete
+                          ? Icons.check_circle_outline
+                          : Icons.check_circle,
                       color: canComplete ? Colors.grey : Colors.green,
                     ),
-                    onPressed: canComplete && !_isCompleting ? _handleCompletion : null,
-                    tooltip: canComplete ? 'Mark complete' : 'Already completed today',
+                    onPressed: canComplete && !_isCompleting
+                        ? _handleCompletion
+                        : null,
+                    tooltip: canComplete
+                        ? 'Mark complete'
+                        : 'Already completed today',
                   ),
             const SizedBox(width: 8),
             IconButton(

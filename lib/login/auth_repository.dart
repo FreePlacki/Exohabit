@@ -1,42 +1,46 @@
+import 'package:exohabit/utils/result.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AuthFailure {
-  final String message;
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  return AuthRepository(auth: FirebaseAuth.instance);
+});
 
-  const AuthFailure(this.message);
+final authStateProvider = StreamProvider<User?>(
+  (ref) => FirebaseAuth.instance.authStateChanges(),
+);
 
-  @override
-  String toString() => message;
-}
+final currentUserIdProvider = Provider<String?>((ref) {
+  final authState = ref.watch(authStateProvider);
+  return authState.value?.uid;
+});
 
 class AuthRepository {
-  final _auth = FirebaseAuth.instance;
+  AuthRepository({required FirebaseAuth auth}) : _auth = auth;
 
-  Future<(User?, AuthFailure?)> signIn(String email, String password) async {
+  final FirebaseAuth _auth;
+
+  Future<Result<User>> signIn(String email, String password) async {
     try {
       final creds = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return (creds.user, null);
+      return Result.ok(creds.user!);
     } on FirebaseAuthException catch (e) {
-      return (null, AuthFailure(_mapError(e)));
-    } catch (_) {
-      return (null, const AuthFailure('Something went wrong.'));
+      return Result.error(Exception(_mapError(e)));
     }
   }
 
-  Future<(User?, AuthFailure?)> signUp(String email, String password) async {
+  Future<Result<User>> signUp(String email, String password) async {
     try {
       final creds = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return (creds.user, null);
+      return Result.ok(creds.user!);
     } on FirebaseAuthException catch (e) {
-      return (null, AuthFailure(_mapError(e)));
-    } catch (_) {
-      return (null, const AuthFailure('Something went wrong.'));
+      return Result.error(Exception(_mapError(e)));
     }
   }
 
@@ -76,4 +80,3 @@ class AuthRepository {
     }
   }
 }
-

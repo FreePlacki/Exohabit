@@ -1,6 +1,6 @@
-import 'package:exohabit/auth/auth_providers.dart';
 import 'package:exohabit/exoplanets/exoplanets_screen.dart';
 import 'package:exohabit/home/widgets/weekly_calendar.dart';
+import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/models/exoplanet.dart';
 import 'package:exohabit/models/habit.dart';
 import 'package:exohabit/providers/completion_providers.dart';
