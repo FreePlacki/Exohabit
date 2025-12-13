@@ -3,31 +3,15 @@ import 'dart:async';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/utils/result.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'login_controller.freezed.dart';
 
 final loginControllerProvider = NotifierProvider(LoginController.new);
 
-// TODO: consider using https://pub.dev/packages/freezed
-class AuthFormState {
-  const AuthFormState({required this.isLoading, this.error});
-  final bool isLoading;
-  final String? error;
-
-  AuthFormState copyWith({bool? isLoading, String? error}) {
-    return AuthFormState(isLoading: isLoading ?? this.isLoading, error: error);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-    return other is AuthFormState &&
-        isLoading == other.isLoading &&
-        error == other.error;
-  }
-
-  @override
-  int get hashCode => Object.hash(isLoading, error);
+@freezed
+abstract class AuthFormState with _$AuthFormState {
+  const factory AuthFormState({required bool isLoading, String? error}) = _AuthFormState;
 }
 
 class LoginController extends Notifier<AuthFormState> {
