@@ -47,7 +47,7 @@ void main() {
     final result = await repo.signIn('a@b.com', '1234');
 
     expect(result, isA<Error<User>>());
-    expect((result as Error<User>).error.toString(), 'Exception: Incorrect password.');
+    expect((result as Error<User>).error.toString(), 'Incorrect password.');
   });
 
   test('signUp returns Ok(user) on success', () async {
@@ -78,7 +78,7 @@ void main() {
     final result = await repo.signUp('a@b.com', '1234');
 
     expect(result, isA<Error<User>>());
-    expect((result as Error<User>).error.toString(), 'Exception: Incorrect password.');
+    expect((result as Error<User>).error.toString(), 'Incorrect password.');
   });
 
   test('signOut calls auth.signOut', () async {

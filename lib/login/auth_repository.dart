@@ -24,6 +24,45 @@ String? currentUserId(Ref ref) {
   return ref.watch(authStateProvider).value?.uid;
 }
 
+class AuthException implements Exception {
+  AuthException(this.message);
+
+  factory AuthException.fromFirebase(FirebaseAuthException e) {
+    final fallback = _fallbackMessage(e);
+
+    return AuthException(switch (e.code) {
+      'invalid-email' => 'Invalid email format.',
+      'user-not-found' => 'Invalid email or password.',
+      'wrong-password' => 'Incorrect password.',
+      'email-already-in-use' => 'This email is already registered.',
+      'weak-password' => 'Password is too weak.',
+      'invalid-credential' => 'Invalid email or password.',
+      'too-many-requests' =>
+        'Too many failed attempts. Please try again later.',
+      'user-disabled' => 'This account has been disabled.',
+      'operation-not-allowed' => 'This sign-in method is not enabled.',
+      'network-request-failed' =>
+        'Network error. Please check your connection.',
+      _ => fallback,
+    });
+  }
+
+  final String message;
+
+  static String _fallbackMessage(FirebaseAuthException e) {
+    final msg = e.message?.toLowerCase() ?? '';
+
+    if (msg.contains('internal error') || msg.contains('an error occurred')) {
+      return 'Invalid email or password.';
+    }
+
+    return 'Authentication failed. Please check your email and password.';
+  }
+
+  @override
+  String toString() => message;
+}
+
 class AuthRepository {
   AuthRepository({required FirebaseAuth auth}) : _auth = auth;
 
@@ -36,8 +75,8 @@ class AuthRepository {
         password: password,
       );
       return Result.ok(creds.user!);
-    } on FirebaseAuthException catch (e) {
-      return Result.error(Exception(_mapError(e)));
+    } on FirebaseAuthException catch (err) {
+      return Result.error(AuthException.fromFirebase(err));
     }
   }
 
@@ -48,44 +87,12 @@ class AuthRepository {
         password: password,
       );
       return Result.ok(creds.user!);
-    } on FirebaseAuthException catch (e) {
-      return Result.error(Exception(_mapError(e)));
+    } on FirebaseAuthException catch (err) {
+      return Result.error(AuthException.fromFirebase(err));
     }
   }
 
   Future<void> signOut() async {
     await _auth.signOut();
-  }
-
-  String _mapError(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'invalid-email':
-        return 'Invalid email format.';
-      case 'user-not-found':
-        return 'Invalid email or password.';
-      case 'wrong-password':
-        return 'Incorrect password.';
-      case 'email-already-in-use':
-        return 'This email is already registered.';
-      case 'weak-password':
-        return 'Password is too weak.';
-      case 'invalid-credential':
-        return 'Invalid email or password.';
-      case 'too-many-requests':
-        return 'Too many failed attempts. Please try again later.';
-      case 'user-disabled':
-        return 'This account has been disabled.';
-      case 'operation-not-allowed':
-        return 'This sign-in method is not enabled.';
-      case 'network-request-failed':
-        return 'Network error. Please check your connection.';
-      default:
-        final firebaseMessage = e.message?.toLowerCase() ?? '';
-        if (firebaseMessage.contains('internal error') ||
-            firebaseMessage.contains('an error occurred')) {
-          return 'Invalid email or password.';
-        }
-        return 'Authentication failed. Please check your email and password.';
-    }
   }
 }
