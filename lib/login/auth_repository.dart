@@ -1,19 +1,28 @@
 import 'package:exohabit/utils/result.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  return AuthRepository(auth: FirebaseAuth.instance);
-});
+part 'auth_repository.g.dart';
 
-final authStateProvider = StreamProvider<User?>(
-  (ref) => FirebaseAuth.instance.authStateChanges(),
-);
+@riverpod
+FirebaseAuth firebaseAuth(Ref ref) {
+  return FirebaseAuth.instance;
+}
 
-final currentUserIdProvider = Provider<String?>((ref) {
-  final authState = ref.watch(authStateProvider);
-  return authState.value?.uid;
-});
+@riverpod
+AuthRepository authRepository(Ref ref) {
+  return AuthRepository(auth: ref.watch(firebaseAuthProvider));
+}
+
+@riverpod
+Stream<User?> authState(Ref ref) {
+  return ref.watch(firebaseAuthProvider).authStateChanges();
+}
+
+@riverpod
+String? currentUserId(Ref ref) {
+  return ref.watch(authStateProvider).value?.uid;
+}
 
 class AuthRepository {
   AuthRepository({required FirebaseAuth auth}) : _auth = auth;

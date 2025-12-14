@@ -2,19 +2,19 @@ import 'dart:async';
 
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/utils/result.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'login_controller.freezed.dart';
-
-final loginControllerProvider = NotifierProvider(LoginController.new);
+part 'auth_controller.freezed.dart';
+part 'auth_controller.g.dart';
 
 @freezed
 abstract class AuthFormState with _$AuthFormState {
   const factory AuthFormState({required bool isLoading, String? error}) = _AuthFormState;
 }
 
-class LoginController extends Notifier<AuthFormState> {
+@riverpod
+class AuthController extends _$AuthController {
   @override
   AuthFormState build() {
     return const AuthFormState(isLoading: false);

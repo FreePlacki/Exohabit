@@ -1,5 +1,5 @@
+import 'package:exohabit/login/auth_controller.dart';
 import 'package:exohabit/login/auth_screen.dart';
-import 'package:exohabit/login/login_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -38,7 +38,7 @@ class _AuthFormState extends ConsumerState<AuthForm> {
       isValidEmail && isValidPassword && !state.isLoading;
 
   Future<void> submit() async {
-    final controller = ref.read(loginControllerProvider.notifier);
+    final controller = ref.read(authControllerProvider.notifier);
 
     switch (widget.authMode) {
       case AuthMode.login:
@@ -56,7 +56,7 @@ class _AuthFormState extends ConsumerState<AuthForm> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(loginControllerProvider);
+    final state = ref.watch(authControllerProvider);
     return Column(
       children: [
         TextField(

@@ -1,5 +1,5 @@
+import 'package:exohabit/login/auth_controller.dart';
 import 'package:exohabit/login/auth_repository.dart';
-import 'package:exohabit/login/login_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,11 +17,11 @@ void main() {
     addTearDown(container.dispose);
 
     final controller =
-        container.read(loginControllerProvider.notifier);
+        container.read(authControllerProvider.notifier);
 
     final states = <AuthFormState>[];
     container.listen(
-      loginControllerProvider,
+      authControllerProvider,
       (_, next) => states.add(next),
       fireImmediately: true,
     );
