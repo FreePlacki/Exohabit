@@ -1,6 +1,5 @@
-import 'package:exohabit/login/auth_repository.dart';
-import 'package:exohabit/models/habit.dart';
-import 'package:exohabit/providers/habit_providers.dart';
+import 'package:exohabit/habits/habit.dart';
+import 'package:exohabit/habits/habit_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,31 +10,22 @@ class HabitEditScreen extends ConsumerStatefulWidget {
   final Habit? habit;
 
   @override
-  ConsumerState<HabitEditScreen> createState() => _HabitEditPageState();
+  ConsumerState<HabitEditScreen> createState() => _HabitEditScreenState();
 }
 
-class _HabitEditPageState extends ConsumerState<HabitEditScreen> {
+class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
   late final TextEditingController titleCtrl;
   late final TextEditingController descCtrl;
   late int freq;
-
-  bool isLoading = false;
-  String? error;
 
   bool get isEditing => widget.habit != null;
 
   @override
   void initState() {
     super.initState();
-    if (isEditing) {
-      titleCtrl = TextEditingController(text: widget.habit!.title);
-      descCtrl = TextEditingController(text: widget.habit!.description);
-      freq = widget.habit!.frequencyPerWeek;
-    } else {
-      titleCtrl = TextEditingController();
-      descCtrl = TextEditingController();
-      freq = 3;
-    }
+    titleCtrl = TextEditingController(text: widget.habit?.title ?? '');
+    descCtrl = TextEditingController(text: widget.habit?.description ?? '');
+    freq = widget.habit?.frequencyPerWeek ?? 3;
   }
 
   @override
@@ -46,60 +36,30 @@ class _HabitEditPageState extends ConsumerState<HabitEditScreen> {
   }
 
   bool get canSubmit {
-    return titleCtrl.text.trim().isNotEmpty && !isLoading;
+    final state = ref.read(habitControllerProvider);
+    return titleCtrl.text.trim().isNotEmpty && !state.isSaving;
   }
 
   Future<void> submit() async {
-    setState(() {
-      isLoading = true;
-      error = null;
-    });
+    final state = ref.read(habitControllerProvider);
+    final controller = ref.read(habitControllerProvider.notifier);
 
-    final userId = ref.read(currentUserIdProvider);
-    if (userId == null) {
-      setState(() {
-        error =
-            'You must be logged in to ${isEditing ? 'edit' : 'create'} a habit';
-        isLoading = false;
-      });
-      return;
-    }
-
-    final repo = ref.read(habitRepositoryProvider);
-
-    final habit = Habit(
-      id: widget.habit?.id ?? '', // Use existing ID for edit, empty for create
+    await controller.submit(
+      existingHabit: widget.habit,
       title: titleCtrl.text.trim(),
       description: descCtrl.text.trim(),
-      frequencyPerWeek: freq,
-      createdAt:
-          widget.habit?.createdAt ??
-          DateTime.now(), // Preserve original date for edit
+      frequency: freq,
     );
 
-    try {
-      if (isEditing) {
-        await repo.updateHabit(habit, userId);
-      } else {
-        await repo.createHabit(habit, userId);
-      }
-      if (!mounted) {
-        return;
-      }
+    if (state.error != null && mounted) {
       context.pop();
-    } catch (err) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        error = err.toString();
-        isLoading = false;
-      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(habitControllerProvider);
+
     return Scaffold(
       appBar: AppBar(title: Text(isEditing ? 'Edit Habit' : 'New Habit')),
       body: Padding(
@@ -128,16 +88,16 @@ class _HabitEditPageState extends ConsumerState<HabitEditScreen> {
                   items: List.generate(
                     7,
                     (i) =>
-                        DropdownMenuItem(value: i + 1, child: Text('${i + 1}')),
+                        DropdownMenuItem(value: i + 1, child: Text('${i + 1} per week')),
                   ),
                 ),
               ],
             ),
 
-            if (error != null)
+            if (state.error != null)
               Padding(
                 padding: const EdgeInsets.only(top: 20),
-                child: Text(error!, style: const TextStyle(color: Colors.red)),
+                child: Text(state.error!, style: const TextStyle(color: Colors.red)),
               ),
 
             const Spacer(),
@@ -146,7 +106,7 @@ class _HabitEditPageState extends ConsumerState<HabitEditScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: canSubmit ? submit : null,
-                child: isLoading
+                child: state.isSaving
                     ? const SizedBox(
                         height: 16,
                         width: 16,

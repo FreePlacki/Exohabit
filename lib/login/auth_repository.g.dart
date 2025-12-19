@@ -48,7 +48,7 @@ final class FirebaseAuthProvider
   }
 }
 
-String _$firebaseAuthHash() => r'912368c3df3f72e4295bf7a8cda93b9c5749d923';
+String _$firebaseAuthHash() => r'8f84097cccd00af817397c1715c5f537399ba780';
 
 @ProviderFor(authRepository)
 const authRepositoryProvider = AuthRepositoryProvider._();
@@ -89,7 +89,7 @@ final class AuthRepositoryProvider
   }
 }
 
-String _$authRepositoryHash() => r'4c6ef747da504de8481a4a6af14509e208532c8e';
+String _$authRepositoryHash() => r'6484aa3b5524e78dcaa21c92c4559ce9770ed7d7';
 
 @ProviderFor(authState)
 const authStateProvider = AuthStateProvider._();
@@ -122,7 +122,7 @@ final class AuthStateProvider
   }
 }
 
-String _$authStateHash() => r'afdf515e14d0bb725ca181867cf6d626a5d85246';
+String _$authStateHash() => r'd3456b903e52524231d69ffc06c9d3506019baf5';
 
 @ProviderFor(currentUserId)
 const currentUserIdProvider = CurrentUserIdProvider._();
@@ -163,4 +163,4 @@ final class CurrentUserIdProvider
   }
 }
 
-String _$currentUserIdHash() => r'5bb14aa4f06fd48f680dc510524a3284f820e5a3';
+String _$currentUserIdHash() => r'3d47e8e6d3d85dba22bcb97455e1965f5fa47385';

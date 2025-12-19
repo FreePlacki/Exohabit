@@ -1,5 +1,4 @@
 import 'package:exohabit/firebase_options.dart';
-import 'package:exohabit/providers/habit_providers.dart';
 import 'package:exohabit/router.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -19,9 +18,6 @@ class ExohabitApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
-
-    // Initialize exoplanet cache on app start
-    ref.watch(initializeExoplanetCacheProvider);
 
     return MaterialApp.router(
       routerConfig: router,

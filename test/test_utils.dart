@@ -1,12 +1,9 @@
 import 'dart:async';
 
+import 'package:exohabit/completions/habit_completion.dart';
+import 'package:exohabit/habits/habit.dart';
+import 'package:exohabit/habits/habit_repository.dart';
 import 'package:exohabit/login/auth_repository.dart';
-import 'package:exohabit/models/exoplanet.dart';
-import 'package:exohabit/models/habit.dart';
-import 'package:exohabit/models/habit_completion.dart';
-import 'package:exohabit/repositories/exoplanet_repository.dart';
-import 'package:exohabit/repositories/habit_repository.dart';
-import 'package:exohabit/services/reward_service.dart';
 import 'package:exohabit/utils/result.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mocktail/mocktail.dart';
@@ -45,20 +42,6 @@ HabitCompletion buildCompletion({
   );
 }
 
-Exoplanet buildExoplanet({
-  String id = 'exo-1',
-  String name = 'Kepler-22b',
-  DateTime? discoveryDate,
-  String completionId = 'completion-1',
-}) {
-  return Exoplanet(
-    id: id,
-    name: name,
-    discoveryDate: discoveryDate ?? DateTime.utc(2024, 1, 2),
-    habitCompletionId: completionId,
-  );
-}
-
 class FakeHabitRepository implements HabitRepository {
   FakeHabitRepository({
     List<Habit>? initialHabits,
@@ -70,8 +53,9 @@ class FakeHabitRepository implements HabitRepository {
   final Map<String, List<HabitCompletion>> _completions;
 
   @override
-  Future<void> createHabit(Habit habit, String userId) async {
+  Future<String> createHabit(Habit habit, String userId) async {
     _habits.add(habit);
+    return '${_habits.length}';
   }
 
   @override
@@ -125,80 +109,6 @@ class FakeHabitRepository implements HabitRepository {
   }
 }
 
-class FakeExoplanetRepository implements ExoplanetRepository {
-  FakeExoplanetRepository({List<Exoplanet>? initial})
-      : _items = List.from(initial ?? []),
-        _cacheItems = List.from(initial ?? []);
-
-  final List<Exoplanet> _items;
-  final List<Exoplanet> _cacheItems;
-
-  @override
-  Future<String> createExoplanet(Exoplanet exoplanet, String userId) async {
-    final newId = exoplanet.id.isEmpty ? 'exo-${_items.length + 1}' : exoplanet.id;
-    _items.add(
-      Exoplanet(
-        id: newId,
-        name: exoplanet.name,
-        discoveryDate: exoplanet.discoveryDate,
-        habitCompletionId: exoplanet.habitCompletionId,
-        hostname: exoplanet.hostname,
-        planetRadius: exoplanet.planetRadius,
-        planetMass: exoplanet.planetMass,
-        orbitalPeriod: exoplanet.orbitalPeriod,
-        equilibriumTemperature: exoplanet.equilibriumTemperature,
-        discoveryMethod: exoplanet.discoveryMethod,
-        discoveryYear: exoplanet.discoveryYear,
-        distance: exoplanet.distance,
-        isAwarded: exoplanet.isAwarded,
-      ),
-    );
-    return newId;
-  }
-
-  @override
-  Stream<List<Exoplanet>> watchExoplanets(String userId) {
-    return Stream.value(List.unmodifiable(_items));
-  }
-
-  @override
-  Future<List<Exoplanet>> getAvailablePlanets({int limit = 50}) async {
-    return _cacheItems.where((p) => !p.isAwarded).take(limit).toList();
-  }
-
-  @override
-  Future<void> refreshCache() async {
-    // No-op for tests
-  }
-
-  @override
-  Future<bool> shouldRefreshCache() async {
-    return false; // Never refresh in tests
-  }
-
-  @override
-  Future<void> markPlanetAwarded(String planetName) async {
-    final index = _cacheItems.indexWhere((p) => p.name == planetName);
-    if (index != -1) {
-      _cacheItems[index] = Exoplanet(
-        id: _cacheItems[index].id,
-        name: _cacheItems[index].name,
-        discoveryDate: _cacheItems[index].discoveryDate,
-        habitCompletionId: _cacheItems[index].habitCompletionId,
-        hostname: _cacheItems[index].hostname,
-        planetRadius: _cacheItems[index].planetRadius,
-        planetMass: _cacheItems[index].planetMass,
-        orbitalPeriod: _cacheItems[index].orbitalPeriod,
-        equilibriumTemperature: _cacheItems[index].equilibriumTemperature,
-        discoveryMethod: _cacheItems[index].discoveryMethod,
-        discoveryYear: _cacheItems[index].discoveryYear,
-        distance: _cacheItems[index].distance,
-        isAwarded: true,
-      );
-    }
-  }
-}
-
 class FakeAuthRepository implements AuthRepository {
   @override
   Future<Result<User>> signIn(String email, String password) async =>
@@ -212,13 +122,6 @@ class FakeAuthRepository implements AuthRepository {
   Future<void> signOut() async {}
 }
 
-class FakeRewardService implements RewardService {
-  @override
-  Future<String> awardExoplanet(String habitId, String userId, String completionId) async {
-    return 'exo-fake';
-  }
-}
-
 class FakeUser extends Fake implements User {
   FakeUser({required this.email, required this.uid});
 
@@ -228,5 +131,3 @@ class FakeUser extends Fake implements User {
   @override
   final String uid;
 }
-
-class MockExoplanetRepository extends Mock implements ExoplanetRepository {}

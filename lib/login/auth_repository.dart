@@ -5,24 +5,18 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'auth_repository.g.dart';
 
 @riverpod
-FirebaseAuth firebaseAuth(Ref ref) {
-  return FirebaseAuth.instance;
-}
+FirebaseAuth firebaseAuth(Ref ref) => FirebaseAuth.instance;
 
 @riverpod
-AuthRepository authRepository(Ref ref) {
-  return AuthRepository(auth: ref.watch(firebaseAuthProvider));
-}
+AuthRepository authRepository(Ref ref) =>
+    AuthRepository(auth: ref.watch(firebaseAuthProvider));
 
 @riverpod
-Stream<User?> authState(Ref ref) {
-  return ref.watch(firebaseAuthProvider).authStateChanges();
-}
+Stream<User?> authState(Ref ref) =>
+    ref.watch(firebaseAuthProvider).authStateChanges();
 
 @riverpod
-String? currentUserId(Ref ref) {
-  return ref.watch(authStateProvider).value?.uid;
-}
+String? currentUserId(Ref ref) => ref.watch(authStateProvider).value?.uid;
 
 class AuthException implements Exception {
   AuthException(this.message);
