@@ -6,6 +6,10 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'habit_controller.g.dart';
 
 @riverpod
+Stream<List<Habit>> habits(Ref ref) =>
+    ref.watch(habitRepositoryProvider).watchHabits();
+
+@riverpod
 class HabitController extends _$HabitController {
   @override
   Future<void> build() async {}
@@ -45,6 +49,15 @@ class HabitController extends _$HabitController {
         );
         await repo.createHabit(habit);
       }
+    });
+  }
+
+  Future<void> delete(Habit habit) async {
+    state = const AsyncLoading();
+
+    final repo = ref.read(habitRepositoryProvider);
+    state = await AsyncValue.guard(() async {
+      await repo.deleteHabit(habit);
     });
   }
 }

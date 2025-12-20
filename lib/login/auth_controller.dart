@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:exohabit/login/auth_repository.dart';
-import 'package:exohabit/utils/result.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_controller.g.dart';

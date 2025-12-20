@@ -9,7 +9,9 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(const ProviderScope(child: ExohabitApp()));
+  runApp(ProviderScope(
+    retry: (retryCount, error) => null,
+    child: const ExohabitApp()));
 }
 
 class ExohabitApp extends ConsumerWidget {

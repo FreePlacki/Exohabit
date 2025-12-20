@@ -6,6 +6,9 @@ class HabitTable extends Table {
   TextColumn get description => text()();
   IntColumn get frequencyPerWeek => integer()();
   DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  BoolColumn get deleted => boolean().withDefault(const Constant(false))();
   BoolColumn get synced => boolean().withDefault(const Constant(false))();
 
   @override

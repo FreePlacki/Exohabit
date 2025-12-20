@@ -60,6 +60,32 @@ class $HabitTableTable extends HabitTable
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedMeta = const VerificationMeta(
+    'deleted',
+  );
+  @override
+  late final GeneratedColumn<bool> deleted = GeneratedColumn<bool>(
+    'deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _syncedMeta = const VerificationMeta('synced');
   @override
   late final GeneratedColumn<bool> synced = GeneratedColumn<bool>(
@@ -80,6 +106,8 @@ class $HabitTableTable extends HabitTable
     description,
     frequencyPerWeek,
     createdAt,
+    updatedAt,
+    deleted,
     synced,
   ];
   @override
@@ -137,6 +165,20 @@ class $HabitTableTable extends HabitTable
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted')) {
+      context.handle(
+        _deletedMeta,
+        deleted.isAcceptableOrUnknown(data['deleted']!, _deletedMeta),
+      );
+    }
     if (data.containsKey('synced')) {
       context.handle(
         _syncedMeta,
@@ -172,6 +214,14 @@ class $HabitTableTable extends HabitTable
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}deleted'],
+      )!,
       synced: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}synced'],
@@ -191,6 +241,8 @@ class HabitTableData extends DataClass implements Insertable<HabitTableData> {
   final String description;
   final int frequencyPerWeek;
   final DateTime createdAt;
+  final DateTime updatedAt;
+  final bool deleted;
   final bool synced;
   const HabitTableData({
     required this.id,
@@ -198,6 +250,8 @@ class HabitTableData extends DataClass implements Insertable<HabitTableData> {
     required this.description,
     required this.frequencyPerWeek,
     required this.createdAt,
+    required this.updatedAt,
+    required this.deleted,
     required this.synced,
   });
   @override
@@ -208,6 +262,8 @@ class HabitTableData extends DataClass implements Insertable<HabitTableData> {
     map['description'] = Variable<String>(description);
     map['frequency_per_week'] = Variable<int>(frequencyPerWeek);
     map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['deleted'] = Variable<bool>(deleted);
     map['synced'] = Variable<bool>(synced);
     return map;
   }
@@ -219,6 +275,8 @@ class HabitTableData extends DataClass implements Insertable<HabitTableData> {
       description: Value(description),
       frequencyPerWeek: Value(frequencyPerWeek),
       createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deleted: Value(deleted),
       synced: Value(synced),
     );
   }
@@ -234,6 +292,8 @@ class HabitTableData extends DataClass implements Insertable<HabitTableData> {
       description: serializer.fromJson<String>(json['description']),
       frequencyPerWeek: serializer.fromJson<int>(json['frequencyPerWeek']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deleted: serializer.fromJson<bool>(json['deleted']),
       synced: serializer.fromJson<bool>(json['synced']),
     );
   }
@@ -246,6 +306,8 @@ class HabitTableData extends DataClass implements Insertable<HabitTableData> {
       'description': serializer.toJson<String>(description),
       'frequencyPerWeek': serializer.toJson<int>(frequencyPerWeek),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deleted': serializer.toJson<bool>(deleted),
       'synced': serializer.toJson<bool>(synced),
     };
   }
@@ -256,6 +318,8 @@ class HabitTableData extends DataClass implements Insertable<HabitTableData> {
     String? description,
     int? frequencyPerWeek,
     DateTime? createdAt,
+    DateTime? updatedAt,
+    bool? deleted,
     bool? synced,
   }) => HabitTableData(
     id: id ?? this.id,
@@ -263,6 +327,8 @@ class HabitTableData extends DataClass implements Insertable<HabitTableData> {
     description: description ?? this.description,
     frequencyPerWeek: frequencyPerWeek ?? this.frequencyPerWeek,
     createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deleted: deleted ?? this.deleted,
     synced: synced ?? this.synced,
   );
   HabitTableData copyWithCompanion(HabitTableCompanion data) {
@@ -276,6 +342,8 @@ class HabitTableData extends DataClass implements Insertable<HabitTableData> {
           ? data.frequencyPerWeek.value
           : this.frequencyPerWeek,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deleted: data.deleted.present ? data.deleted.value : this.deleted,
       synced: data.synced.present ? data.synced.value : this.synced,
     );
   }
@@ -288,14 +356,24 @@ class HabitTableData extends DataClass implements Insertable<HabitTableData> {
           ..write('description: $description, ')
           ..write('frequencyPerWeek: $frequencyPerWeek, ')
           ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deleted: $deleted, ')
           ..write('synced: $synced')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, title, description, frequencyPerWeek, createdAt, synced);
+  int get hashCode => Object.hash(
+    id,
+    title,
+    description,
+    frequencyPerWeek,
+    createdAt,
+    updatedAt,
+    deleted,
+    synced,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -305,6 +383,8 @@ class HabitTableData extends DataClass implements Insertable<HabitTableData> {
           other.description == this.description &&
           other.frequencyPerWeek == this.frequencyPerWeek &&
           other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deleted == this.deleted &&
           other.synced == this.synced);
 }
 
@@ -314,6 +394,8 @@ class HabitTableCompanion extends UpdateCompanion<HabitTableData> {
   final Value<String> description;
   final Value<int> frequencyPerWeek;
   final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<bool> deleted;
   final Value<bool> synced;
   final Value<int> rowid;
   const HabitTableCompanion({
@@ -322,6 +404,8 @@ class HabitTableCompanion extends UpdateCompanion<HabitTableData> {
     this.description = const Value.absent(),
     this.frequencyPerWeek = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deleted = const Value.absent(),
     this.synced = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -331,19 +415,24 @@ class HabitTableCompanion extends UpdateCompanion<HabitTableData> {
     required String description,
     required int frequencyPerWeek,
     required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deleted = const Value.absent(),
     this.synced = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        title = Value(title),
        description = Value(description),
        frequencyPerWeek = Value(frequencyPerWeek),
-       createdAt = Value(createdAt);
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
   static Insertable<HabitTableData> custom({
     Expression<String>? id,
     Expression<String>? title,
     Expression<String>? description,
     Expression<int>? frequencyPerWeek,
     Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<bool>? deleted,
     Expression<bool>? synced,
     Expression<int>? rowid,
   }) {
@@ -353,6 +442,8 @@ class HabitTableCompanion extends UpdateCompanion<HabitTableData> {
       if (description != null) 'description': description,
       if (frequencyPerWeek != null) 'frequency_per_week': frequencyPerWeek,
       if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deleted != null) 'deleted': deleted,
       if (synced != null) 'synced': synced,
       if (rowid != null) 'rowid': rowid,
     });
@@ -364,6 +455,8 @@ class HabitTableCompanion extends UpdateCompanion<HabitTableData> {
     Value<String>? description,
     Value<int>? frequencyPerWeek,
     Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<bool>? deleted,
     Value<bool>? synced,
     Value<int>? rowid,
   }) {
@@ -373,6 +466,8 @@ class HabitTableCompanion extends UpdateCompanion<HabitTableData> {
       description: description ?? this.description,
       frequencyPerWeek: frequencyPerWeek ?? this.frequencyPerWeek,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deleted: deleted ?? this.deleted,
       synced: synced ?? this.synced,
       rowid: rowid ?? this.rowid,
     );
@@ -396,6 +491,12 @@ class HabitTableCompanion extends UpdateCompanion<HabitTableData> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deleted.present) {
+      map['deleted'] = Variable<bool>(deleted.value);
+    }
     if (synced.present) {
       map['synced'] = Variable<bool>(synced.value);
     }
@@ -413,6 +514,8 @@ class HabitTableCompanion extends UpdateCompanion<HabitTableData> {
           ..write('description: $description, ')
           ..write('frequencyPerWeek: $frequencyPerWeek, ')
           ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deleted: $deleted, ')
           ..write('synced: $synced, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -438,6 +541,8 @@ typedef $$HabitTableTableCreateCompanionBuilder =
       required String description,
       required int frequencyPerWeek,
       required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<bool> deleted,
       Value<bool> synced,
       Value<int> rowid,
     });
@@ -448,6 +553,8 @@ typedef $$HabitTableTableUpdateCompanionBuilder =
       Value<String> description,
       Value<int> frequencyPerWeek,
       Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<bool> deleted,
       Value<bool> synced,
       Value<int> rowid,
     });
@@ -483,6 +590,16 @@ class $$HabitTableTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -526,6 +643,16 @@ class $$HabitTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get deleted => $composableBuilder(
+    column: $table.deleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get synced => $composableBuilder(
     column: $table.synced,
     builder: (column) => ColumnOrderings(column),
@@ -559,6 +686,12 @@ class $$HabitTableTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get deleted =>
+      $composableBuilder(column: $table.deleted, builder: (column) => column);
 
   GeneratedColumn<bool> get synced =>
       $composableBuilder(column: $table.synced, builder: (column) => column);
@@ -600,6 +733,8 @@ class $$HabitTableTableTableManager
                 Value<String> description = const Value.absent(),
                 Value<int> frequencyPerWeek = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<bool> deleted = const Value.absent(),
                 Value<bool> synced = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => HabitTableCompanion(
@@ -608,6 +743,8 @@ class $$HabitTableTableTableManager
                 description: description,
                 frequencyPerWeek: frequencyPerWeek,
                 createdAt: createdAt,
+                updatedAt: updatedAt,
+                deleted: deleted,
                 synced: synced,
                 rowid: rowid,
               ),
@@ -618,6 +755,8 @@ class $$HabitTableTableTableManager
                 required String description,
                 required int frequencyPerWeek,
                 required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<bool> deleted = const Value.absent(),
                 Value<bool> synced = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => HabitTableCompanion.insert(
@@ -626,6 +765,8 @@ class $$HabitTableTableTableManager
                 description: description,
                 frequencyPerWeek: frequencyPerWeek,
                 createdAt: createdAt,
+                updatedAt: updatedAt,
+                deleted: deleted,
                 synced: synced,
                 rowid: rowid,
               ),

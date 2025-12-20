@@ -37,7 +37,7 @@ HabitCompletion buildCompletion({
     id: id,
     habitId: habitId,
     userId: userId,
-    completedAt: completedAt ?? DateTime.now(),
+    completedAt: completedAt ?? DateTime.timestamp(),
     exoplanetId: exoplanetId,
   );
 }

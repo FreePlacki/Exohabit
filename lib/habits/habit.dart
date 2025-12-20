@@ -28,7 +28,7 @@ abstract class Habit with _$Habit {
       title: title,
       description: description,
       frequencyPerWeek: frequencyPerWeek,
-      createdAt: DateTime.now(),
+      createdAt: DateTime.timestamp(),
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:exohabit/habits/habit.dart';
-import 'package:exohabit/habits/habit_repository.dart';
+import 'package:exohabit/habits/habit_controller.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -71,20 +71,15 @@ void _showDeleteDialog(BuildContext context, WidgetRef ref, Habit habit) {
         TextButton(
           onPressed: () async {
             Navigator.of(context).pop();
-            final userId = ref.read(currentUserIdProvider);
-            if (userId == null) {
-              return;
-            }
+            final controller = ref.read(habitControllerProvider.notifier);
+            final state = ref.watch(habitControllerProvider);
 
-            try {
-              final repo = ref.read(habitRepositoryProvider);
-              await repo.deleteHabit(habit);
-            } catch (err) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error deleting habit: $err')),
-                );
-              }
+            await controller.delete(habit);
+
+            if (context.mounted && state.hasError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error deleting habit: ${state.error}')),
+              );
             }
           },
           style: TextButton.styleFrom(foregroundColor: Colors.red),

@@ -9,6 +9,45 @@ part of 'habit_controller.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(habits)
+const habitsProvider = HabitsProvider._();
+
+final class HabitsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Habit>>,
+          List<Habit>,
+          Stream<List<Habit>>
+        >
+    with $FutureModifier<List<Habit>>, $StreamProvider<List<Habit>> {
+  const HabitsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'habitsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$habitsHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<Habit>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<Habit>> create(Ref ref) {
+    return habits(ref);
+  }
+}
+
+String _$habitsHash() => r'ca8c730650255b1e49412226c624772ea0997b11';
+
 @ProviderFor(HabitController)
 const habitControllerProvider = HabitControllerProvider._();
 
@@ -33,7 +72,7 @@ final class HabitControllerProvider
   HabitController create() => HabitController();
 }
 
-String _$habitControllerHash() => r'af1e7a1a795074cb6b8ebe6b8820f47c12e10666';
+String _$habitControllerHash() => r'a0027f4af8a563b37a99f31791d640cc7b5bbf81';
 
 abstract class _$HabitController extends $AsyncNotifier<void> {
   FutureOr<void> build();

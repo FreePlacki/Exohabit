@@ -10,10 +10,6 @@ part 'habit_repository.g.dart';
 @riverpod
 HabitRepository habitRepository(Ref ref) =>
     OfflineFirstHabitRepository(localStore: ref.watch(habitLocalStoreProvider));
-  
-@riverpod
-Stream<List<Habit>> habits(Ref ref) =>
-    ref.watch(habitRepositoryProvider).watchHabits();
 
 abstract class HabitRepository {
   Stream<List<Habit>> watchHabits();
@@ -29,13 +25,18 @@ class OfflineFirstHabitRepository implements HabitRepository {
 
   final HabitLocalStore _localStore;
 
-  static HabitTableData _fromLocalModel(Habit habit) => HabitTableData(
+  static HabitTableData _fromLocalModel(
+    Habit habit, {
+    required bool deleted,
+  }) => HabitTableData(
     id: habit.id,
     title: habit.title,
     description: habit.description,
     frequencyPerWeek: habit.frequencyPerWeek,
     createdAt: habit.createdAt,
+    updatedAt: DateTime.timestamp(),
     synced: false,
+    deleted: deleted,
   );
 
   static Habit _toLocalModel(HabitTableData habit) => Habit(
@@ -48,17 +49,18 @@ class OfflineFirstHabitRepository implements HabitRepository {
 
   @override
   Future<void> createHabit(Habit habit) =>
-      _localStore.upsert(_fromLocalModel(habit));
+      _localStore.upsert(_fromLocalModel(habit, deleted: false));
 
   @override
   Future<void> deleteHabit(Habit habit) =>
-      _localStore.delete(_fromLocalModel(habit));
+      _localStore.upsert(_fromLocalModel(habit, deleted: true));
 
   @override
   Future<void> updateHabit(Habit habit) =>
-      _localStore.upsert(_fromLocalModel(habit));
+      _localStore.upsert(_fromLocalModel(habit, deleted: false));
 
   @override
-  Stream<List<Habit>> watchHabits() =>
-      _localStore.watch().map((d) => d.map(_toLocalModel).toList());
+  Stream<List<Habit>> watchHabits() => _localStore.watch().map(
+    (d) => d.where((h) => !h.deleted).map(_toLocalModel).toList(),
+  );
 }
