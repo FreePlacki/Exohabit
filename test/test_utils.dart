@@ -43,28 +43,24 @@ HabitCompletion buildCompletion({
 }
 
 class FakeHabitRepository implements HabitRepository {
-  FakeHabitRepository({
-    List<Habit>? initialHabits,
-    Map<String, List<HabitCompletion>>? completions,
-  })  : _habits = List.from(initialHabits ?? []),
-        _completions = completions ?? {};
+  FakeHabitRepository({List<Habit>? initialHabits})
+    : _habits = List.from(initialHabits ?? []);
 
   final List<Habit> _habits;
-  final Map<String, List<HabitCompletion>> _completions;
 
   @override
-  Future<String> createHabit(Habit habit, String userId) async {
+  Future<String> createHabit(Habit habit) async {
     _habits.add(habit);
     return '${_habits.length}';
   }
 
   @override
-  Future<void> deleteHabit(String id, String userId) async {
-    _habits.removeWhere((h) => h.id == id);
+  Future<void> deleteHabit(Habit habit) async {
+    _habits.removeWhere((h) => h.id == habit.id);
   }
 
   @override
-  Future<void> updateHabit(Habit habit, String userId) async {
+  Future<void> updateHabit(Habit habit) async {
     final index = _habits.indexWhere((h) => h.id == habit.id);
     if (index != -1) {
       _habits[index] = habit;
@@ -72,41 +68,7 @@ class FakeHabitRepository implements HabitRepository {
   }
 
   @override
-  Stream<List<Habit>> watchHabits(String userId) =>
-      Stream.value(List.unmodifiable(_habits));
-
-  @override
-  Future<String> recordCompletion(String habitId, String userId, DateTime completedAt) async {
-    final completion = buildCompletion(
-      id: 'completion-${DateTime.now().microsecondsSinceEpoch}',
-      habitId: habitId,
-      userId: userId,
-      completedAt: completedAt,
-    );
-    _completions.putIfAbsent(habitId, () => []).add(completion);
-    return completion.id;
-  }
-
-  @override
-  Stream<List<HabitCompletion>> getCompletionsForHabit(String habitId, String userId) {
-    return Stream.value(List.unmodifiable(_completions[habitId] ?? []));
-  }
-
-  @override
-  Future<List<HabitCompletion>> getCompletionsForWeek(
-      String habitId, String userId, DateTime weekStart) async {
-    return List.unmodifiable(_completions[habitId] ?? []);
-  }
-
-  @override
-  Future<bool> isCompletedToday(String habitId, String userId) async {
-    final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day);
-    final end = start.add(const Duration(days: 1));
-    return (_completions[habitId] ?? []).any(
-      (c) => c.completedAt.isAfter(start) && c.completedAt.isBefore(end),
-    );
-  }
+  Stream<List<Habit>> watchHabits() => Stream.value(List.unmodifiable(_habits));
 }
 
 class FakeAuthRepository implements AuthRepository {

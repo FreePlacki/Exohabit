@@ -12,6 +12,7 @@ abstract class Habit with _$Habit {
     required String description,
     required int frequencyPerWeek,
     required DateTime createdAt,
+    @Default(false) bool synced,
   }) = _Habit;
 
   factory Habit.create({

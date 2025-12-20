@@ -1,73 +1,64 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:exohabit/database.dart';
 import 'package:exohabit/habits/habit.dart';
-import 'package:exohabit/login/auth_repository.dart';
+import 'package:exohabit/habits/habit_local_store.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'habit_repository.g.dart';
 
 @riverpod
-FirebaseFirestore firestore(Ref ref) {
-  return FirebaseFirestore.instance;
-}
-
+HabitRepository habitRepository(Ref ref) =>
+    OfflineFirstHabitRepository(localStore: ref.watch(habitLocalStoreProvider));
+  
 @riverpod
-HabitRepository habitRepository(Ref ref) {
-  return FirestoreHabitRepository(firestore: ref.watch(firestoreProvider));
-}
-
-@riverpod
-Stream<List<Habit>> habits(Ref ref) {
-  final userId = ref.watch(currentUserIdProvider);
-  if (userId == null) {
-    return const Stream.empty();
-  }
-  return ref.watch(habitRepositoryProvider).watchHabits(userId);
-}
+Stream<List<Habit>> habits(Ref ref) =>
+    ref.watch(habitRepositoryProvider).watchHabits();
 
 abstract class HabitRepository {
-  Future<String> createHabit(Habit habit, String userId);
+  Stream<List<Habit>> watchHabits();
 
-  Future<void> deleteHabit(String id, String userId);
-
-  Future<void> updateHabit(Habit habit, String userId);
-
-  Stream<List<Habit>> watchHabits(String userId);
+  Future<void> createHabit(Habit habit);
+  Future<void> deleteHabit(Habit habit);
+  Future<void> updateHabit(Habit habit);
 }
 
-class FirestoreHabitRepository implements HabitRepository {
-  FirestoreHabitRepository({required FirebaseFirestore firestore})
-    : _db = firestore;
-  final FirebaseFirestore _db;
+class OfflineFirstHabitRepository implements HabitRepository {
+  OfflineFirstHabitRepository({required HabitLocalStore localStore})
+    : _localStore = localStore;
 
-  CollectionReference<Map<String, dynamic>> _userHabits(String userId) => _db
-      .collection('habits')
-      .doc(userId)
-      .collection('items')
-      .withConverter<Map<String, dynamic>>(
-        fromFirestore: (snap, _) => snap.data()!,
-        toFirestore: (map, _) => map,
-      );
+  final HabitLocalStore _localStore;
 
-  @override
-  Future<String> createHabit(Habit habit, String userId) async {
-      final doc = _userHabits(userId).doc();
-      await doc.set(habit.toFirestore());
-      return doc.id;
-  }
+  static HabitTableData _fromLocalModel(Habit habit) => HabitTableData(
+    id: habit.id,
+    title: habit.title,
+    description: habit.description,
+    frequencyPerWeek: habit.frequencyPerWeek,
+    createdAt: habit.createdAt,
+    synced: false,
+  );
 
-  @override
-  Future<void> deleteHabit(String id, String userId) =>
-      _userHabits(userId).doc(id).delete();
+  static Habit _toLocalModel(HabitTableData habit) => Habit(
+    id: habit.id,
+    title: habit.title,
+    description: habit.description,
+    frequencyPerWeek: habit.frequencyPerWeek,
+    createdAt: habit.createdAt,
+  );
 
   @override
-  Future<void> updateHabit(Habit habit, String userId) =>
-      _userHabits(userId).doc(habit.id).update(habit.toFirestore());
+  Future<void> createHabit(Habit habit) =>
+      _localStore.upsert(_fromLocalModel(habit));
 
   @override
-  Stream<List<Habit>> watchHabits(String userId) => _userHabits(userId)
-      .orderBy('createdAt', descending: true)
-      .snapshots()
-      .map((snap) => snap.docs.map(HabitFirestore.fromFirestore).toList());
+  Future<void> deleteHabit(Habit habit) =>
+      _localStore.delete(_fromLocalModel(habit));
+
+  @override
+  Future<void> updateHabit(Habit habit) =>
+      _localStore.upsert(_fromLocalModel(habit));
+
+  @override
+  Stream<List<Habit>> watchHabits() =>
+      _localStore.watch().map((d) => d.map(_toLocalModel).toList());
 }

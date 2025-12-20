@@ -78,7 +78,7 @@ void _showDeleteDialog(BuildContext context, WidgetRef ref, Habit habit) {
 
             try {
               final repo = ref.read(habitRepositoryProvider);
-              await repo.deleteHabit(habit.id, userId);
+              await repo.deleteHabit(habit);
             } catch (err) {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(

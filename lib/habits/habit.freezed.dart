@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Habit {
 
- String get id; String get title; String get description; int get frequencyPerWeek; DateTime get createdAt;
+ String get id; String get title; String get description; int get frequencyPerWeek; DateTime get createdAt; bool get synced;
 /// Create a copy of Habit
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $HabitCopyWith<Habit> get copyWith => _$HabitCopyWithImpl<Habit>(this as Habit, 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Habit&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.frequencyPerWeek, frequencyPerWeek) || other.frequencyPerWeek == frequencyPerWeek)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Habit&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.frequencyPerWeek, frequencyPerWeek) || other.frequencyPerWeek == frequencyPerWeek)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.synced, synced) || other.synced == synced));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,title,description,frequencyPerWeek,createdAt);
+int get hashCode => Object.hash(runtimeType,id,title,description,frequencyPerWeek,createdAt,synced);
 
 @override
 String toString() {
-  return 'Habit(id: $id, title: $title, description: $description, frequencyPerWeek: $frequencyPerWeek, createdAt: $createdAt)';
+  return 'Habit(id: $id, title: $title, description: $description, frequencyPerWeek: $frequencyPerWeek, createdAt: $createdAt, synced: $synced)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $HabitCopyWith<$Res>  {
   factory $HabitCopyWith(Habit value, $Res Function(Habit) _then) = _$HabitCopyWithImpl;
 @useResult
 $Res call({
- String id, String title, String description, int frequencyPerWeek, DateTime createdAt
+ String id, String title, String description, int frequencyPerWeek, DateTime createdAt, bool synced
 });
 
 
@@ -62,14 +62,15 @@ class _$HabitCopyWithImpl<$Res>
 
 /// Create a copy of Habit
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? description = null,Object? frequencyPerWeek = null,Object? createdAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? description = null,Object? frequencyPerWeek = null,Object? createdAt = null,Object? synced = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,frequencyPerWeek: null == frequencyPerWeek ? _self.frequencyPerWeek : frequencyPerWeek // ignore: cast_nullable_to_non_nullable
 as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,synced: null == synced ? _self.synced : synced // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -154,10 +155,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  String description,  int frequencyPerWeek,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  String description,  int frequencyPerWeek,  DateTime createdAt,  bool synced)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Habit() when $default != null:
-return $default(_that.id,_that.title,_that.description,_that.frequencyPerWeek,_that.createdAt);case _:
+return $default(_that.id,_that.title,_that.description,_that.frequencyPerWeek,_that.createdAt,_that.synced);case _:
   return orElse();
 
 }
@@ -175,10 +176,10 @@ return $default(_that.id,_that.title,_that.description,_that.frequencyPerWeek,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  String description,  int frequencyPerWeek,  DateTime createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  String description,  int frequencyPerWeek,  DateTime createdAt,  bool synced)  $default,) {final _that = this;
 switch (_that) {
 case _Habit():
-return $default(_that.id,_that.title,_that.description,_that.frequencyPerWeek,_that.createdAt);case _:
+return $default(_that.id,_that.title,_that.description,_that.frequencyPerWeek,_that.createdAt,_that.synced);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -195,10 +196,10 @@ return $default(_that.id,_that.title,_that.description,_that.frequencyPerWeek,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  String description,  int frequencyPerWeek,  DateTime createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  String description,  int frequencyPerWeek,  DateTime createdAt,  bool synced)?  $default,) {final _that = this;
 switch (_that) {
 case _Habit() when $default != null:
-return $default(_that.id,_that.title,_that.description,_that.frequencyPerWeek,_that.createdAt);case _:
+return $default(_that.id,_that.title,_that.description,_that.frequencyPerWeek,_that.createdAt,_that.synced);case _:
   return null;
 
 }
@@ -210,7 +211,7 @@ return $default(_that.id,_that.title,_that.description,_that.frequencyPerWeek,_t
 
 
 class _Habit implements Habit {
-  const _Habit({required this.id, required this.title, required this.description, required this.frequencyPerWeek, required this.createdAt});
+  const _Habit({required this.id, required this.title, required this.description, required this.frequencyPerWeek, required this.createdAt, this.synced = false});
   
 
 @override final  String id;
@@ -218,6 +219,7 @@ class _Habit implements Habit {
 @override final  String description;
 @override final  int frequencyPerWeek;
 @override final  DateTime createdAt;
+@override@JsonKey() final  bool synced;
 
 /// Create a copy of Habit
 /// with the given fields replaced by the non-null parameter values.
@@ -229,16 +231,16 @@ _$HabitCopyWith<_Habit> get copyWith => __$HabitCopyWithImpl<_Habit>(this, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Habit&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.frequencyPerWeek, frequencyPerWeek) || other.frequencyPerWeek == frequencyPerWeek)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Habit&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.frequencyPerWeek, frequencyPerWeek) || other.frequencyPerWeek == frequencyPerWeek)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.synced, synced) || other.synced == synced));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,title,description,frequencyPerWeek,createdAt);
+int get hashCode => Object.hash(runtimeType,id,title,description,frequencyPerWeek,createdAt,synced);
 
 @override
 String toString() {
-  return 'Habit(id: $id, title: $title, description: $description, frequencyPerWeek: $frequencyPerWeek, createdAt: $createdAt)';
+  return 'Habit(id: $id, title: $title, description: $description, frequencyPerWeek: $frequencyPerWeek, createdAt: $createdAt, synced: $synced)';
 }
 
 
@@ -249,7 +251,7 @@ abstract mixin class _$HabitCopyWith<$Res> implements $HabitCopyWith<$Res> {
   factory _$HabitCopyWith(_Habit value, $Res Function(_Habit) _then) = __$HabitCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String title, String description, int frequencyPerWeek, DateTime createdAt
+ String id, String title, String description, int frequencyPerWeek, DateTime createdAt, bool synced
 });
 
 
@@ -266,14 +268,15 @@ class __$HabitCopyWithImpl<$Res>
 
 /// Create a copy of Habit
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? description = null,Object? frequencyPerWeek = null,Object? createdAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? description = null,Object? frequencyPerWeek = null,Object? createdAt = null,Object? synced = null,}) {
   return _then(_Habit(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,frequencyPerWeek: null == frequencyPerWeek ? _self.frequencyPerWeek : frequencyPerWeek // ignore: cast_nullable_to_non_nullable
 as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,synced: null == synced ? _self.synced : synced // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

@@ -9,53 +9,6 @@ part of 'habit_repository.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(firestore)
-const firestoreProvider = FirestoreProvider._();
-
-final class FirestoreProvider
-    extends
-        $FunctionalProvider<
-          FirebaseFirestore,
-          FirebaseFirestore,
-          FirebaseFirestore
-        >
-    with $Provider<FirebaseFirestore> {
-  const FirestoreProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'firestoreProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$firestoreHash();
-
-  @$internal
-  @override
-  $ProviderElement<FirebaseFirestore> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  FirebaseFirestore create(Ref ref) {
-    return firestore(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(FirebaseFirestore value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<FirebaseFirestore>(value),
-    );
-  }
-}
-
-String _$firestoreHash() => r'0e25e335c5657f593fc1baf3d9fd026e70bca7fa';
-
 @ProviderFor(habitRepository)
 const habitRepositoryProvider = HabitRepositoryProvider._();
 
@@ -96,7 +49,7 @@ final class HabitRepositoryProvider
   }
 }
 
-String _$habitRepositoryHash() => r'97acc4f4fcd3c186f5c6fe61d8d1fdd3c3727d08';
+String _$habitRepositoryHash() => r'8cf2ad1da21e8f7d1c6709513f8ebf5e459bcb2c';
 
 @ProviderFor(habits)
 const habitsProvider = HabitsProvider._();
@@ -135,4 +88,4 @@ final class HabitsProvider
   }
 }
 
-String _$habitsHash() => r'02abde52dc6a559dbf34d5222487b7fdb0b08ba4';
+String _$habitsHash() => r'ca8c730650255b1e49412226c624772ea0997b11';

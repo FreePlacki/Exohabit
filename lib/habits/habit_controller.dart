@@ -46,14 +46,14 @@ class HabitController extends _$HabitController {
           description: description,
           frequencyPerWeek: frequency,
         );
-        await repo.updateHabit(habit, userId);
+        await repo.updateHabit(habit);
       } else {
         final habit = Habit.create(
           title: title,
           description: description,
           frequencyPerWeek: frequency,
         );
-        await repo.createHabit(habit, userId);
+        await repo.createHabit(habit);
       }
     } catch (err) {
       state = state.copyWith(isSaving: false, error: err.toString());

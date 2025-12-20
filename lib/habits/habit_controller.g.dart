@@ -41,7 +41,7 @@ final class HabitControllerProvider
   }
 }
 
-String _$habitControllerHash() => r'5572173c95f7420f7b9d8f6e1d53b9246663fcf9';
+String _$habitControllerHash() => r'57788f1b8a8395e7db9034db6314598d782f25e1';
 
 abstract class _$HabitController extends $Notifier<HabitEditState> {
   HabitEditState build();

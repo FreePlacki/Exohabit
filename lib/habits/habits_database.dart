@@ -1,0 +1,13 @@
+import 'package:drift/drift.dart';
+
+class HabitTable extends Table {
+  TextColumn get id => text()();
+  TextColumn get title => text()();
+  TextColumn get description => text()();
+  IntColumn get frequencyPerWeek => integer()();
+  DateTimeColumn get createdAt => dateTime()();
+  BoolColumn get synced => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
