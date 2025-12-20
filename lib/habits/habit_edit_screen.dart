@@ -37,7 +37,7 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
 
   bool get canSubmit {
     final state = ref.read(habitControllerProvider);
-    return titleCtrl.text.trim().isNotEmpty && !state.isSaving;
+    return titleCtrl.text.trim().isNotEmpty && !state.isLoading;
   }
 
   Future<void> submit() async {
@@ -51,7 +51,7 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
       frequency: freq,
     );
 
-    if (state.error != null && mounted) {
+    if (!state.hasError && mounted) {
       context.pop();
     }
   }
@@ -94,10 +94,10 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
               ],
             ),
 
-            if (state.error != null)
+            if (state.hasError)
               Padding(
                 padding: const EdgeInsets.only(top: 20),
-                child: Text(state.error!, style: const TextStyle(color: Colors.red)),
+                child: Text(state.error.toString(), style: const TextStyle(color: Colors.red)),
               ),
 
             const Spacer(),
@@ -106,7 +106,7 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: canSubmit ? submit : null,
-                child: state.isSaving
+                child: state.isLoading
                     ? const SizedBox(
                         height: 16,
                         width: 16,

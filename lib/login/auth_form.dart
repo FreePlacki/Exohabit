@@ -34,8 +34,10 @@ class _AuthFormState extends ConsumerState<AuthForm> {
     return text.isNotEmpty;
   }
 
-  bool canSubmit(AuthFormState state) =>
-      isValidEmail && isValidPassword && !state.isLoading;
+  bool canSubmit() {
+    final state = ref.read(authControllerProvider);
+    return isValidEmail && isValidPassword && !state.isLoading;
+  }
 
   Future<void> submit() async {
     final controller = ref.read(authControllerProvider.notifier);
@@ -78,7 +80,7 @@ class _AuthFormState extends ConsumerState<AuthForm> {
           decoration: const InputDecoration(labelText: 'Password'),
           onChanged: (_) => setState(() {}),
           onSubmitted: (_) {
-            if (canSubmit(state)) {
+            if (canSubmit()) {
               submit();
             }
           },
@@ -89,7 +91,7 @@ class _AuthFormState extends ConsumerState<AuthForm> {
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
-              state.error!,
+              state.error.toString(),
               style: const TextStyle(color: Colors.red, fontSize: 13),
             ),
           ),
@@ -97,7 +99,7 @@ class _AuthFormState extends ConsumerState<AuthForm> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: canSubmit(state) ? submit : null,
+            onPressed: canSubmit() ? submit : null,
             child: state.isLoading
                 ? const SizedBox(
                     height: 16,

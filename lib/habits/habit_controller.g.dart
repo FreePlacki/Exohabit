@@ -13,7 +13,7 @@ part of 'habit_controller.dart';
 const habitControllerProvider = HabitControllerProvider._();
 
 final class HabitControllerProvider
-    extends $NotifierProvider<HabitController, HabitEditState> {
+    extends $AsyncNotifierProvider<HabitController, void> {
   const HabitControllerProvider._()
     : super(
         from: null,
@@ -31,33 +31,25 @@ final class HabitControllerProvider
   @$internal
   @override
   HabitController create() => HabitController();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(HabitEditState value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<HabitEditState>(value),
-    );
-  }
 }
 
-String _$habitControllerHash() => r'57788f1b8a8395e7db9034db6314598d782f25e1';
+String _$habitControllerHash() => r'af1e7a1a795074cb6b8ebe6b8820f47c12e10666';
 
-abstract class _$HabitController extends $Notifier<HabitEditState> {
-  HabitEditState build();
+abstract class _$HabitController extends $AsyncNotifier<void> {
+  FutureOr<void> build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
-    final ref = this.ref as $Ref<HabitEditState, HabitEditState>;
+    build();
+    final ref = this.ref as $Ref<AsyncValue<void>, void>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<HabitEditState, HabitEditState>,
-              HabitEditState,
+              AnyNotifier<AsyncValue<void>, void>,
+              AsyncValue<void>,
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleValue(ref, null);
   }
 }

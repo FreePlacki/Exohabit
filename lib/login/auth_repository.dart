@@ -62,27 +62,27 @@ class AuthRepository {
 
   final FirebaseAuth _auth;
 
-  Future<Result<User>> signIn(String email, String password) async {
+  Future<User> signIn(String email, String password) async {
     try {
       final creds = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return Result.ok(creds.user!);
+      return creds.user!;
     } on FirebaseAuthException catch (err) {
-      return Result.error(AuthException.fromFirebase(err));
+      throw AuthException.fromFirebase(err);
     }
   }
 
-  Future<Result<User>> signUp(String email, String password) async {
+  Future<User> signUp(String email, String password) async {
     try {
       final creds = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return Result.ok(creds.user!);
+      return creds.user!;
     } on FirebaseAuthException catch (err) {
-      return Result.error(AuthException.fromFirebase(err));
+      throw AuthException.fromFirebase(err);
     }
   }
 
