@@ -1,17 +1,22 @@
-import 'package:exohabit/firebase_options.dart';
 import 'package:exohabit/router.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Supabase.initialize(
+    url: 'https://nmykcwruezxwtpxvoeth.supabase.co',
+    anonKey: 'sb_publishable_As2X_jKoGUb7ggx8h-qSlQ_qmJS7Dp-',
+  );
 
-  runApp(ProviderScope(
-    retry: (retryCount, error) => null,
-    child: const ExohabitApp()));
+  runApp(
+    ProviderScope(
+      retry: (retryCount, error) => null,
+      child: const ExohabitApp(),
+    ),
+  );
 }
 
 class ExohabitApp extends ConsumerWidget {
@@ -24,10 +29,7 @@ class ExohabitApp extends ConsumerWidget {
     return MaterialApp.router(
       routerConfig: router,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorSchemeSeed: Colors.deepPurple,
-        useMaterial3: true,
-      ),
+      theme: ThemeData(colorSchemeSeed: Colors.deepPurple, useMaterial3: true),
     );
   }
 }

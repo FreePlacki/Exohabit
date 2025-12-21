@@ -1,87 +1,89 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'auth_repository.g.dart';
 
 @riverpod
-FirebaseAuth firebaseAuth(Ref ref) => FirebaseAuth.instance;
+GoTrueClient supabaseAuth(Ref ref) => Supabase.instance.client.auth;
 
 @riverpod
 AuthRepository authRepository(Ref ref) =>
-    AuthRepository(auth: ref.watch(firebaseAuthProvider));
+    AuthRepository(auth: ref.watch(supabaseAuthProvider));
 
 @riverpod
-Stream<User?> authState(Ref ref) =>
-    ref.watch(firebaseAuthProvider).authStateChanges();
+Stream<AuthState> authState(Ref ref) =>
+    ref.watch(supabaseAuthProvider).onAuthStateChange;
 
 @riverpod
-String? currentUserId(Ref ref) => ref.watch(authStateProvider).value?.uid;
+Session? currentSession(Ref ref) {
+  ref.watch(authStateProvider);
+  return ref.watch(supabaseAuthProvider).currentSession;
+}
 
-class AuthException implements Exception {
-  AuthException(this.message);
+@riverpod
+User? currentUser(Ref ref) => ref.watch(currentSessionProvider)?.user;
 
-  factory AuthException.fromFirebase(FirebaseAuthException e) {
-    final fallback = _fallbackMessage(e);
+@riverpod
+String? currentUserId(Ref ref) => ref.watch(currentUserProvider)?.id;
 
-    return AuthException(switch (e.code) {
-      'invalid-email' => 'Invalid email format.',
-      'user-not-found' => 'Invalid email or password.',
-      'wrong-password' => 'Incorrect password.',
-      'email-already-in-use' => 'This email is already registered.',
-      'weak-password' => 'Password is too weak.',
-      'invalid-credential' => 'Invalid email or password.',
-      'too-many-requests' =>
-        'Too many failed attempts. Please try again later.',
-      'user-disabled' => 'This account has been disabled.',
-      'operation-not-allowed' => 'This sign-in method is not enabled.',
-      'network-request-failed' =>
-        'Network error. Please check your connection.',
-      _ => fallback,
-    });
+class AuthFailure implements Exception {
+  AuthFailure(this.message);
+
+  factory AuthFailure.fromSupabase(AuthException? e) {
+    if (e == null) {
+      return AuthFailure('Authentication failed.');
+    }
+
+    final msg = e.message.toLowerCase();
+    if (msg.contains('invalid login credentials')) {
+      return AuthFailure('Invalid email or password.');
+    }
+    if (msg.contains('email not confirmed')) {
+      return AuthFailure('Please confirm your email address.');
+    }
+    if (msg.contains('user already registered')) {
+      return AuthFailure('This email is already registered.');
+    }
+    if (msg.contains('password')) {
+      return AuthFailure('Password is too weak.');
+    }
+    if (msg.contains('network')) {
+      return AuthFailure('Network error. Please check your connection.');
+    }
+
+    return AuthFailure('Authentication failed.');
   }
 
   final String message;
-
-  static String _fallbackMessage(FirebaseAuthException e) {
-    final msg = e.message?.toLowerCase() ?? '';
-
-    if (msg.contains('internal error') || msg.contains('an error occurred')) {
-      return 'Invalid email or password.';
-    }
-
-    return 'Authentication failed. Please check your email and password.';
-  }
 
   @override
   String toString() => message;
 }
 
 class AuthRepository {
-  AuthRepository({required FirebaseAuth auth}) : _auth = auth;
+  AuthRepository({required GoTrueClient auth}) : _auth = auth;
 
-  final FirebaseAuth _auth;
+  final GoTrueClient _auth;
 
   Future<User> signIn(String email, String password) async {
     try {
-      final creds = await _auth.signInWithEmailAndPassword(
+      final res = await _auth.signInWithPassword(
         email: email,
         password: password,
       );
-      return creds.user!;
-    } on FirebaseAuthException catch (err) {
-      throw AuthException.fromFirebase(err);
+
+      return res.user!;
+    } on AuthException catch (err) {
+      throw AuthFailure.fromSupabase(err);
     }
   }
 
   Future<User> signUp(String email, String password) async {
     try {
-      final creds = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      final creds = await _auth.signUp(email: email, password: password);
       return creds.user!;
-    } on FirebaseAuthException catch (err) {
-      throw AuthException.fromFirebase(err);
+    } on AuthException catch (err) {
+      throw AuthFailure.fromSupabase(err);
     }
   }
 

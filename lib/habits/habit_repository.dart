@@ -45,6 +45,7 @@ class OfflineFirstHabitRepository implements HabitRepository {
     description: habit.description,
     frequencyPerWeek: habit.frequencyPerWeek,
     createdAt: habit.createdAt,
+    updatedAt: habit.updatedAt,
   );
 
   @override

@@ -9,52 +9,46 @@ part of 'habit_remote_store.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(firestore)
-const firestoreProvider = FirestoreProvider._();
+@ProviderFor(supabaseClient)
+const supabaseClientProvider = SupabaseClientProvider._();
 
-final class FirestoreProvider
-    extends
-        $FunctionalProvider<
-          FirebaseFirestore,
-          FirebaseFirestore,
-          FirebaseFirestore
-        >
-    with $Provider<FirebaseFirestore> {
-  const FirestoreProvider._()
+final class SupabaseClientProvider
+    extends $FunctionalProvider<SupabaseClient, SupabaseClient, SupabaseClient>
+    with $Provider<SupabaseClient> {
+  const SupabaseClientProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'firestoreProvider',
+        name: r'supabaseClientProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$firestoreHash();
+  String debugGetCreateSourceHash() => _$supabaseClientHash();
 
   @$internal
   @override
-  $ProviderElement<FirebaseFirestore> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
+  $ProviderElement<SupabaseClient> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
 
   @override
-  FirebaseFirestore create(Ref ref) {
-    return firestore(ref);
+  SupabaseClient create(Ref ref) {
+    return supabaseClient(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(FirebaseFirestore value) {
+  Override overrideWithValue(SupabaseClient value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<FirebaseFirestore>(value),
+      providerOverride: $SyncValueProvider<SupabaseClient>(value),
     );
   }
 }
 
-String _$firestoreHash() => r'597b1a9eb96f2fae51f5b578f4b5debe4f6d30c6';
+String _$supabaseClientHash() => r'de6240783d7dddb57e07d034deb0ddf8e2fcc3e4';
 
 @ProviderFor(habitRemoteStore)
 const habitRemoteStoreProvider = HabitRemoteStoreProvider._();
@@ -100,4 +94,4 @@ final class HabitRemoteStoreProvider
   }
 }
 
-String _$habitRemoteStoreHash() => r'b4144674e96738420cef613dfd7fc9a72461c8e2';
+String _$habitRemoteStoreHash() => r'5174559a41ef515c1d832248c13dfda348027a9c';

@@ -6,30 +6,24 @@ import 'package:exohabit/habits/habits_screen.dart';
 import 'package:exohabit/home/home_screen.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/login/auth_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-final routerProvider = Provider<GoRouter>((ref) {
-  final auth = ref.watch(authStateProvider);
+part 'router.g.dart';
+
+@riverpod
+GoRouter router(Ref ref) {
+  final auth = ref.read(supabaseAuthProvider);
   
   return GoRouter(
-    initialLocation: '/auth',
-    refreshListenable: GoRouterRefreshStream(
-      FirebaseAuth.instance.authStateChanges(),
-    ),
+    initialLocation: '/',
+    refreshListenable: SupabaseAuthListenable(auth),
     redirect: (context, state) {
-      if (auth.isLoading) {
-        return null;
-      }
-
-      final isLoggedIn = auth.value != null;
+      final user = ref.read(currentUserProvider);
+      final isLoggedIn = user != null;
       final isOnAuthPage = state.uri.toString().startsWith('/auth');
-
-      if (!isLoggedIn && !isOnAuthPage) {
-        return '/auth';
-      }
 
       if (isLoggedIn && isOnAuthPage) {
         return '/';
@@ -54,19 +48,20 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
-});
+}
 
-class GoRouterRefreshStream extends ChangeNotifier {
-  GoRouterRefreshStream(Stream<dynamic> stream) {
-    notifyListeners();
-    _subscription = stream.listen((_) => notifyListeners());
+class SupabaseAuthListenable extends ChangeNotifier {
+  SupabaseAuthListenable(GoTrueClient auth) {
+    _sub = auth.onAuthStateChange.listen((_) {
+      notifyListeners();
+    });
   }
 
-  late final StreamSubscription<dynamic> _subscription;
+  late final StreamSubscription<AuthState> _sub;
 
   @override
   void dispose() {
-    _subscription.cancel();
+    _sub.cancel();
     super.dispose();
   }
 }

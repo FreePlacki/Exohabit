@@ -822,7 +822,7 @@ final class DatabaseProvider
         argument: null,
         retry: null,
         name: r'databaseProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -849,4 +849,4 @@ final class DatabaseProvider
   }
 }
 
-String _$databaseHash() => r'154e50453fa5dcf7cd1e6a7bc6edd333721452a7';
+String _$databaseHash() => r'd6e05638b723b0524e474cecb5226cbaac2e507a';

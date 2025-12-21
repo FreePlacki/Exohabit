@@ -12,8 +12,8 @@ class HabitsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authRepo = ref.read(authRepositoryProvider);
     final habits = ref.watch(habitsProvider);
-    final authState = ref.watch(authStateProvider);
-    final userEmail = authState.value?.email ?? 'Signed out';
+    final user = ref.watch(currentUserProvider);
+    final userEmail = user?.email ?? 'Signed out';
 
     return Scaffold(
       appBar: AppBar(
@@ -23,6 +23,9 @@ class HabitsScreen extends ConsumerWidget {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await authRepo.signOut();
+              if (context.mounted) {
+                context.go('/auth');
+              }
             },
           ),
         ],

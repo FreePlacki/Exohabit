@@ -1,55 +1,47 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:exohabit/habits/habit.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'habit_remote_store.g.dart';
 
 @riverpod
-FirebaseFirestore firestore(Ref ref) => FirebaseFirestore.instance;
+SupabaseClient supabaseClient(Ref ref) => Supabase.instance.client;
 
 @riverpod
 HabitRemoteStore habitRemoteStore(Ref ref) =>
-    FirestoreHabitRemoteStore(ref.watch(firestoreProvider));
+    SupabaseHabitRemoteStore(ref.watch(supabaseClientProvider));
 
 abstract class HabitRemoteStore {
-  Stream<List<Habit>> watch(String userId);
-
-  Future<String> create(Habit habit, String userId);
-  Future<void> update(Habit habit, String userId);
+  Future<void> upsert(Habit habit, String userId);
   Future<void> delete(Habit habit, String userId);
+  Future<List<Habit>> fetchUpdatedSince(String userId, int sinceTimestamp);
 }
 
-class FirestoreHabitRemoteStore implements HabitRemoteStore {
-  FirestoreHabitRemoteStore(FirebaseFirestore db) : _db = db;
+class SupabaseHabitRemoteStore implements HabitRemoteStore {
+  SupabaseHabitRemoteStore(SupabaseClient db) : _db = db;
 
-  final FirebaseFirestore _db;
-
-  CollectionReference<Map<String, dynamic>> _userHabits(String userId) => _db
-      .collection('habits')
-      .doc(userId)
-      .collection('items')
-      .withConverter<Map<String, dynamic>>(
-        fromFirestore: (snap, _) => snap.data()!,
-        toFirestore: (map, _) => map,
-      );
+  final SupabaseClient _db;
 
   @override
-  Future<String> create(Habit habit, String userId) async {
-    final doc = _userHabits(userId).doc();
-    await doc.set(habit.toFirestore());
-    return doc.id;
+  Future<void> upsert(Habit habit, String userId) async {
+    await _db.from('habits').upsert(habit.toRemote(userId));
   }
 
   @override
   Future<void> delete(Habit habit, String userId) =>
-      _userHabits(userId).doc(habit.id).delete();
+      _db.from('habits').delete().eq('userId', userId).eq('id', habit.id);
 
   @override
-  Future<void> update(Habit habit, String userId) =>
-      _userHabits(userId).doc(habit.id).update(habit.toFirestore());
+  Future<List<Habit>> fetchUpdatedSince(
+    String userId,
+    int sinceTimestamp,
+  ) async {
+    final rows = await _db
+        .from('habits')
+        .select()
+        .eq('user_id', userId)
+        .gt('updated_at', sinceTimestamp);
 
-  @override
-  Stream<List<Habit>> watch(String userId) => _userHabits(userId)
-      .snapshots()
-      .map((snap) => snap.docs.map(HabitFirestore.fromFirestore).toList());
+    return rows.map(HabitRemote.fromRemote).toList();
+  }
 }

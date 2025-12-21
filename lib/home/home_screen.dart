@@ -10,8 +10,8 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authRepo = ref.read(authRepositoryProvider);
-    final authState = ref.watch(authStateProvider);
-    final email = authState.value?.email ?? 'Explorer';
+    final user = ref.watch(currentUserProvider);
+    final email = user?.email ?? 'Signed Out';
 
     final habits = ref.watch(habitsProvider);
 
@@ -23,6 +23,9 @@ class HomeScreen extends ConsumerWidget {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await authRepo.signOut();
+              if (context.mounted) {
+                context.go('/auth');
+              }
             },
           ),
         ],
