@@ -213,7 +213,7 @@ return $default(_that.id,_that.title,_that.description,_that.frequencyPerWeek,_t
 
 
 class _Habit implements Habit {
-  const _Habit({required this.id, required this.title, required this.description, required this.frequencyPerWeek, required this.createdAt, required this.updatedAt, this.deleted = false, this.synced = false});
+  const _Habit({required this.id, required this.title, required this.description, required this.frequencyPerWeek, required this.createdAt, required this.updatedAt, required this.deleted, required this.synced});
   
 
 @override final  String id;
@@ -222,8 +222,8 @@ class _Habit implements Habit {
 @override final  int frequencyPerWeek;
 @override final  DateTime createdAt;
 @override final  DateTime updatedAt;
-@override@JsonKey() final  bool deleted;
-@override@JsonKey() final  bool synced;
+@override final  bool deleted;
+@override final  bool synced;
 
 /// Create a copy of Habit
 /// with the given fields replaced by the non-null parameter values.

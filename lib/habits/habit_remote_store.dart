@@ -14,7 +14,16 @@ HabitRemoteStore habitRemoteStore(Ref ref) =>
 abstract class HabitRemoteStore {
   Future<void> upsert(Habit habit, String userId);
   Future<void> delete(Habit habit, String userId);
-  Future<List<Habit>> fetchUpdatedSince(String userId, int sinceTimestamp);
+  Future<List<Map<String, dynamic>>> fetch(
+    String userId, {
+    int sinceTimestamp = 0,
+  });
+  Future<List<Map<String, dynamic>>> fetchNotDeleted(
+    String userId, {
+    int sinceTimestamp = 0,
+  });
+
+  Future<Map<String, dynamic>?> fetchById(String habitId);
 }
 
 class SupabaseHabitRemoteStore implements HabitRemoteStore {
@@ -24,24 +33,41 @@ class SupabaseHabitRemoteStore implements HabitRemoteStore {
 
   @override
   Future<void> upsert(Habit habit, String userId) async {
-    await _db.from('habits').upsert(habit.toRemote(userId));
+    await _db.from('Habits').upsert(habit.toRemote(userId));
   }
 
   @override
   Future<void> delete(Habit habit, String userId) =>
-      _db.from('habits').delete().eq('userId', userId).eq('id', habit.id);
+      _db.from('Habits').delete().eq('userId', userId).eq('id', habit.id);
 
   @override
-  Future<List<Habit>> fetchUpdatedSince(
-    String userId,
-    int sinceTimestamp,
-  ) async {
-    final rows = await _db
-        .from('habits')
-        .select()
-        .eq('user_id', userId)
-        .gt('updated_at', sinceTimestamp);
+  Future<List<Map<String, dynamic>>> fetch(
+    String userId, {
+    int sinceTimestamp = 0,
+  }) => _db
+      .from('Habits')
+      .select()
+      .eq('userId', userId)
+      .gt(
+        'updatedAt',
+        toTimestampString(DateTime.fromMicrosecondsSinceEpoch(0).toString())!,
+      );
 
-    return rows.map(HabitRemote.fromRemote).toList();
-  }
+  @override
+  Future<List<Map<String, dynamic>>> fetchNotDeleted(
+    String userId, {
+    int sinceTimestamp = 0,
+  }) => _db
+      .from('Habits')
+      .select()
+      .eq('userId', userId)
+      .eq('deleted', false)
+      .gt(
+        'updatedAt',
+        toTimestampString(DateTime.fromMicrosecondsSinceEpoch(0).toString())!,
+      );
+
+  @override
+  Future<Map<String, dynamic>?> fetchById(String habitId) =>
+      _db.from('Habits').select().eq('id', habitId).maybeSingle();
 }

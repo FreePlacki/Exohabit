@@ -1,0 +1,7 @@
+- [ ] settings
+    - [ ] logout
+    - [ ] clear data
+- [ ] implement automatic merge sync
+    - [ ] connectivity
+    - [ ] when habit list changes
+    - [ ] onResume (when opening the app)

@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+// TODO: consider having the same model as the domain model
 class HabitTable extends Table {
   TextColumn get id => text()();
   TextColumn get title => text()();

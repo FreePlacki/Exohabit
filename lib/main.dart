@@ -1,4 +1,5 @@
 import 'package:exohabit/router.dart';
+import 'package:exohabit/sync/override_sync_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -25,6 +26,7 @@ class ExohabitApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    ref.watch(authSyncListenerProvider);
 
     return MaterialApp.router(
       routerConfig: router,
