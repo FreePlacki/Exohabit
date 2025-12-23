@@ -18,6 +18,7 @@ abstract class HabitLocalStore {
   Future<void> markSynced(String habitId);
   Future<void> clear();
   Future<void> transaction(Future<void> Function() action);
+  Future<bool> hasAny();
 }
 
 class DriftHabitLocalStore implements HabitLocalStore {
@@ -60,4 +61,7 @@ class DriftHabitLocalStore implements HabitLocalStore {
   @override
   Future<void> transaction(Future<void> Function() action) =>
       _db.transaction(action);
+
+  @override
+  Future<bool> hasAny() => _habits.exists();
 }

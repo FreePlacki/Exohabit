@@ -48,7 +48,63 @@ final class AuthSyncListenerProvider
   }
 }
 
-String _$authSyncListenerHash() => r'3603547b04ecb9755c66a3f5ba5f2637f03fb4e4';
+String _$authSyncListenerHash() => r'9ae4d580ebf7538d09b90951632f9b49d72b51fb';
+
+@ProviderFor(PendingSyncDecisionNotifier)
+const pendingSyncDecisionProvider = PendingSyncDecisionNotifierProvider._();
+
+final class PendingSyncDecisionNotifierProvider
+    extends
+        $NotifierProvider<PendingSyncDecisionNotifier, PendingSyncDecision?> {
+  const PendingSyncDecisionNotifierProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pendingSyncDecisionProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$pendingSyncDecisionNotifierHash();
+
+  @$internal
+  @override
+  PendingSyncDecisionNotifier create() => PendingSyncDecisionNotifier();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PendingSyncDecision? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PendingSyncDecision?>(value),
+    );
+  }
+}
+
+String _$pendingSyncDecisionNotifierHash() =>
+    r'4e89921d9efba3e0eb20dd3167e4f4e5c8fb0b38';
+
+abstract class _$PendingSyncDecisionNotifier
+    extends $Notifier<PendingSyncDecision?> {
+  PendingSyncDecision? build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref = this.ref as $Ref<PendingSyncDecision?, PendingSyncDecision?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<PendingSyncDecision?, PendingSyncDecision?>,
+              PendingSyncDecision?,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}
 
 @ProviderFor(overrideSyncService)
 const overrideSyncServiceProvider = OverrideSyncServiceProvider._();

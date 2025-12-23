@@ -1,6 +1,5 @@
 import 'package:exohabit/habits/habit.dart';
 import 'package:exohabit/habits/habit_repository.dart';
-import 'package:exohabit/login/auth_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'habit_controller.g.dart';
@@ -21,15 +20,6 @@ class HabitController extends _$HabitController {
     required int frequency,
   }) async {
     state = const AsyncLoading();
-
-    final userId = ref.read(currentUserIdProvider);
-    if (userId == null) {
-      state = AsyncError(
-        'You must be logged in to save a habit.',
-        StackTrace.current,
-      );
-      return;
-    }
 
     final repo = ref.read(habitRepositoryProvider);
 

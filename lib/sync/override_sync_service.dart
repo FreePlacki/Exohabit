@@ -28,10 +28,26 @@ void authSyncListener(Ref ref) {
       final prevUserId = prevSession?.user.id;
       // account switch
       if (userId != prevUserId) {
-        await ref.read(overrideSyncServiceProvider).sync(userId);
+        final hasData = await ref.read(habitLocalStoreProvider).hasAny();
+        if (hasData) {
+          ref.read(pendingSyncDecisionProvider.notifier).init();
+        } else {
+          await ref.read(overrideSyncServiceProvider).sync(userId);
+        }
       }
     }
   });
+}
+
+class PendingSyncDecision {}
+
+@riverpod
+class PendingSyncDecisionNotifier extends _$PendingSyncDecisionNotifier {
+  @override
+  PendingSyncDecision? build() => null;
+
+  void init() => state = PendingSyncDecision();
+  void clear() => state = null;
 }
 
 @riverpod
