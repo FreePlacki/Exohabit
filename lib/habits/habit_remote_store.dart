@@ -1,4 +1,5 @@
-import 'package:exohabit/habits/habit.dart';
+import 'package:exohabit/database.dart';
+import 'package:exohabit/habits/habit_extensions.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

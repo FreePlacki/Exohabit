@@ -1,5 +1,5 @@
 
-import 'package:exohabit/habits/habit.dart';
+import 'package:exohabit/habits/habit_extensions.dart';
 import 'package:exohabit/habits/habit_local_store.dart';
 import 'package:exohabit/habits/habit_remote_store.dart';
 import 'package:exohabit/sync/sync_service.dart';
@@ -38,12 +38,12 @@ class MergeSyncService implements SyncService {
       final remoteHabit = await _remote.fetchById(habit.id);
       final updateRemote =
           remoteHabit == null ||
-          HabitRemote.fromRemote(
+          HabitExtensions.fromRemote(
             remoteHabit,
             synced: true,
           ).updatedAt.isBefore(habit.updatedAt);
       if (updateRemote) {
-        await _remote.upsert(HabitLocal.fromLocal(habit), userId);
+        await _remote.upsert(habit, userId);
       }
 
       await _local.markSynced(habit.id);
@@ -51,7 +51,7 @@ class MergeSyncService implements SyncService {
 
     final remoteHabits = (await _remote.fetch(
       userId,
-    )).map((h) => HabitRemote.fromRemote(h, synced: true));
+    )).map((h) => HabitExtensions.fromRemote(h, synced: true));
     // print('remote: $remoteHabits');
     // print('local: ${await _local.watch().first}');
     for (final habit in remoteHabits) {
@@ -61,7 +61,7 @@ class MergeSyncService implements SyncService {
           (localHabit != null &&
               localHabit.updatedAt.isBefore(habit.updatedAt));
       if (updateLocal) {
-        await _local.upsert(habit.toLocal());
+        await _local.upsert(habit);
       }
 
       await _local.markSynced(habit.id);

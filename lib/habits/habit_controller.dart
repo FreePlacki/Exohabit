@@ -1,12 +1,14 @@
-import 'package:exohabit/habits/habit.dart';
+import 'package:exohabit/database.dart';
+import 'package:exohabit/habits/habit_extensions.dart';
 import 'package:exohabit/habits/habit_repository.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'habit_controller.g.dart';
 
-@riverpod
-Stream<List<Habit>> habits(Ref ref) =>
-    ref.watch(habitRepositoryProvider).watchHabits();
+final habitsProvider = StreamProvider.autoDispose<List<Habit>>(
+  (ref) => ref.watch(habitRepositoryProvider).watchHabits(),
+);
 
 @riverpod
 class HabitController extends _$HabitController {
@@ -32,7 +34,7 @@ class HabitController extends _$HabitController {
         );
         await repo.updateHabit(habit);
       } else {
-        final habit = Habit.create(
+        final habit = HabitExtensions.createHabit(
           title: title,
           description: description,
           frequencyPerWeek: frequency,

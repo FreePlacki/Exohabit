@@ -9,12 +9,12 @@ HabitLocalStore habitLocalStore(Ref ref) =>
     DriftHabitLocalStore(ref.watch(databaseProvider));
 
 abstract class HabitLocalStore {
-  Stream<List<HabitTableData>> watch();
-  Future<List<HabitTableData>> unsynced();
-  Future<HabitTableData?> fetchById(String habitId);
+  Stream<List<Habit>> watch();
+  Future<List<Habit>> unsynced();
+  Future<Habit?> fetchById(String habitId);
 
-  Future<void> upsert(HabitTableData habit);
-  Future<void> delete(HabitTableData habit);
+  Future<void> upsert(Habit habit);
+  Future<void> delete(Habit habit);
   Future<void> markSynced(String habitId);
   Future<void> clear();
   Future<void> transaction(Future<void> Function() action);
@@ -26,29 +26,29 @@ class DriftHabitLocalStore implements HabitLocalStore {
 
   final AppDatabase _db;
 
-  $$HabitTableTableTableManager get _habits => _db.managers.habitTable;
+  $$HabitsTableTableManager get _habits => _db.managers.habits;
 
   @override
-  Stream<List<HabitTableData>> watch() => _habits.watch();
+  Stream<List<Habit>> watch() => _habits.watch();
 
   @override
-  Future<List<HabitTableData>> unsynced() =>
+  Future<List<Habit>> unsynced() =>
       _habits.filter((h) => h.synced(false)).get();
 
   @override
-  Future<HabitTableData?> fetchById(String habitId) =>
+  Future<Habit?> fetchById(String habitId) =>
       _habits.filter((h) => h.id(habitId)).getSingleOrNull();
 
   @override
-  Future<void> upsert(HabitTableData habit) => _db
-      .into(_db.habitTable)
+  Future<void> upsert(Habit habit) => _db
+      .into(_db.habits)
       .insertOnConflictUpdate(
         habit.copyWith(updatedAt: DateTime.timestamp(), synced: false),
       );
 
   @override
-  Future<void> delete(HabitTableData habit) =>
-      _db.delete(_db.habitTable).delete(habit);
+  Future<void> delete(Habit habit) =>
+      _db.delete(_db.habits).delete(habit);
 
   @override
   Future<void> markSynced(String habitId) => _habits
@@ -56,7 +56,7 @@ class DriftHabitLocalStore implements HabitLocalStore {
       .update((h) => h(synced: const Value(true)));
 
   @override
-  Future<void> clear() => _db.delete(_db.habitTable).go();
+  Future<void> clear() => _db.delete(_db.habits).go();
 
   @override
   Future<void> transaction(Future<void> Function() action) =>

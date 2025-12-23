@@ -1,4 +1,4 @@
-import 'package:exohabit/habits/habit.dart';
+import 'package:exohabit/database.dart';
 import 'package:exohabit/habits/habit_controller.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:flutter/material.dart';

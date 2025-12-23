@@ -1,4 +1,4 @@
-import 'package:exohabit/habits/habit.dart';
+import 'package:exohabit/database.dart';
 import 'package:exohabit/habits/habit_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

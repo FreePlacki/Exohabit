@@ -1,24 +1,9 @@
 import 'package:exohabit/database.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
-part 'habit.freezed.dart';
-
-@freezed
-abstract class Habit with _$Habit {
-  const factory Habit({
-    required String id,
-    required String title,
-    required String description,
-    required int frequencyPerWeek,
-    required DateTime createdAt,
-    required DateTime updatedAt,
-    required bool deleted,
-    required bool synced,
-  }) = _Habit;
-
-  factory Habit.create({
+extension HabitExtensions on Habit {
+  static Habit createHabit({
     required String title,
     required int frequencyPerWeek,
     String description = '',
@@ -37,9 +22,7 @@ abstract class Habit with _$Habit {
       synced: false,
     );
   }
-}
 
-extension HabitRemote on Habit {
   Map<String, dynamic> toRemote(String userId) => {
     'id': id,
     'title': title,
@@ -63,28 +46,4 @@ extension HabitRemote on Habit {
       synced: synced,
     );
   }
-}
-
-extension HabitLocal on Habit {
-  HabitTableData toLocal() => HabitTableData(
-    id: id,
-    title: title,
-    description: description,
-    frequencyPerWeek: frequencyPerWeek,
-    createdAt: createdAt,
-    updatedAt: updatedAt,
-    deleted: deleted,
-    synced: synced,
-  );
-
-  static Habit fromLocal(HabitTableData habit) => Habit(
-    id: habit.id,
-    title: habit.title,
-    description: habit.description,
-    frequencyPerWeek: habit.frequencyPerWeek,
-    createdAt: habit.createdAt,
-    updatedAt: habit.updatedAt,
-    deleted: habit.deleted,
-    synced: habit.synced,
-  );
 }

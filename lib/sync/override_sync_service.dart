@@ -1,4 +1,4 @@
-import 'package:exohabit/habits/habit.dart';
+import 'package:exohabit/habits/habit_extensions.dart';
 import 'package:exohabit/habits/habit_local_store.dart';
 import 'package:exohabit/habits/habit_remote_store.dart';
 import 'package:exohabit/login/auth_repository.dart';
@@ -72,9 +72,9 @@ class OverrideSyncService implements SyncService {
     await _local.clear();
     final remoteHabits = (await _remote.fetchNotDeleted(
       userId,
-    )).map((h) => HabitRemote.fromRemote(h, synced: true));
+    )).map((h) => HabitExtensions.fromRemote(h, synced: true));
     for (final habit in remoteHabits) {
-      await _local.upsert(habit.toLocal());
+      await _local.upsert(habit);
     }
   });
 }
