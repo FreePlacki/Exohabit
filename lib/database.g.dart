@@ -562,15 +562,6 @@ class $CompletionsTable extends Completions
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _dayMeta = const VerificationMeta('day');
-  @override
-  late final GeneratedColumn<DateTime> day = GeneratedColumn<DateTime>(
-    'day',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -615,7 +606,6 @@ class $CompletionsTable extends Completions
     id,
     habitId,
     completedAt,
-    day,
     updatedAt,
     deleted,
     synced,
@@ -655,14 +645,6 @@ class $CompletionsTable extends Completions
       );
     } else if (isInserting) {
       context.missing(_completedAtMeta);
-    }
-    if (data.containsKey('day')) {
-      context.handle(
-        _dayMeta,
-        day.isAcceptableOrUnknown(data['day']!, _dayMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_dayMeta);
     }
     if (data.containsKey('updated_at')) {
       context.handle(
@@ -705,10 +687,6 @@ class $CompletionsTable extends Completions
         DriftSqlType.dateTime,
         data['${effectivePrefix}completed_at'],
       )!,
-      day: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}day'],
-      )!,
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
@@ -734,9 +712,6 @@ class Completion extends DataClass implements Insertable<Completion> {
   final String id;
   final String habitId;
   final DateTime completedAt;
-
-  /// Normalized day boundary (midnight UTC)
-  final DateTime day;
   final DateTime updatedAt;
   final bool deleted;
   final bool synced;
@@ -744,7 +719,6 @@ class Completion extends DataClass implements Insertable<Completion> {
     required this.id,
     required this.habitId,
     required this.completedAt,
-    required this.day,
     required this.updatedAt,
     required this.deleted,
     required this.synced,
@@ -755,7 +729,6 @@ class Completion extends DataClass implements Insertable<Completion> {
     map['id'] = Variable<String>(id);
     map['habit_id'] = Variable<String>(habitId);
     map['completed_at'] = Variable<DateTime>(completedAt);
-    map['day'] = Variable<DateTime>(day);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     map['deleted'] = Variable<bool>(deleted);
     map['synced'] = Variable<bool>(synced);
@@ -767,7 +740,6 @@ class Completion extends DataClass implements Insertable<Completion> {
       id: Value(id),
       habitId: Value(habitId),
       completedAt: Value(completedAt),
-      day: Value(day),
       updatedAt: Value(updatedAt),
       deleted: Value(deleted),
       synced: Value(synced),
@@ -783,7 +755,6 @@ class Completion extends DataClass implements Insertable<Completion> {
       id: serializer.fromJson<String>(json['id']),
       habitId: serializer.fromJson<String>(json['habitId']),
       completedAt: serializer.fromJson<DateTime>(json['completedAt']),
-      day: serializer.fromJson<DateTime>(json['day']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deleted: serializer.fromJson<bool>(json['deleted']),
       synced: serializer.fromJson<bool>(json['synced']),
@@ -796,7 +767,6 @@ class Completion extends DataClass implements Insertable<Completion> {
       'id': serializer.toJson<String>(id),
       'habitId': serializer.toJson<String>(habitId),
       'completedAt': serializer.toJson<DateTime>(completedAt),
-      'day': serializer.toJson<DateTime>(day),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deleted': serializer.toJson<bool>(deleted),
       'synced': serializer.toJson<bool>(synced),
@@ -807,7 +777,6 @@ class Completion extends DataClass implements Insertable<Completion> {
     String? id,
     String? habitId,
     DateTime? completedAt,
-    DateTime? day,
     DateTime? updatedAt,
     bool? deleted,
     bool? synced,
@@ -815,7 +784,6 @@ class Completion extends DataClass implements Insertable<Completion> {
     id: id ?? this.id,
     habitId: habitId ?? this.habitId,
     completedAt: completedAt ?? this.completedAt,
-    day: day ?? this.day,
     updatedAt: updatedAt ?? this.updatedAt,
     deleted: deleted ?? this.deleted,
     synced: synced ?? this.synced,
@@ -827,7 +795,6 @@ class Completion extends DataClass implements Insertable<Completion> {
       completedAt: data.completedAt.present
           ? data.completedAt.value
           : this.completedAt,
-      day: data.day.present ? data.day.value : this.day,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deleted: data.deleted.present ? data.deleted.value : this.deleted,
       synced: data.synced.present ? data.synced.value : this.synced,
@@ -840,7 +807,6 @@ class Completion extends DataClass implements Insertable<Completion> {
           ..write('id: $id, ')
           ..write('habitId: $habitId, ')
           ..write('completedAt: $completedAt, ')
-          ..write('day: $day, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deleted: $deleted, ')
           ..write('synced: $synced')
@@ -850,7 +816,7 @@ class Completion extends DataClass implements Insertable<Completion> {
 
   @override
   int get hashCode =>
-      Object.hash(id, habitId, completedAt, day, updatedAt, deleted, synced);
+      Object.hash(id, habitId, completedAt, updatedAt, deleted, synced);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -858,7 +824,6 @@ class Completion extends DataClass implements Insertable<Completion> {
           other.id == this.id &&
           other.habitId == this.habitId &&
           other.completedAt == this.completedAt &&
-          other.day == this.day &&
           other.updatedAt == this.updatedAt &&
           other.deleted == this.deleted &&
           other.synced == this.synced);
@@ -868,7 +833,6 @@ class CompletionsCompanion extends UpdateCompanion<Completion> {
   final Value<String> id;
   final Value<String> habitId;
   final Value<DateTime> completedAt;
-  final Value<DateTime> day;
   final Value<DateTime> updatedAt;
   final Value<bool> deleted;
   final Value<bool> synced;
@@ -877,7 +841,6 @@ class CompletionsCompanion extends UpdateCompanion<Completion> {
     this.id = const Value.absent(),
     this.habitId = const Value.absent(),
     this.completedAt = const Value.absent(),
-    this.day = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deleted = const Value.absent(),
     this.synced = const Value.absent(),
@@ -887,7 +850,6 @@ class CompletionsCompanion extends UpdateCompanion<Completion> {
     required String id,
     required String habitId,
     required DateTime completedAt,
-    required DateTime day,
     required DateTime updatedAt,
     this.deleted = const Value.absent(),
     this.synced = const Value.absent(),
@@ -895,13 +857,11 @@ class CompletionsCompanion extends UpdateCompanion<Completion> {
   }) : id = Value(id),
        habitId = Value(habitId),
        completedAt = Value(completedAt),
-       day = Value(day),
        updatedAt = Value(updatedAt);
   static Insertable<Completion> custom({
     Expression<String>? id,
     Expression<String>? habitId,
     Expression<DateTime>? completedAt,
-    Expression<DateTime>? day,
     Expression<DateTime>? updatedAt,
     Expression<bool>? deleted,
     Expression<bool>? synced,
@@ -911,7 +871,6 @@ class CompletionsCompanion extends UpdateCompanion<Completion> {
       if (id != null) 'id': id,
       if (habitId != null) 'habit_id': habitId,
       if (completedAt != null) 'completed_at': completedAt,
-      if (day != null) 'day': day,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deleted != null) 'deleted': deleted,
       if (synced != null) 'synced': synced,
@@ -923,7 +882,6 @@ class CompletionsCompanion extends UpdateCompanion<Completion> {
     Value<String>? id,
     Value<String>? habitId,
     Value<DateTime>? completedAt,
-    Value<DateTime>? day,
     Value<DateTime>? updatedAt,
     Value<bool>? deleted,
     Value<bool>? synced,
@@ -933,7 +891,6 @@ class CompletionsCompanion extends UpdateCompanion<Completion> {
       id: id ?? this.id,
       habitId: habitId ?? this.habitId,
       completedAt: completedAt ?? this.completedAt,
-      day: day ?? this.day,
       updatedAt: updatedAt ?? this.updatedAt,
       deleted: deleted ?? this.deleted,
       synced: synced ?? this.synced,
@@ -952,9 +909,6 @@ class CompletionsCompanion extends UpdateCompanion<Completion> {
     }
     if (completedAt.present) {
       map['completed_at'] = Variable<DateTime>(completedAt.value);
-    }
-    if (day.present) {
-      map['day'] = Variable<DateTime>(day.value);
     }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
@@ -977,7 +931,6 @@ class CompletionsCompanion extends UpdateCompanion<Completion> {
           ..write('id: $id, ')
           ..write('habitId: $habitId, ')
           ..write('completedAt: $completedAt, ')
-          ..write('day: $day, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deleted: $deleted, ')
           ..write('synced: $synced, ')
@@ -1359,7 +1312,6 @@ typedef $$CompletionsTableCreateCompanionBuilder =
       required String id,
       required String habitId,
       required DateTime completedAt,
-      required DateTime day,
       required DateTime updatedAt,
       Value<bool> deleted,
       Value<bool> synced,
@@ -1370,7 +1322,6 @@ typedef $$CompletionsTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> habitId,
       Value<DateTime> completedAt,
-      Value<DateTime> day,
       Value<DateTime> updatedAt,
       Value<bool> deleted,
       Value<bool> synced,
@@ -1416,11 +1367,6 @@ class $$CompletionsTableFilterComposer
 
   ColumnFilters<DateTime> get completedAt => $composableBuilder(
     column: $table.completedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get day => $composableBuilder(
-    column: $table.day,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1482,11 +1428,6 @@ class $$CompletionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<DateTime> get day => $composableBuilder(
-    column: $table.day,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -1542,9 +1483,6 @@ class $$CompletionsTableAnnotationComposer
     column: $table.completedAt,
     builder: (column) => column,
   );
-
-  GeneratedColumn<DateTime> get day =>
-      $composableBuilder(column: $table.day, builder: (column) => column);
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
@@ -1610,7 +1548,6 @@ class $$CompletionsTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> habitId = const Value.absent(),
                 Value<DateTime> completedAt = const Value.absent(),
-                Value<DateTime> day = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<bool> deleted = const Value.absent(),
                 Value<bool> synced = const Value.absent(),
@@ -1619,7 +1556,6 @@ class $$CompletionsTableTableManager
                 id: id,
                 habitId: habitId,
                 completedAt: completedAt,
-                day: day,
                 updatedAt: updatedAt,
                 deleted: deleted,
                 synced: synced,
@@ -1630,7 +1566,6 @@ class $$CompletionsTableTableManager
                 required String id,
                 required String habitId,
                 required DateTime completedAt,
-                required DateTime day,
                 required DateTime updatedAt,
                 Value<bool> deleted = const Value.absent(),
                 Value<bool> synced = const Value.absent(),
@@ -1639,7 +1574,6 @@ class $$CompletionsTableTableManager
                 id: id,
                 habitId: habitId,
                 completedAt: completedAt,
-                day: day,
                 updatedAt: updatedAt,
                 deleted: deleted,
                 synced: synced,
