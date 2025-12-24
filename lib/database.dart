@@ -17,7 +17,12 @@ class AppDatabase extends _$AppDatabase {
   int get schemaVersion => 1;
 
   static QueryExecutor _openConnection() {
-    // TODO: web support https://drift.simonbinder.eu/platforms/web/
-    return driftDatabase(name: 'exohabit');
+    return driftDatabase(
+      name: 'exohabit',
+      web: .new(
+        sqlite3Wasm: .parse('sqlite3.wasm'),
+        driftWorker: .parse('drift_worker.dart.js'),
+      ),
+    );
   }
 }
