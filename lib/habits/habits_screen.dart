@@ -114,17 +114,7 @@ class _HabitListItemState extends ConsumerState<_HabitListItem> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
         title: Text(widget.habit.title),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(widget.habit.description),
-            const SizedBox(height: 8),
-            Text(
-              'todo / ${widget.habit.frequencyPerWeek}',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
+        subtitle: Text(widget.habit.description),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

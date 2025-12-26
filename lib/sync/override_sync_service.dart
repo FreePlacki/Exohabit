@@ -9,8 +9,15 @@ part 'override_sync_service.g.dart';
 
 @riverpod
 void authSyncListener(Ref ref) {
+  var initialized = false;
+
   ref.listen(authStateProvider, (prev, next) async {
     if (next.isLoading || next.hasError) {
+      return;
+    }
+
+    if (!initialized) {
+      initialized = true;
       return;
     }
 
