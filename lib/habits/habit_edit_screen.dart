@@ -1,5 +1,5 @@
-import 'package:exohabit/database.dart';
 import 'package:exohabit/habits/habit_controller.dart';
+import 'package:exohabit/habits/habits_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -23,9 +23,9 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
   @override
   void initState() {
     super.initState();
-    titleCtrl = TextEditingController(text: widget.habit?.title ?? '');
-    descCtrl = TextEditingController(text: widget.habit?.description ?? '');
-    freq = widget.habit?.frequencyPerWeek ?? 3;
+    titleCtrl = TextEditingController(text: widget.habit?.row.title ?? '');
+    descCtrl = TextEditingController(text: widget.habit?.row.description ?? '');
+    freq = widget.habit?.row.frequencyPerWeek ?? 3;
   }
 
   @override

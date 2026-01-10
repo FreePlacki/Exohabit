@@ -1,6 +1,6 @@
-import 'package:exohabit/database.dart';
 import 'package:exohabit/habits/habit_extensions.dart';
 import 'package:exohabit/habits/habit_repository.dart';
+import 'package:exohabit/habits/habits_table.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -27,10 +27,12 @@ class HabitController extends _$HabitController {
 
     state = await AsyncValue.guard(() async {
       if (existingHabit != null) {
-        final habit = existingHabit.copyWith(
-          title: title,
-          description: description,
-          frequencyPerWeek: frequency,
+        final habit = Habit(
+          existingHabit.row.copyWith(
+            title: title,
+            description: description,
+            frequencyPerWeek: frequency,
+          ),
         );
         await repo.updateHabit(habit);
       } else {

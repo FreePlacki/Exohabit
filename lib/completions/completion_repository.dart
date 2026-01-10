@@ -2,6 +2,7 @@ import 'package:exohabit/completions/completion_extensions.dart';
 import 'package:exohabit/completions/completion_local_store.dart';
 import 'package:exohabit/database.dart';
 import 'package:exohabit/habits/habit_repository.dart';
+import 'package:exohabit/habits/habits_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -19,7 +20,7 @@ final class HabitToday {
   final bool completedToday;
   final int weeklyProgress;
 
-  bool get weeklyGoalMet => weeklyProgress >= habit.frequencyPerWeek;
+  bool get weeklyGoalMet => weeklyProgress >= habit.row.frequencyPerWeek;
 }
 
 @riverpod

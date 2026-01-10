@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:exohabit/database.dart';
 import 'package:exohabit/habits/habit_edit_screen.dart';
 import 'package:exohabit/habits/habits_screen.dart';
+import 'package:exohabit/habits/habits_table.dart';
 import 'package:exohabit/home/home_screen.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/login/auth_screen.dart';

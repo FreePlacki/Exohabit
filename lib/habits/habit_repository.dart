@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:exohabit/database.dart';
 import 'package:exohabit/habits/habit_local_store.dart';
+import 'package:exohabit/habits/habits_table.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'habit_repository.g.dart';
@@ -26,15 +26,15 @@ class OfflineFirstHabitRepository implements HabitRepository {
 
   @override
   Future<void> createHabit(Habit habit) =>
-      _localStore.upsert(habit.copyWith(deleted: false));
+      _localStore.upsert(Habit(habit.row.copyWith(deleted: false)));
 
   @override
   Future<void> deleteHabit(Habit habit) =>
-      _localStore.upsert(habit.copyWith(deleted: true));
+      _localStore.upsert(Habit(habit.row.copyWith(deleted: true)));
 
   @override
   Future<void> updateHabit(Habit habit) =>
-      _localStore.upsert(habit.copyWith(deleted: false));
+      _localStore.upsert(Habit(habit.row.copyWith(deleted: false)));
 
   @override
   Stream<List<Habit>> watchHabits() =>

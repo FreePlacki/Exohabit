@@ -94,4 +94,4 @@ final class HabitRemoteStoreProvider
   }
 }
 
-String _$habitRemoteStoreHash() => r'5174559a41ef515c1d832248c13dfda348027a9c';
+String _$habitRemoteStoreHash() => r'24936f16cfe79a9cad28051217eb4d74d6816d2e';

@@ -1,5 +1,5 @@
-import 'package:exohabit/database.dart';
 import 'package:exohabit/habits/habit_controller.dart';
+import 'package:exohabit/habits/habits_table.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -65,7 +65,7 @@ void _showDeleteDialog(BuildContext context, WidgetRef ref, Habit habit) {
     context: context,
     builder: (context) => AlertDialog(
       title: const Text('Delete Habit'),
-      content: Text('Are you sure you want to delete "${habit.title}"?'),
+      content: Text('Are you sure you want to delete "${habit.row.title}"?'),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
@@ -113,8 +113,8 @@ class _HabitListItemState extends ConsumerState<_HabitListItem> {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
-        title: Text(widget.habit.title),
-        subtitle: Text(widget.habit.description),
+        title: Text(widget.habit.row.title),
+        subtitle: Text(widget.habit.row.description),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

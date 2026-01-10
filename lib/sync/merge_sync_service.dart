@@ -1,8 +1,7 @@
-
-import 'package:exohabit/habits/habit_extensions.dart';
 import 'package:exohabit/habits/habit_local_store.dart';
 import 'package:exohabit/habits/habit_remote_store.dart';
 import 'package:exohabit/sync/sync_service.dart';
+import 'package:exohabit/sync/sync_store.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'merge_sync_service.g.dart';
@@ -19,52 +18,52 @@ SyncService mergeSyncService(Ref ref) => MergeSyncService(
 /// 3) if H not in remote and in local, insert to remote
 ///     NOTE: we also insert if `deleted = false` to notify others of deletion
 /// 4) otherwise compare `updatedAt` and override older
-class MergeSyncService implements SyncService {
+class MergeSyncService<T extends SyncEntity> implements SyncService {
   MergeSyncService({
-    required HabitLocalStore localStore,
-    required HabitRemoteStore remoteStore,
+    required LocalSyncStore<T> localStore,
+    required RemoteSyncStore<T> remoteStore,
   }) : _local = localStore,
        _remote = remoteStore;
 
-  final HabitLocalStore _local;
-  final HabitRemoteStore _remote;
+  final LocalSyncStore<T> _local;
+  final RemoteSyncStore<T> _remote;
 
   @override
-  Future<void> sync(String userId) => _local.transaction(() async {
-    final localHabits = await _local.unsynced();
+  Future<void> sync(String userId) async {
+    final localUnsynced = await _local.unsynced();
+    final localAll = await _local.fetchAll();
+    final remoteAll = await _remote.fetchAll(userId);
 
-    // TODO: avoid n network calls
-    for (final habit in localHabits) {
-      final remoteHabit = await _remote.fetchById(habit.id);
+    final localById = {for (final e in localAll) e.id: e};
+    final remoteById = {for (final e in remoteAll) e.id: e};
+
+    // Local → Remote
+    for (final local in localUnsynced) {
+      final remote = remoteById[local.id];
+
       final updateRemote =
-          remoteHabit == null ||
-          HabitExtensions.fromRemote(
-            remoteHabit,
-            synced: true,
-          ).updatedAt.isBefore(habit.updatedAt);
+          remote == null || remote.updatedAt.isBefore(local.updatedAt);
+
       if (updateRemote) {
-        await _remote.upsert(habit, userId);
+        await _remote.upsert(local, userId);
       }
 
-      await _local.markSynced(habit.id);
+      await _local.markSynced(local.id);
     }
 
-    final remoteHabits = (await _remote.fetch(
-      userId,
-    )).map((h) => HabitExtensions.fromRemote(h, synced: true));
-    // print('remote: $remoteHabits');
-    // print('local: ${await _local.watch().first}');
-    for (final habit in remoteHabits) {
-      final localHabit = await _local.fetchById(habit.id);
+    // Remote → Local
+    for (final remote in remoteAll) {
+      final local = localById[remote.id];
+
       final updateLocal =
-          (localHabit == null && !habit.deleted) ||
-          (localHabit != null &&
-              localHabit.updatedAt.isBefore(habit.updatedAt));
+          (local == null && !remote.deleted) ||
+          (local != null && local.updatedAt.isBefore(remote.updatedAt));
+
       if (updateLocal) {
-        await _local.upsert(habit);
+        await _local.upsert(remote);
       }
 
-      await _local.markSynced(habit.id);
+      await _local.markSynced(remote.id);
     }
-  });
+  }
 }

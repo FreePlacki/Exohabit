@@ -75,10 +75,10 @@ class _HabitText extends ConsumerWidget {
     return Column(
       crossAxisAlignment: .start,
       children: [
-        Text(habit.habit.title, style: style.titleMedium),
+        Text(habit.habit.row.title, style: style.titleMedium),
         const SizedBox(height: 4),
         Text(
-          '${habit.weeklyProgress} / ${habit.habit.frequencyPerWeek} this week'
+          '${habit.weeklyProgress} / ${habit.habit.row.frequencyPerWeek} this week'
           '${habit.weeklyGoalMet ? ' · goal met' : ''}',
           style: style.bodySmall?.copyWith(
             color: habit.weeklyGoalMet ? Colors.green : Colors.grey,

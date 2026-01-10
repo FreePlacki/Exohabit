@@ -39,13 +39,13 @@ class DriftCompletionLocalStore implements CompletionLocalStore {
     DateTime? to,
   }) {
     final query = _db.select(_db.completions)
+      ..where((c) => c.habitId.equals(habitId))
+      ..where((c) => c.deleted.equals(false))
       ..where(
-        (c) =>
-            c.habitId.equals(habitId) &
-            c.completedAt.isBetweenValues(
-              from ?? DateTime.fromMillisecondsSinceEpoch(0),
-              to ?? DateTime.now(),
-            ),
+        (c) => c.completedAt.isBetweenValues(
+          from ?? DateTime.fromMillisecondsSinceEpoch(0),
+          to ?? DateTime.now(),
+        ),
       );
 
     return query.get();
@@ -65,8 +65,11 @@ class DriftCompletionLocalStore implements CompletionLocalStore {
 
     final query = _db.selectOnly(_db.completions)
       ..addColumns([distinctDayCount])
+      ..where(_db.completions.deleted.equals(false))
       ..where(_db.completions.habitId.equals(habitId))
-      ..where(_db.completions.completedAt.day.isBetweenValues(from.day, to.day));
+      ..where(
+        _db.completions.completedAt.day.isBetweenValues(from.day, to.day),
+      );
 
     final row = await query.getSingle();
     return row.read(distinctDayCount) ?? 0;

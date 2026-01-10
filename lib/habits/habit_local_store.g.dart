@@ -49,4 +49,4 @@ final class HabitLocalStoreProvider
   }
 }
 
-String _$habitLocalStoreHash() => r'a19c0aac35a30d73ff724496186dafb0c696c5df';
+String _$habitLocalStoreHash() => r'b919629e4420dab3abb679fb9ff588fa77ae882e';

@@ -1,67 +1,68 @@
 import 'package:drift/drift.dart';
 import 'package:exohabit/database.dart';
+import 'package:exohabit/habits/habits_table.dart';
+import 'package:exohabit/sync/sync_store.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'habit_local_store.g.dart';
 
 @riverpod
 HabitLocalStore habitLocalStore(Ref ref) =>
-    DriftHabitLocalStore(ref.watch(databaseProvider));
+    HabitLocalStore(ref.watch(databaseProvider));
 
-abstract class HabitLocalStore {
-  Stream<List<Habit>> watch();
-  Future<List<Habit>> unsynced();
-  Future<Habit?> fetchById(String habitId);
-
-  Future<void> upsert(Habit habit);
-  Future<void> delete(Habit habit);
-  Future<void> markSynced(String habitId);
-  Future<void> clear();
-  Future<void> transaction(Future<void> Function() action);
-  Future<bool> hasAny();
-}
-
-class DriftHabitLocalStore implements HabitLocalStore {
-  DriftHabitLocalStore(AppDatabase db) : _db = db;
+class HabitLocalStore implements LocalSyncStore<Habit> {
+  HabitLocalStore(this._db);
 
   final AppDatabase _db;
 
   $$HabitsTableTableManager get _habits => _db.managers.habits;
 
-  @override
-  Stream<List<Habit>> watch() => _habits.watch();
+  Stream<List<Habit>> watch() =>
+      _habits.watch().map((rows) => rows.map(Habit.new).toList());
 
   @override
-  Future<List<Habit>> unsynced() =>
-      _habits.filter((h) => h.synced(false)).get();
+  Future<List<Habit>> unsynced() async {
+    final rows = await _habits.filter((h) => h.synced(false)).get();
+    return rows.map(Habit.new).toList();
+  }
 
   @override
-  Future<Habit?> fetchById(String habitId) =>
-      _habits.filter((h) => h.id(habitId)).getSingleOrNull();
+  Future<List<Habit>> fetchAll() async {
+    final rows = await _habits.get();
+    return rows.map(Habit.new).toList();
+  }
 
   @override
-  Future<void> upsert(Habit habit) => _db
-      .into(_db.habits)
-      .insertOnConflictUpdate(
-        habit.copyWith(updatedAt: DateTime.timestamp(), synced: false),
-      );
+  Future<Habit?> fetchById(String habitId) async {
+    final row = await _habits.filter((h) => h.id(habitId)).getSingleOrNull();
+    return row == null ? null : Habit(row);
+  }
 
   @override
-  Future<void> delete(Habit habit) =>
-      _db.delete(_db.habits).delete(habit);
+  Future<void> upsert(Habit habit) {
+    final updatedRow = habit.copyRow(
+      updatedAt: DateTime.timestamp(),
+      synced: false,
+    );
+
+    return _db.into(_db.habits).insertOnConflictUpdate(updatedRow);
+  }
+
+  Future<void> delete(Habit habit) {
+    return _db.delete(_db.habits).delete(habit.row);
+  }
 
   @override
-  Future<void> markSynced(String habitId) => _habits
-      .filter((h) => h.id(habitId))
-      .update((h) => h(synced: const Value(true)));
+  Future<void> markSynced(String habitId) {
+    return _habits
+        .filter((h) => h.id(habitId))
+        .update((h) => h(synced: const Value(true)));
+  }
 
-  @override
   Future<void> clear() => _db.delete(_db.habits).go();
 
-  @override
   Future<void> transaction(Future<void> Function() action) =>
       _db.transaction(action);
 
-  @override
   Future<bool> hasAny() => _habits.exists();
 }
