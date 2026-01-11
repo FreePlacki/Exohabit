@@ -59,8 +59,10 @@ class HabitLocalStore implements LocalSyncStore<Habit> {
         .update((h) => h(synced: const Value(true)));
   }
 
+  @override
   Future<void> clear() => _db.delete(_db.habits).go();
 
+  @override
   Future<void> transaction(Future<void> Function() action) =>
       _db.transaction(action);
 

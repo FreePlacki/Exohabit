@@ -523,7 +523,7 @@ class HabitsCompanion extends UpdateCompanion<HabitRow> {
 }
 
 class $CompletionsTable extends Completions
-    with TableInfo<$CompletionsTable, Completion> {
+    with TableInfo<$CompletionsTable, CompletionRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -617,7 +617,7 @@ class $CompletionsTable extends Completions
   static const String $name = 'completions';
   @override
   VerificationContext validateIntegrity(
-    Insertable<Completion> instance, {
+    Insertable<CompletionRow> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -672,9 +672,9 @@ class $CompletionsTable extends Completions
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Completion map(Map<String, dynamic> data, {String? tablePrefix}) {
+  CompletionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Completion(
+    return CompletionRow(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -708,14 +708,14 @@ class $CompletionsTable extends Completions
   }
 }
 
-class Completion extends DataClass implements Insertable<Completion> {
+class CompletionRow extends DataClass implements Insertable<CompletionRow> {
   final String id;
   final String habitId;
   final DateTime completedAt;
   final DateTime updatedAt;
   final bool deleted;
   final bool synced;
-  const Completion({
+  const CompletionRow({
     required this.id,
     required this.habitId,
     required this.completedAt,
@@ -746,12 +746,12 @@ class Completion extends DataClass implements Insertable<Completion> {
     );
   }
 
-  factory Completion.fromJson(
+  factory CompletionRow.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Completion(
+    return CompletionRow(
       id: serializer.fromJson<String>(json['id']),
       habitId: serializer.fromJson<String>(json['habitId']),
       completedAt: serializer.fromJson<DateTime>(json['completedAt']),
@@ -773,14 +773,14 @@ class Completion extends DataClass implements Insertable<Completion> {
     };
   }
 
-  Completion copyWith({
+  CompletionRow copyWith({
     String? id,
     String? habitId,
     DateTime? completedAt,
     DateTime? updatedAt,
     bool? deleted,
     bool? synced,
-  }) => Completion(
+  }) => CompletionRow(
     id: id ?? this.id,
     habitId: habitId ?? this.habitId,
     completedAt: completedAt ?? this.completedAt,
@@ -788,8 +788,8 @@ class Completion extends DataClass implements Insertable<Completion> {
     deleted: deleted ?? this.deleted,
     synced: synced ?? this.synced,
   );
-  Completion copyWithCompanion(CompletionsCompanion data) {
-    return Completion(
+  CompletionRow copyWithCompanion(CompletionsCompanion data) {
+    return CompletionRow(
       id: data.id.present ? data.id.value : this.id,
       habitId: data.habitId.present ? data.habitId.value : this.habitId,
       completedAt: data.completedAt.present
@@ -803,7 +803,7 @@ class Completion extends DataClass implements Insertable<Completion> {
 
   @override
   String toString() {
-    return (StringBuffer('Completion(')
+    return (StringBuffer('CompletionRow(')
           ..write('id: $id, ')
           ..write('habitId: $habitId, ')
           ..write('completedAt: $completedAt, ')
@@ -820,7 +820,7 @@ class Completion extends DataClass implements Insertable<Completion> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Completion &&
+      (other is CompletionRow &&
           other.id == this.id &&
           other.habitId == this.habitId &&
           other.completedAt == this.completedAt &&
@@ -829,7 +829,7 @@ class Completion extends DataClass implements Insertable<Completion> {
           other.synced == this.synced);
 }
 
-class CompletionsCompanion extends UpdateCompanion<Completion> {
+class CompletionsCompanion extends UpdateCompanion<CompletionRow> {
   final Value<String> id;
   final Value<String> habitId;
   final Value<DateTime> completedAt;
@@ -858,7 +858,7 @@ class CompletionsCompanion extends UpdateCompanion<Completion> {
        habitId = Value(habitId),
        completedAt = Value(completedAt),
        updatedAt = Value(updatedAt);
-  static Insertable<Completion> custom({
+  static Insertable<CompletionRow> custom({
     Expression<String>? id,
     Expression<String>? habitId,
     Expression<DateTime>? completedAt,
@@ -981,7 +981,7 @@ final class $$HabitsTableReferences
     extends BaseReferences<_$AppDatabase, $HabitsTable, HabitRow> {
   $$HabitsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$CompletionsTable, List<Completion>>
+  static MultiTypedResultKey<$CompletionsTable, List<CompletionRow>>
   _completionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.completions,
     aliasName: $_aliasNameGenerator(db.habits.id, db.completions.habitId),
@@ -1275,7 +1275,7 @@ class $$HabitsTableTableManager
                     await $_getPrefetchedData<
                       HabitRow,
                       $HabitsTable,
-                      Completion
+                      CompletionRow
                     >(
                       currentTable: table,
                       referencedTable: $$HabitsTableReferences
@@ -1333,7 +1333,7 @@ typedef $$CompletionsTableUpdateCompanionBuilder =
     });
 
 final class $$CompletionsTableReferences
-    extends BaseReferences<_$AppDatabase, $CompletionsTable, Completion> {
+    extends BaseReferences<_$AppDatabase, $CompletionsTable, CompletionRow> {
   $$CompletionsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $HabitsTable _habitIdTable(_$AppDatabase db) => db.habits.createAlias(
@@ -1526,14 +1526,14 @@ class $$CompletionsTableTableManager
         RootTableManager<
           _$AppDatabase,
           $CompletionsTable,
-          Completion,
+          CompletionRow,
           $$CompletionsTableFilterComposer,
           $$CompletionsTableOrderingComposer,
           $$CompletionsTableAnnotationComposer,
           $$CompletionsTableCreateCompanionBuilder,
           $$CompletionsTableUpdateCompanionBuilder,
-          (Completion, $$CompletionsTableReferences),
-          Completion,
+          (CompletionRow, $$CompletionsTableReferences),
+          CompletionRow,
           PrefetchHooks Function({bool habitId})
         > {
   $$CompletionsTableTableManager(_$AppDatabase db, $CompletionsTable table)
@@ -1640,14 +1640,14 @@ typedef $$CompletionsTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
       $CompletionsTable,
-      Completion,
+      CompletionRow,
       $$CompletionsTableFilterComposer,
       $$CompletionsTableOrderingComposer,
       $$CompletionsTableAnnotationComposer,
       $$CompletionsTableCreateCompanionBuilder,
       $$CompletionsTableUpdateCompanionBuilder,
-      (Completion, $$CompletionsTableReferences),
-      Completion,
+      (CompletionRow, $$CompletionsTableReferences),
+      CompletionRow,
       PrefetchHooks Function({bool habitId})
     >;
 

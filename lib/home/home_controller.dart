@@ -15,7 +15,7 @@ class HomeController extends _$HomeController {
   Future<void> sync() => syncMutation.run(ref, (tsx) async {
     final userId = ref.read(currentUserIdProvider);
     if (userId != null) {
-      await ref.read(mergeSyncServiceProvider).sync(userId);
+      await ref.read(mergeSyncCoordinatorProvider).sync();
     }
   });
 }

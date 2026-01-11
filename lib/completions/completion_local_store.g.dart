@@ -55,4 +55,4 @@ final class CompletionLocalStoreProvider
 }
 
 String _$completionLocalStoreHash() =>
-    r'670c0687dcdf62630dbe83897d25314c16d453b8';
+    r'4b3652fc3be93857f72120d2d8cf70babb04d7f2';

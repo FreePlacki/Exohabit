@@ -1,5 +1,10 @@
+import 'package:exohabit/completions/completion_local_store.dart';
+import 'package:exohabit/completions/completion_remote_store.dart';
+import 'package:exohabit/completions/completions_table.dart';
 import 'package:exohabit/habits/habit_local_store.dart';
 import 'package:exohabit/habits/habit_remote_store.dart';
+import 'package:exohabit/habits/habits_table.dart';
+import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/sync/sync_service.dart';
 import 'package:exohabit/sync/sync_store.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -7,9 +12,15 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'merge_sync_service.g.dart';
 
 @riverpod
-SyncService mergeSyncService(Ref ref) => MergeSyncService(
+SyncService habitMergeSyncService(Ref ref) => MergeSyncService(
   localStore: ref.watch(habitLocalStoreProvider),
   remoteStore: ref.watch(habitRemoteStoreProvider),
+);
+
+@riverpod
+SyncService completionMergeSyncService(Ref ref) => MergeSyncService(
+  localStore: ref.watch(completionLocalStoreProvider),
+  remoteStore: ref.watch(completionRemoteStoreProvider),
 );
 
 /// Merges the remote with local database
@@ -65,5 +76,35 @@ class MergeSyncService<T extends SyncEntity> implements SyncService {
 
       await _local.markSynced(remote.id);
     }
+  }
+}
+
+@riverpod
+MergeSyncCoordinator mergeSyncCoordinator(Ref ref) => MergeSyncCoordinator(
+  userId: ref.watch(currentUserIdProvider),
+  habitSyncService: ref.watch(habitMergeSyncServiceProvider),
+  completionSyncService: ref.watch(completionMergeSyncServiceProvider),
+);
+
+class MergeSyncCoordinator {
+  MergeSyncCoordinator({
+    required String? userId,
+    required SyncService habitSyncService,
+    required SyncService completionSyncService,
+  }) : _userId = userId,
+       _habitSyncService = habitSyncService,
+       _completionSyncService = completionSyncService;
+
+  final String? _userId;
+  final SyncService _habitSyncService;
+  final SyncService _completionSyncService;
+
+  Future<void> sync() async {
+    if (_userId == null) {
+      return;
+    }
+
+    await _habitSyncService.sync(_userId);
+    await _completionSyncService.sync(_userId);
   }
 }

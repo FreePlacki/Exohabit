@@ -1,7 +1,31 @@
 import 'package:drift/drift.dart';
+import 'package:exohabit/database.dart';
 import 'package:exohabit/habits/habits_table.dart';
+import 'package:exohabit/sync/sync_service.dart';
 
-@DataClassName('Completion')
+class Completion implements SyncEntity {
+  Completion(this.row);
+  final CompletionRow row;
+
+  @override
+  String get id => row.id;
+  @override
+  DateTime get updatedAt => row.updatedAt;
+  @override
+  bool get deleted => row.deleted;
+
+  CompletionRow copyRow({
+    DateTime? updatedAt,
+    bool? synced,
+  }) {
+    return row.copyWith(
+      updatedAt: updatedAt,
+      synced: synced,
+    );
+  }
+}
+
+@DataClassName('CompletionRow')
 class Completions extends Table {
   TextColumn get id => text()();
   TextColumn get habitId => text().references(Habits, #id)();

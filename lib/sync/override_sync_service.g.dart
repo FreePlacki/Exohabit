@@ -48,7 +48,7 @@ final class AuthSyncListenerProvider
   }
 }
 
-String _$authSyncListenerHash() => r'c5528f060d903b6f00fae45452851072f9799e52';
+String _$authSyncListenerHash() => r'd1d1f9ccb98902e3bd28ac5c26e62b09e4cffbf9';
 
 @ProviderFor(PendingSyncDecisionNotifier)
 const pendingSyncDecisionProvider = PendingSyncDecisionNotifierProvider._();
@@ -106,44 +106,149 @@ abstract class _$PendingSyncDecisionNotifier
   }
 }
 
-@ProviderFor(overrideSyncService)
-const overrideSyncServiceProvider = OverrideSyncServiceProvider._();
+@ProviderFor(habitOverrideSyncService)
+const habitOverrideSyncServiceProvider = HabitOverrideSyncServiceProvider._();
 
-final class OverrideSyncServiceProvider
-    extends $FunctionalProvider<SyncService, SyncService, SyncService>
-    with $Provider<SyncService> {
-  const OverrideSyncServiceProvider._()
+final class HabitOverrideSyncServiceProvider
+    extends
+        $FunctionalProvider<
+          OverrideSyncService<Habit>,
+          OverrideSyncService<Habit>,
+          OverrideSyncService<Habit>
+        >
+    with $Provider<OverrideSyncService<Habit>> {
+  const HabitOverrideSyncServiceProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'overrideSyncServiceProvider',
+        name: r'habitOverrideSyncServiceProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$overrideSyncServiceHash();
+  String debugGetCreateSourceHash() => _$habitOverrideSyncServiceHash();
 
   @$internal
   @override
-  $ProviderElement<SyncService> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+  $ProviderElement<OverrideSyncService<Habit>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
-  SyncService create(Ref ref) {
-    return overrideSyncService(ref);
+  OverrideSyncService<Habit> create(Ref ref) {
+    return habitOverrideSyncService(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(SyncService value) {
+  Override overrideWithValue(OverrideSyncService<Habit> value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<SyncService>(value),
+      providerOverride: $SyncValueProvider<OverrideSyncService<Habit>>(value),
     );
   }
 }
 
-String _$overrideSyncServiceHash() =>
-    r'344f6ef4e981d9769bc3bc6d36a7b3f95f376f22';
+String _$habitOverrideSyncServiceHash() =>
+    r'efc4b0b10590e25387640ed06a0b6c3db09db923';
+
+@ProviderFor(completionOverrideSyncService)
+const completionOverrideSyncServiceProvider =
+    CompletionOverrideSyncServiceProvider._();
+
+final class CompletionOverrideSyncServiceProvider
+    extends
+        $FunctionalProvider<
+          OverrideSyncService<Completion>,
+          OverrideSyncService<Completion>,
+          OverrideSyncService<Completion>
+        >
+    with $Provider<OverrideSyncService<Completion>> {
+  const CompletionOverrideSyncServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'completionOverrideSyncServiceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$completionOverrideSyncServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<OverrideSyncService<Completion>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  OverrideSyncService<Completion> create(Ref ref) {
+    return completionOverrideSyncService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(OverrideSyncService<Completion> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<OverrideSyncService<Completion>>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$completionOverrideSyncServiceHash() =>
+    r'749862ab5525d49bc91174c6c8a8e016b6a493f0';
+
+@ProviderFor(overrideSyncCoordinator)
+const overrideSyncCoordinatorProvider = OverrideSyncCoordinatorProvider._();
+
+final class OverrideSyncCoordinatorProvider
+    extends
+        $FunctionalProvider<
+          OverrideSyncCoordinator,
+          OverrideSyncCoordinator,
+          OverrideSyncCoordinator
+        >
+    with $Provider<OverrideSyncCoordinator> {
+  const OverrideSyncCoordinatorProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'overrideSyncCoordinatorProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$overrideSyncCoordinatorHash();
+
+  @$internal
+  @override
+  $ProviderElement<OverrideSyncCoordinator> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  OverrideSyncCoordinator create(Ref ref) {
+    return overrideSyncCoordinator(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(OverrideSyncCoordinator value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<OverrideSyncCoordinator>(value),
+    );
+  }
+}
+
+String _$overrideSyncCoordinatorHash() =>
+    r'f1263690ba5f89a7f8534e4e0eb3d8abd6faf055';

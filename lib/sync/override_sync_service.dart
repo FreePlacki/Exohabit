@@ -1,7 +1,12 @@
+import 'package:exohabit/completions/completion_local_store.dart';
+import 'package:exohabit/completions/completion_remote_store.dart';
+import 'package:exohabit/completions/completions_table.dart';
 import 'package:exohabit/habits/habit_local_store.dart';
 import 'package:exohabit/habits/habit_remote_store.dart';
+import 'package:exohabit/habits/habits_table.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/sync/sync_service.dart';
+import 'package:exohabit/sync/sync_store.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'override_sync_service.g.dart';
@@ -38,7 +43,7 @@ void authSyncListener(Ref ref) {
         if (hasData) {
           ref.read(pendingSyncDecisionProvider.notifier).init();
         } else {
-          await ref.read(overrideSyncServiceProvider).sync(userId);
+          await ref.read(overrideSyncCoordinatorProvider).sync();
         }
       }
     }
@@ -57,21 +62,29 @@ class PendingSyncDecisionNotifier extends _$PendingSyncDecisionNotifier {
 }
 
 @riverpod
-SyncService overrideSyncService(Ref ref) => OverrideSyncService(
-  localStore: ref.watch(habitLocalStoreProvider),
-  remoteStore: ref.watch(habitRemoteStoreProvider),
-);
+OverrideSyncService<Habit> habitOverrideSyncService(Ref ref) =>
+    OverrideSyncService(
+      localStore: ref.watch(habitLocalStoreProvider),
+      remoteStore: ref.watch(habitRemoteStoreProvider),
+    );
+
+@riverpod
+OverrideSyncService<Completion> completionOverrideSyncService(Ref ref) =>
+    OverrideSyncService(
+      localStore: ref.watch(completionLocalStoreProvider),
+      remoteStore: ref.watch(completionRemoteStoreProvider),
+    );
 
 /// Overrides local db with remote (only `deleted = false`)
-class OverrideSyncService implements SyncService {
+class OverrideSyncService<T extends SyncEntity> implements SyncService {
   OverrideSyncService({
-    required HabitLocalStore localStore,
-    required HabitRemoteStore remoteStore,
+    required LocalSyncStore<T> localStore,
+    required RemoteSyncStore<T> remoteStore,
   }) : _local = localStore,
        _remote = remoteStore;
 
-  final HabitLocalStore _local;
-  final HabitRemoteStore _remote;
+  final LocalSyncStore<T> _local;
+  final RemoteSyncStore<T> _remote;
 
   @override
   Future<void> sync(String userId) => _local.transaction(() async {
@@ -81,4 +94,35 @@ class OverrideSyncService implements SyncService {
       await _local.upsert(habit);
     }
   });
+}
+
+@riverpod
+OverrideSyncCoordinator overrideSyncCoordinator(Ref ref) =>
+    OverrideSyncCoordinator(
+      userId: ref.watch(currentUserIdProvider),
+      habitSyncService: ref.watch(habitOverrideSyncServiceProvider),
+      completionSyncService: ref.watch(completionOverrideSyncServiceProvider),
+    );
+
+class OverrideSyncCoordinator {
+  OverrideSyncCoordinator({
+    required String? userId,
+    required OverrideSyncService<Habit> habitSyncService,
+    required OverrideSyncService<Completion> completionSyncService,
+  }) : _userId = userId,
+       _habitSyncService = habitSyncService,
+       _completionSyncService = completionSyncService;
+
+  final String? _userId;
+  final OverrideSyncService<Habit> _habitSyncService;
+  final OverrideSyncService<Completion> _completionSyncService;
+
+  Future<void> sync() async {
+    if (_userId == null) {
+      return;
+    }
+
+    await _habitSyncService.sync(_userId);
+    await _completionSyncService.sync(_userId);
+  }
 }

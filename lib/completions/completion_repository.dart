@@ -1,6 +1,6 @@
 import 'package:exohabit/completions/completion_extensions.dart';
 import 'package:exohabit/completions/completion_local_store.dart';
-import 'package:exohabit/database.dart';
+import 'package:exohabit/completions/completions_table.dart';
 import 'package:exohabit/habits/habit_repository.dart';
 import 'package:exohabit/habits/habits_table.dart';
 import 'package:flutter/material.dart';
