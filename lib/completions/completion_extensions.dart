@@ -16,9 +16,9 @@ extension CompletionExtensions on Completion {
     synced: false,
   ));
 
-  Map<String, dynamic> toRemote(String habitId) => {
+  Map<String, dynamic> toRemote() => {
     'id': id,
-    'habitId': habitId,
+    'habitId': row.habitId,
     'createdAt': toTimestampString(row.completedAt.toString()),
     'updatedAt': toTimestampString(updatedAt.toString()),
     'deleted': deleted,

@@ -1,9 +1,7 @@
 import 'package:exohabit/completions/completion_local_store.dart';
 import 'package:exohabit/completions/completion_remote_store.dart';
-import 'package:exohabit/completions/completions_table.dart';
 import 'package:exohabit/habits/habit_local_store.dart';
 import 'package:exohabit/habits/habit_remote_store.dart';
-import 'package:exohabit/habits/habits_table.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/sync/sync_service.dart';
 import 'package:exohabit/sync/sync_store.dart';
@@ -48,7 +46,7 @@ class MergeSyncService<T extends SyncEntity> implements SyncService {
     final localById = {for (final e in localAll) e.id: e};
     final remoteById = {for (final e in remoteAll) e.id: e};
 
-    // Local → Remote
+    // Local -> Remote
     for (final local in localUnsynced) {
       final remote = remoteById[local.id];
 
@@ -62,7 +60,7 @@ class MergeSyncService<T extends SyncEntity> implements SyncService {
       await _local.markSynced(local.id);
     }
 
-    // Remote → Local
+    // Remote -> Local
     for (final remote in remoteAll) {
       final local = localById[remote.id];
 

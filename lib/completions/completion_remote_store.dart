@@ -20,7 +20,7 @@ class CompletionRemoteStore implements RemoteSyncStore<Completion> {
 
   @override
   Future<void> upsert(Completion completion, String userId) {
-    return _db.from(_table).upsert(completion.toRemote(userId));
+    return _db.from(_table).upsert(completion.toRemote());
   }
 
   Future<void> delete(Completion completion) {
@@ -30,9 +30,9 @@ class CompletionRemoteStore implements RemoteSyncStore<Completion> {
   @override
   Future<List<Completion>> fetchAll(String userId) async {
     final response = await _db
-        .from('completions')
-        .select('*, habits!inner(id)')
-        .eq('habits.user_id', userId);
+        .from(_table)
+        .select('*, Habits!inner(id)')
+        .eq('Habits.userId', userId);
 
     return response
         .map((row) => CompletionExtensions.fromRemote(row, synced: false))

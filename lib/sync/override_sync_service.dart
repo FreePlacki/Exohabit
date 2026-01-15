@@ -11,7 +11,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'override_sync_service.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 void authSyncListener(Ref ref) {
   var initialized = false;
 

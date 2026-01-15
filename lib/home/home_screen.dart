@@ -107,7 +107,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     switch (result) {
       case .merge:
-        await ref.read(mergeSyncCoordinatorProvider).sync();
+        try {
+          await ref.read(mergeSyncCoordinatorProvider).sync();
+        } on Exception catch (_) {
+          await ref.read(overrideSyncCoordinatorProvider).sync();
+        }
       case .override:
         await ref.read(overrideSyncCoordinatorProvider).sync();
     }
