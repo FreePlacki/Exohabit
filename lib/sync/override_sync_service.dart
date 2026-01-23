@@ -5,6 +5,9 @@ import 'package:exohabit/habits/habit_local_store.dart';
 import 'package:exohabit/habits/habit_remote_store.dart';
 import 'package:exohabit/habits/habits_table.dart';
 import 'package:exohabit/login/auth_repository.dart';
+import 'package:exohabit/rewards/reward_local_store.dart';
+import 'package:exohabit/rewards/reward_remote_store.dart';
+import 'package:exohabit/rewards/rewards_table.dart';
 import 'package:exohabit/sync/sync_service.dart';
 import 'package:exohabit/sync/sync_store.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -75,6 +78,13 @@ OverrideSyncService<Completion> completionOverrideSyncService(Ref ref) =>
       remoteStore: ref.watch(completionRemoteStoreProvider),
     );
 
+@riverpod
+OverrideSyncService<Reward> rewardOverrideSyncService(Ref ref) =>
+    OverrideSyncService(
+      localStore: ref.watch(rewardLocalStoreProvider),
+      remoteStore: ref.watch(rewardRemoteStoreProvider),
+    );
+
 /// Overrides local db with remote (only `deleted = false`)
 class OverrideSyncService<T extends SyncEntity> implements SyncService {
   OverrideSyncService({
@@ -102,6 +112,7 @@ OverrideSyncCoordinator overrideSyncCoordinator(Ref ref) =>
       userId: ref.watch(currentUserIdProvider),
       habitSyncService: ref.watch(habitOverrideSyncServiceProvider),
       completionSyncService: ref.watch(completionOverrideSyncServiceProvider),
+      rewardSyncService: ref.watch(rewardOverrideSyncServiceProvider),
     );
 
 class OverrideSyncCoordinator {
@@ -109,13 +120,16 @@ class OverrideSyncCoordinator {
     required String? userId,
     required OverrideSyncService<Habit> habitSyncService,
     required OverrideSyncService<Completion> completionSyncService,
+    required OverrideSyncService<Reward> rewardSyncService,
   }) : _userId = userId,
        _habitSyncService = habitSyncService,
-       _completionSyncService = completionSyncService;
+       _completionSyncService = completionSyncService,
+       _rewardSyncService = rewardSyncService;
 
   final String? _userId;
   final OverrideSyncService<Habit> _habitSyncService;
   final OverrideSyncService<Completion> _completionSyncService;
+  final OverrideSyncService<Reward> _rewardSyncService;
 
   Future<void> sync() async {
     if (_userId == null) {
@@ -124,5 +138,6 @@ class OverrideSyncCoordinator {
 
     await _habitSyncService.sync(_userId);
     await _completionSyncService.sync(_userId);
+    await _rewardSyncService.sync(_userId);
   }
 }

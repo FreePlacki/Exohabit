@@ -3,6 +3,8 @@ import 'package:exohabit/completions/completion_remote_store.dart';
 import 'package:exohabit/habits/habit_local_store.dart';
 import 'package:exohabit/habits/habit_remote_store.dart';
 import 'package:exohabit/login/auth_repository.dart';
+import 'package:exohabit/rewards/reward_local_store.dart';
+import 'package:exohabit/rewards/reward_remote_store.dart';
 import 'package:exohabit/sync/sync_service.dart';
 import 'package:exohabit/sync/sync_store.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -19,6 +21,12 @@ SyncService habitMergeSyncService(Ref ref) => MergeSyncService(
 SyncService completionMergeSyncService(Ref ref) => MergeSyncService(
   localStore: ref.watch(completionLocalStoreProvider),
   remoteStore: ref.watch(completionRemoteStoreProvider),
+);
+
+@riverpod
+SyncService rewardMergeSyncService(Ref ref) => MergeSyncService(
+  localStore: ref.watch(rewardLocalStoreProvider),
+  remoteStore: ref.watch(rewardRemoteStoreProvider),
 );
 
 /// Merges the remote with local database
@@ -82,6 +90,7 @@ MergeSyncCoordinator mergeSyncCoordinator(Ref ref) => MergeSyncCoordinator(
   userId: ref.watch(currentUserIdProvider),
   habitSyncService: ref.watch(habitMergeSyncServiceProvider),
   completionSyncService: ref.watch(completionMergeSyncServiceProvider),
+  rewardSyncService: ref.watch(rewardMergeSyncServiceProvider),
 );
 
 class MergeSyncCoordinator {
@@ -89,13 +98,16 @@ class MergeSyncCoordinator {
     required String? userId,
     required SyncService habitSyncService,
     required SyncService completionSyncService,
+    required SyncService rewardSyncService,
   }) : _userId = userId,
        _habitSyncService = habitSyncService,
-       _completionSyncService = completionSyncService;
+       _completionSyncService = completionSyncService,
+       _rewardSyncService = rewardSyncService;
 
   final String? _userId;
   final SyncService _habitSyncService;
   final SyncService _completionSyncService;
+  final SyncService _rewardSyncService;
 
   Future<void> sync() async {
     if (_userId == null) {
@@ -104,5 +116,6 @@ class MergeSyncCoordinator {
 
     await _habitSyncService.sync(_userId);
     await _completionSyncService.sync(_userId);
+    await _rewardSyncService.sync(_userId);
   }
 }

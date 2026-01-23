@@ -1582,29 +1582,6 @@ class $RewardsTable extends Rewards with TableInfo<$RewardsTable, RewardRow> {
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $RewardsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _habitIdMeta = const VerificationMeta(
-    'habitId',
-  );
-  @override
-  late final GeneratedColumn<String> habitId = GeneratedColumn<String>(
-    'habit_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES habits (id)',
-    ),
-  );
   static const VerificationMeta _exoplanetNameMeta = const VerificationMeta(
     'exoplanetName',
   );
@@ -1619,12 +1596,12 @@ class $RewardsTable extends Rewards with TableInfo<$RewardsTable, RewardRow> {
       'REFERENCES exoplanets (name)',
     ),
   );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
   );
   @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
     aliasedName,
     false,
     type: DriftSqlType.dateTime,
@@ -1660,10 +1637,8 @@ class $RewardsTable extends Rewards with TableInfo<$RewardsTable, RewardRow> {
   );
   @override
   List<GeneratedColumn> get $columns => [
-    id,
-    habitId,
     exoplanetName,
-    updatedAt,
+    createdAt,
     deleted,
     synced,
   ];
@@ -1679,19 +1654,6 @@ class $RewardsTable extends Rewards with TableInfo<$RewardsTable, RewardRow> {
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('habit_id')) {
-      context.handle(
-        _habitIdMeta,
-        habitId.isAcceptableOrUnknown(data['habit_id']!, _habitIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_habitIdMeta);
-    }
     if (data.containsKey('exoplanet_name')) {
       context.handle(
         _exoplanetNameMeta,
@@ -1703,13 +1665,13 @@ class $RewardsTable extends Rewards with TableInfo<$RewardsTable, RewardRow> {
     } else if (isInserting) {
       context.missing(_exoplanetNameMeta);
     }
-    if (data.containsKey('updated_at')) {
+    if (data.containsKey('created_at')) {
       context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     } else if (isInserting) {
-      context.missing(_updatedAtMeta);
+      context.missing(_createdAtMeta);
     }
     if (data.containsKey('deleted')) {
       context.handle(
@@ -1727,26 +1689,18 @@ class $RewardsTable extends Rewards with TableInfo<$RewardsTable, RewardRow> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {exoplanetName};
   @override
   RewardRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return RewardRow(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      habitId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}habit_id'],
-      )!,
       exoplanetName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}exoplanet_name'],
       )!,
-      updatedAt: attachedDatabase.typeMapping.read(
+      createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
+        data['${effectivePrefix}created_at'],
       )!,
       deleted: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
@@ -1766,27 +1720,21 @@ class $RewardsTable extends Rewards with TableInfo<$RewardsTable, RewardRow> {
 }
 
 class RewardRow extends DataClass implements Insertable<RewardRow> {
-  final String id;
-  final String habitId;
   final String exoplanetName;
-  final DateTime updatedAt;
+  final DateTime createdAt;
   final bool deleted;
   final bool synced;
   const RewardRow({
-    required this.id,
-    required this.habitId,
     required this.exoplanetName,
-    required this.updatedAt,
+    required this.createdAt,
     required this.deleted,
     required this.synced,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['habit_id'] = Variable<String>(habitId);
     map['exoplanet_name'] = Variable<String>(exoplanetName);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['created_at'] = Variable<DateTime>(createdAt);
     map['deleted'] = Variable<bool>(deleted);
     map['synced'] = Variable<bool>(synced);
     return map;
@@ -1794,10 +1742,8 @@ class RewardRow extends DataClass implements Insertable<RewardRow> {
 
   RewardsCompanion toCompanion(bool nullToAbsent) {
     return RewardsCompanion(
-      id: Value(id),
-      habitId: Value(habitId),
       exoplanetName: Value(exoplanetName),
-      updatedAt: Value(updatedAt),
+      createdAt: Value(createdAt),
       deleted: Value(deleted),
       synced: Value(synced),
     );
@@ -1809,10 +1755,8 @@ class RewardRow extends DataClass implements Insertable<RewardRow> {
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return RewardRow(
-      id: serializer.fromJson<String>(json['id']),
-      habitId: serializer.fromJson<String>(json['habitId']),
       exoplanetName: serializer.fromJson<String>(json['exoplanetName']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       deleted: serializer.fromJson<bool>(json['deleted']),
       synced: serializer.fromJson<bool>(json['synced']),
     );
@@ -1821,38 +1765,30 @@ class RewardRow extends DataClass implements Insertable<RewardRow> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'habitId': serializer.toJson<String>(habitId),
       'exoplanetName': serializer.toJson<String>(exoplanetName),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
       'deleted': serializer.toJson<bool>(deleted),
       'synced': serializer.toJson<bool>(synced),
     };
   }
 
   RewardRow copyWith({
-    String? id,
-    String? habitId,
     String? exoplanetName,
-    DateTime? updatedAt,
+    DateTime? createdAt,
     bool? deleted,
     bool? synced,
   }) => RewardRow(
-    id: id ?? this.id,
-    habitId: habitId ?? this.habitId,
     exoplanetName: exoplanetName ?? this.exoplanetName,
-    updatedAt: updatedAt ?? this.updatedAt,
+    createdAt: createdAt ?? this.createdAt,
     deleted: deleted ?? this.deleted,
     synced: synced ?? this.synced,
   );
   RewardRow copyWithCompanion(RewardsCompanion data) {
     return RewardRow(
-      id: data.id.present ? data.id.value : this.id,
-      habitId: data.habitId.present ? data.habitId.value : this.habitId,
       exoplanetName: data.exoplanetName.present
           ? data.exoplanetName.value
           : this.exoplanetName,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       deleted: data.deleted.present ? data.deleted.value : this.deleted,
       synced: data.synced.present ? data.synced.value : this.synced,
     );
@@ -1861,10 +1797,8 @@ class RewardRow extends DataClass implements Insertable<RewardRow> {
   @override
   String toString() {
     return (StringBuffer('RewardRow(')
-          ..write('id: $id, ')
-          ..write('habitId: $habitId, ')
           ..write('exoplanetName: $exoplanetName, ')
-          ..write('updatedAt: $updatedAt, ')
+          ..write('createdAt: $createdAt, ')
           ..write('deleted: $deleted, ')
           ..write('synced: $synced')
           ..write(')'))
@@ -1872,63 +1806,48 @@ class RewardRow extends DataClass implements Insertable<RewardRow> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, habitId, exoplanetName, updatedAt, deleted, synced);
+  int get hashCode => Object.hash(exoplanetName, createdAt, deleted, synced);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is RewardRow &&
-          other.id == this.id &&
-          other.habitId == this.habitId &&
           other.exoplanetName == this.exoplanetName &&
-          other.updatedAt == this.updatedAt &&
+          other.createdAt == this.createdAt &&
           other.deleted == this.deleted &&
           other.synced == this.synced);
 }
 
 class RewardsCompanion extends UpdateCompanion<RewardRow> {
-  final Value<String> id;
-  final Value<String> habitId;
   final Value<String> exoplanetName;
-  final Value<DateTime> updatedAt;
+  final Value<DateTime> createdAt;
   final Value<bool> deleted;
   final Value<bool> synced;
   final Value<int> rowid;
   const RewardsCompanion({
-    this.id = const Value.absent(),
-    this.habitId = const Value.absent(),
     this.exoplanetName = const Value.absent(),
-    this.updatedAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
     this.deleted = const Value.absent(),
     this.synced = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   RewardsCompanion.insert({
-    required String id,
-    required String habitId,
     required String exoplanetName,
-    required DateTime updatedAt,
+    required DateTime createdAt,
     this.deleted = const Value.absent(),
     this.synced = const Value.absent(),
     this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       habitId = Value(habitId),
-       exoplanetName = Value(exoplanetName),
-       updatedAt = Value(updatedAt);
+  }) : exoplanetName = Value(exoplanetName),
+       createdAt = Value(createdAt);
   static Insertable<RewardRow> custom({
-    Expression<String>? id,
-    Expression<String>? habitId,
     Expression<String>? exoplanetName,
-    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? createdAt,
     Expression<bool>? deleted,
     Expression<bool>? synced,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (habitId != null) 'habit_id': habitId,
       if (exoplanetName != null) 'exoplanet_name': exoplanetName,
-      if (updatedAt != null) 'updated_at': updatedAt,
+      if (createdAt != null) 'created_at': createdAt,
       if (deleted != null) 'deleted': deleted,
       if (synced != null) 'synced': synced,
       if (rowid != null) 'rowid': rowid,
@@ -1936,19 +1855,15 @@ class RewardsCompanion extends UpdateCompanion<RewardRow> {
   }
 
   RewardsCompanion copyWith({
-    Value<String>? id,
-    Value<String>? habitId,
     Value<String>? exoplanetName,
-    Value<DateTime>? updatedAt,
+    Value<DateTime>? createdAt,
     Value<bool>? deleted,
     Value<bool>? synced,
     Value<int>? rowid,
   }) {
     return RewardsCompanion(
-      id: id ?? this.id,
-      habitId: habitId ?? this.habitId,
       exoplanetName: exoplanetName ?? this.exoplanetName,
-      updatedAt: updatedAt ?? this.updatedAt,
+      createdAt: createdAt ?? this.createdAt,
       deleted: deleted ?? this.deleted,
       synced: synced ?? this.synced,
       rowid: rowid ?? this.rowid,
@@ -1958,17 +1873,11 @@ class RewardsCompanion extends UpdateCompanion<RewardRow> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (habitId.present) {
-      map['habit_id'] = Variable<String>(habitId.value);
-    }
     if (exoplanetName.present) {
       map['exoplanet_name'] = Variable<String>(exoplanetName.value);
     }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
     }
     if (deleted.present) {
       map['deleted'] = Variable<bool>(deleted.value);
@@ -1985,10 +1894,8 @@ class RewardsCompanion extends UpdateCompanion<RewardRow> {
   @override
   String toString() {
     return (StringBuffer('RewardsCompanion(')
-          ..write('id: $id, ')
-          ..write('habitId: $habitId, ')
           ..write('exoplanetName: $exoplanetName, ')
-          ..write('updatedAt: $updatedAt, ')
+          ..write('createdAt: $createdAt, ')
           ..write('deleted: $deleted, ')
           ..write('synced: $synced, ')
           ..write('rowid: $rowid')
@@ -2062,25 +1969,6 @@ final class $$HabitsTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
-
-  static MultiTypedResultKey<$RewardsTable, List<RewardRow>> _rewardsRefsTable(
-    _$AppDatabase db,
-  ) => MultiTypedResultKey.fromTable(
-    db.rewards,
-    aliasName: $_aliasNameGenerator(db.habits.id, db.rewards.habitId),
-  );
-
-  $$RewardsTableProcessedTableManager get rewardsRefs {
-    final manager = $$RewardsTableTableManager(
-      $_db,
-      $_db.rewards,
-    ).filter((f) => f.habitId.id.sqlEquals($_itemColumn<String>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_rewardsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
 }
 
 class $$HabitsTableFilterComposer
@@ -2148,31 +2036,6 @@ class $$HabitsTableFilterComposer
           }) => $$CompletionsTableFilterComposer(
             $db: $db,
             $table: $db.completions,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<bool> rewardsRefs(
-    Expression<bool> Function($$RewardsTableFilterComposer f) f,
-  ) {
-    final $$RewardsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.rewards,
-      getReferencedColumn: (t) => t.habitId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$RewardsTableFilterComposer(
-            $db: $db,
-            $table: $db.rewards,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2294,31 +2157,6 @@ class $$HabitsTableAnnotationComposer
     );
     return f(composer);
   }
-
-  Expression<T> rewardsRefs<T extends Object>(
-    Expression<T> Function($$RewardsTableAnnotationComposer a) f,
-  ) {
-    final $$RewardsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.rewards,
-      getReferencedColumn: (t) => t.habitId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$RewardsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.rewards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$HabitsTableTableManager
@@ -2334,7 +2172,7 @@ class $$HabitsTableTableManager
           $$HabitsTableUpdateCompanionBuilder,
           (HabitRow, $$HabitsTableReferences),
           HabitRow,
-          PrefetchHooks Function({bool completionsRefs, bool rewardsRefs})
+          PrefetchHooks Function({bool completionsRefs})
         > {
   $$HabitsTableTableManager(_$AppDatabase db, $HabitsTable table)
     : super(
@@ -2397,63 +2235,35 @@ class $$HabitsTableTableManager
                     (e.readTable(table), $$HabitsTableReferences(db, table, e)),
               )
               .toList(),
-          prefetchHooksCallback:
-              ({completionsRefs = false, rewardsRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (completionsRefs) db.completions,
-                    if (rewardsRefs) db.rewards,
-                  ],
-                  addJoins: null,
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (completionsRefs)
-                        await $_getPrefetchedData<
-                          HabitRow,
-                          $HabitsTable,
-                          CompletionRow
-                        >(
-                          currentTable: table,
-                          referencedTable: $$HabitsTableReferences
-                              ._completionsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$HabitsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).completionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.habitId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (rewardsRefs)
-                        await $_getPrefetchedData<
-                          HabitRow,
-                          $HabitsTable,
-                          RewardRow
-                        >(
-                          currentTable: table,
-                          referencedTable: $$HabitsTableReferences
-                              ._rewardsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$HabitsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).rewardsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.habitId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
+          prefetchHooksCallback: ({completionsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (completionsRefs) db.completions],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (completionsRefs)
+                    await $_getPrefetchedData<
+                      HabitRow,
+                      $HabitsTable,
+                      CompletionRow
+                    >(
+                      currentTable: table,
+                      referencedTable: $$HabitsTableReferences
+                          ._completionsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$HabitsTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).completionsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.habitId == item.id),
+                      typedResults: items,
+                    ),
+                ];
               },
+            );
+          },
         ),
       );
 }
@@ -2470,7 +2280,7 @@ typedef $$HabitsTableProcessedTableManager =
       $$HabitsTableUpdateCompanionBuilder,
       (HabitRow, $$HabitsTableReferences),
       HabitRow,
-      PrefetchHooks Function({bool completionsRefs, bool rewardsRefs})
+      PrefetchHooks Function({bool completionsRefs})
     >;
 typedef $$CompletionsTableCreateCompanionBuilder =
     CompletionsCompanion Function({
@@ -3224,20 +3034,16 @@ typedef $$ExoplanetsTableProcessedTableManager =
     >;
 typedef $$RewardsTableCreateCompanionBuilder =
     RewardsCompanion Function({
-      required String id,
-      required String habitId,
       required String exoplanetName,
-      required DateTime updatedAt,
+      required DateTime createdAt,
       Value<bool> deleted,
       Value<bool> synced,
       Value<int> rowid,
     });
 typedef $$RewardsTableUpdateCompanionBuilder =
     RewardsCompanion Function({
-      Value<String> id,
-      Value<String> habitId,
       Value<String> exoplanetName,
-      Value<DateTime> updatedAt,
+      Value<DateTime> createdAt,
       Value<bool> deleted,
       Value<bool> synced,
       Value<int> rowid,
@@ -3246,24 +3052,6 @@ typedef $$RewardsTableUpdateCompanionBuilder =
 final class $$RewardsTableReferences
     extends BaseReferences<_$AppDatabase, $RewardsTable, RewardRow> {
   $$RewardsTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $HabitsTable _habitIdTable(_$AppDatabase db) => db.habits.createAlias(
-    $_aliasNameGenerator(db.rewards.habitId, db.habits.id),
-  );
-
-  $$HabitsTableProcessedTableManager get habitId {
-    final $_column = $_itemColumn<String>('habit_id')!;
-
-    final manager = $$HabitsTableTableManager(
-      $_db,
-      $_db.habits,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_habitIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
 
   static $ExoplanetsTable _exoplanetNameTable(_$AppDatabase db) =>
       db.exoplanets.createAlias(
@@ -3294,13 +3082,8 @@ class $$RewardsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3313,29 +3096,6 @@ class $$RewardsTableFilterComposer
     column: $table.synced,
     builder: (column) => ColumnFilters(column),
   );
-
-  $$HabitsTableFilterComposer get habitId {
-    final $$HabitsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.habitId,
-      referencedTable: $db.habits,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$HabitsTableFilterComposer(
-            $db: $db,
-            $table: $db.habits,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 
   $$ExoplanetsTableFilterComposer get exoplanetName {
     final $$ExoplanetsTableFilterComposer composer = $composerBuilder(
@@ -3370,13 +3130,8 @@ class $$RewardsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3389,29 +3144,6 @@ class $$RewardsTableOrderingComposer
     column: $table.synced,
     builder: (column) => ColumnOrderings(column),
   );
-
-  $$HabitsTableOrderingComposer get habitId {
-    final $$HabitsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.habitId,
-      referencedTable: $db.habits,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$HabitsTableOrderingComposer(
-            $db: $db,
-            $table: $db.habits,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 
   $$ExoplanetsTableOrderingComposer get exoplanetName {
     final $$ExoplanetsTableOrderingComposer composer = $composerBuilder(
@@ -3446,40 +3178,14 @@ class $$RewardsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
   GeneratedColumn<bool> get deleted =>
       $composableBuilder(column: $table.deleted, builder: (column) => column);
 
   GeneratedColumn<bool> get synced =>
       $composableBuilder(column: $table.synced, builder: (column) => column);
-
-  $$HabitsTableAnnotationComposer get habitId {
-    final $$HabitsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.habitId,
-      referencedTable: $db.habits,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$HabitsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.habits,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 
   $$ExoplanetsTableAnnotationComposer get exoplanetName {
     final $$ExoplanetsTableAnnotationComposer composer = $composerBuilder(
@@ -3518,7 +3224,7 @@ class $$RewardsTableTableManager
           $$RewardsTableUpdateCompanionBuilder,
           (RewardRow, $$RewardsTableReferences),
           RewardRow,
-          PrefetchHooks Function({bool habitId, bool exoplanetName})
+          PrefetchHooks Function({bool exoplanetName})
         > {
   $$RewardsTableTableManager(_$AppDatabase db, $RewardsTable table)
     : super(
@@ -3533,36 +3239,28 @@ class $$RewardsTableTableManager
               $$RewardsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
-                Value<String> id = const Value.absent(),
-                Value<String> habitId = const Value.absent(),
                 Value<String> exoplanetName = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
                 Value<bool> deleted = const Value.absent(),
                 Value<bool> synced = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RewardsCompanion(
-                id: id,
-                habitId: habitId,
                 exoplanetName: exoplanetName,
-                updatedAt: updatedAt,
+                createdAt: createdAt,
                 deleted: deleted,
                 synced: synced,
                 rowid: rowid,
               ),
           createCompanionCallback:
               ({
-                required String id,
-                required String habitId,
                 required String exoplanetName,
-                required DateTime updatedAt,
+                required DateTime createdAt,
                 Value<bool> deleted = const Value.absent(),
                 Value<bool> synced = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RewardsCompanion.insert(
-                id: id,
-                habitId: habitId,
                 exoplanetName: exoplanetName,
-                updatedAt: updatedAt,
+                createdAt: createdAt,
                 deleted: deleted,
                 synced: synced,
                 rowid: rowid,
@@ -3575,7 +3273,7 @@ class $$RewardsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({habitId = false, exoplanetName = false}) {
+          prefetchHooksCallback: ({exoplanetName = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -3595,19 +3293,6 @@ class $$RewardsTableTableManager
                       dynamic
                     >
                   >(state) {
-                    if (habitId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.habitId,
-                                referencedTable: $$RewardsTableReferences
-                                    ._habitIdTable(db),
-                                referencedColumn: $$RewardsTableReferences
-                                    ._habitIdTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
                     if (exoplanetName) {
                       state =
                           state.withJoin(
@@ -3645,7 +3330,7 @@ typedef $$RewardsTableProcessedTableManager =
       $$RewardsTableUpdateCompanionBuilder,
       (RewardRow, $$RewardsTableReferences),
       RewardRow,
-      PrefetchHooks Function({bool habitId, bool exoplanetName})
+      PrefetchHooks Function({bool exoplanetName})
     >;
 
 class $AppDatabaseManager {

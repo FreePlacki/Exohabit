@@ -94,6 +94,48 @@ final class CompletionMergeSyncServiceProvider
 String _$completionMergeSyncServiceHash() =>
     r'b9f82c7633a2797beaa878739a11123e2a7ffcfc';
 
+@ProviderFor(rewardMergeSyncService)
+const rewardMergeSyncServiceProvider = RewardMergeSyncServiceProvider._();
+
+final class RewardMergeSyncServiceProvider
+    extends $FunctionalProvider<SyncService, SyncService, SyncService>
+    with $Provider<SyncService> {
+  const RewardMergeSyncServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'rewardMergeSyncServiceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$rewardMergeSyncServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<SyncService> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  SyncService create(Ref ref) {
+    return rewardMergeSyncService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SyncService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SyncService>(value),
+    );
+  }
+}
+
+String _$rewardMergeSyncServiceHash() =>
+    r'81973c9c53c0ed93b0a7ddb3bea6d597a3e019e6';
+
 @ProviderFor(mergeSyncCoordinator)
 const mergeSyncCoordinatorProvider = MergeSyncCoordinatorProvider._();
 
@@ -140,4 +182,4 @@ final class MergeSyncCoordinatorProvider
 }
 
 String _$mergeSyncCoordinatorHash() =>
-    r'10ad4aa8b0bc6cbb84e4686b5839cb4c0657eb26';
+    r'2a083427b4adbd252191caacde7a2bf54c0ca76a';

@@ -205,6 +205,54 @@ final class CompletionOverrideSyncServiceProvider
 String _$completionOverrideSyncServiceHash() =>
     r'749862ab5525d49bc91174c6c8a8e016b6a493f0';
 
+@ProviderFor(rewardOverrideSyncService)
+const rewardOverrideSyncServiceProvider = RewardOverrideSyncServiceProvider._();
+
+final class RewardOverrideSyncServiceProvider
+    extends
+        $FunctionalProvider<
+          OverrideSyncService<Reward>,
+          OverrideSyncService<Reward>,
+          OverrideSyncService<Reward>
+        >
+    with $Provider<OverrideSyncService<Reward>> {
+  const RewardOverrideSyncServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'rewardOverrideSyncServiceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$rewardOverrideSyncServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<OverrideSyncService<Reward>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  OverrideSyncService<Reward> create(Ref ref) {
+    return rewardOverrideSyncService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(OverrideSyncService<Reward> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<OverrideSyncService<Reward>>(value),
+    );
+  }
+}
+
+String _$rewardOverrideSyncServiceHash() =>
+    r'50ac0888da15f166eff1e7307a4936c737b65827';
+
 @ProviderFor(overrideSyncCoordinator)
 const overrideSyncCoordinatorProvider = OverrideSyncCoordinatorProvider._();
 
@@ -251,4 +299,4 @@ final class OverrideSyncCoordinatorProvider
 }
 
 String _$overrideSyncCoordinatorHash() =>
-    r'f1263690ba5f89a7f8534e4e0eb3d8abd6faf055';
+    r'8989f232d79736d24bcb978440f0f238d75ec635';

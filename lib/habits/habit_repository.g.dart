@@ -49,4 +49,4 @@ final class HabitRepositoryProvider
   }
 }
 
-String _$habitRepositoryHash() => r'8cf2ad1da21e8f7d1c6709513f8ebf5e459bcb2c';
+String _$habitRepositoryHash() => r'2a02ae69e6744be72c47cb9cd1f5fc8a701bdf19';

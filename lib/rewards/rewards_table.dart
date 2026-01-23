@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:exohabit/database.dart';
 import 'package:exohabit/exoplanets/exoplanets_table.dart';
-import 'package:exohabit/habits/habits_table.dart';
 import 'package:exohabit/sync/sync_service.dart';
 
 class Reward implements SyncEntity {
@@ -9,18 +8,18 @@ class Reward implements SyncEntity {
   final RewardRow row;
 
   @override
-  String get id => row.id;
+  String get id => row.exoplanetName;
   @override
-  DateTime get updatedAt => row.updatedAt;
+  DateTime get updatedAt => row.createdAt;
   @override
   bool get deleted => row.deleted;
 
   RewardRow copyRow({
-    DateTime? updatedAt,
+    DateTime? createdAt,
     bool? synced,
   }) {
     return row.copyWith(
-      updatedAt: updatedAt,
+      createdAt: createdAt,
       synced: synced,
     );
   }
@@ -28,14 +27,12 @@ class Reward implements SyncEntity {
 
 @DataClassName('RewardRow')
 class Rewards extends Table {
-  TextColumn get id => text()();
-  TextColumn get habitId => text().references(Habits, #id)();
   TextColumn get exoplanetName => text().references(Exoplanets, #name)();
 
-  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get createdAt => dateTime()();
   BoolColumn get deleted => boolean().withDefault(const Constant(false))();
   BoolColumn get synced => boolean().withDefault(const Constant(false))();
 
   @override
-  Set<Column> get primaryKey => {id};
+  Set<Column> get primaryKey => {exoplanetName};
 }
