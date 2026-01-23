@@ -1,4 +1,5 @@
 import 'package:exohabit/completions/completion_repository.dart';
+import 'package:exohabit/exoplanets/exoplanet_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,8 +18,10 @@ class HabitTodayCard extends ConsumerWidget {
       elevation: 1,
       child: InkWell(
         borderRadius: .circular(16),
-        onTap: () async => {
-          await completionRepo.complete(habit.habit.id, DateTime.now()),
+        onTap: () async {
+          final planet = await ref.read(exoplanetRepositoryProvider).getRandom();
+          print(planet);
+          return await completionRepo.complete(habit.habit.id, DateTime.now());
         },
         child: Padding(
           padding: const .all(16),

@@ -65,7 +65,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           },
         ],
       ),
-      drawer: _drawer(),
+      drawer: const _Drawer(),
       body: habits.when(
         skipLoadingOnReload: true,
         data: (data) => RefreshIndicator(
@@ -118,8 +118,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     ref.read(pendingSyncDecisionProvider.notifier).clear();
   }
+}
 
-  Drawer _drawer() {
+class _Drawer extends ConsumerWidget {
+  const _Drawer();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final authRepo = ref.read(authRepositoryProvider);
     final user = ref.watch(currentUserProvider);
     final habits = ref.watch(habitsProvider);
@@ -132,9 +137,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
-              ),
+              color: Theme.of(context).colorScheme.primaryContainer,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -162,44 +165,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               },
             ),
 
-            ListTile(
-              leading: const Icon(Icons.bar_chart),
-              title: const Text('Statistics'),
-              enabled: false,
-              onTap: () {},
-            ),
-
             const Divider(),
 
             ListTile(
-              enabled: user != null,
+              enabled: user != null && syncState is! MutationPending,
               leading: const Icon(Icons.sync),
               title: const Text('Sync now'),
-              trailing: switch (syncState) {
-                MutationPending() => const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-                _ => null,
+              trailing: syncState is MutationPending
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : null,
+              onTap: () async {
+                Navigator.pop(context);
+                await ref.read(homeControllerProvider.notifier).sync();
               },
-              onTap: syncState is MutationPending
-                  ? null
-                  : () async {
-                      Navigator.pop(context);
-                      await ref.read(homeControllerProvider.notifier).sync();
-                    },
-            ),
-
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              enabled: false, // future
-              onTap: () {},
             ),
 
             const Spacer(),
-
             const Divider(),
 
             if (user == null)
@@ -215,7 +200,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 onTap: () async {
                   Navigator.pop(context);
                   await authRepo.signOut();
-                  if (mounted) {
+                  if (context.mounted) {
                     context.go('/auth');
                   }
                 },

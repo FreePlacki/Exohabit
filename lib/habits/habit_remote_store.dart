@@ -43,6 +43,7 @@ class HabitRemoteStore implements RemoteSyncStore<Habit> {
     return rows.map((r) => HabitExtensions.fromRemote(r, synced: false)).toList();
   }
 
+  @override
   Future<List<Habit>> fetchNotDeleted(String userId) async {
     final rows = await _db
         .from(_table)

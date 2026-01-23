@@ -21,7 +21,7 @@ final class AuthSyncListenerProvider
         argument: null,
         retry: null,
         name: r'authSyncListenerProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -48,7 +48,7 @@ final class AuthSyncListenerProvider
   }
 }
 
-String _$authSyncListenerHash() => r'd1d1f9ccb98902e3bd28ac5c26e62b09e4cffbf9';
+String _$authSyncListenerHash() => r'd094544662ca7421965b37eb7ee6d3ecc102d417';
 
 @ProviderFor(PendingSyncDecisionNotifier)
 const pendingSyncDecisionProvider = PendingSyncDecisionNotifierProvider._();

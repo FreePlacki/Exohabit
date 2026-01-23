@@ -11,7 +11,9 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
-.cursor/
+exoplanet_api/*.csv
+exoplanet_api/*.json
+
 
 # IntelliJ related
 *.iml
