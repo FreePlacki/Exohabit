@@ -1,5 +1,6 @@
 import 'package:exohabit/router.dart';
 import 'package:exohabit/sync/override_sync_service.dart';
+import 'package:exohabit/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -31,7 +32,9 @@ class ExohabitApp extends ConsumerWidget {
     return MaterialApp.router(
       routerConfig: router,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(colorSchemeSeed: Colors.deepPurple, useMaterial3: true),
+      theme: buildExoplanetTheme(),
+      darkTheme: buildExoplanetTheme(),
+      themeMode: ThemeMode.dark,
     );
   }
 }

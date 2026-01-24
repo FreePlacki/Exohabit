@@ -1,8 +1,18 @@
 import 'package:exohabit/database.dart';
 import 'package:flutter/material.dart';
 
+Color _temperatureToColor(double tempK) {
+  return switch (tempK) {
+    < 500 => const Color(0xFF2E5FFF),
+    < 1000 => const Color(0xFF6FA8FF),
+    < 1500 => const Color(0xFFFFC46A),
+    < 2000 => const Color(0xFFFF8C42),
+    _ => const Color(0xFFFF4C4C),
+  };
+}
+
 class PlanetPainter extends CustomPainter {
-  PlanetPainter(this.planet, {double maxRadius = 120}): _maxRadius = maxRadius;
+  PlanetPainter(this.planet, {double maxRadius = 120}) : _maxRadius = maxRadius;
 
   final Exoplanet planet;
   final double _maxRadius;
@@ -11,17 +21,7 @@ class PlanetPainter extends CustomPainter {
     if (earthRadii == null) {
       return _maxRadius / 2;
     }
-    return (earthRadii * 12 * _maxRadius / 120).clamp(_maxRadius / 4, _maxRadius);
-  }
-
-  Color _temperatureToColor(double tempK) {
-    return switch (tempK) {
-      < 500 => const Color(0xFF2E5FFF),
-      < 1000 => const Color(0xFF6FA8FF),
-      < 1500 => const Color(0xFFFFC46A),
-      < 2500 => const Color(0xFFFF8C42),
-      _ => const Color(0xFFFF4C4C),
-    };
+    return (earthRadii * _maxRadius * 0.2).clamp(_maxRadius / 4, _maxRadius);
   }
 
   @override
@@ -59,43 +59,51 @@ class PlanetPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class PlanetVisual extends StatelessWidget {
+class PlanetVisual extends StatefulWidget {
   const PlanetVisual(this.planet, {super.key});
-
   final Exoplanet planet;
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 300,
-      child: CustomPaint(painter: PlanetPainter(planet)),
-    );
-  }
+  State<PlanetVisual> createState() => _PlanetVisualState();
 }
 
-class PhysicalParameters extends StatelessWidget {
-  const PhysicalParameters(this.p, {super.key});
+class _PlanetVisualState extends State<PlanetVisual>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 800),
+  )..forward();
 
-  final Exoplanet p;
+  late final Animation<double> _scale = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeOutBack,
+  );
+
+  late final Animation<double> _fade = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeIn,
+  );
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: [
-          _row('Radius', p.radius, 'R⊕'),
-          _row('Mass', p.mass, 'M⊕'),
-          _row('Temperature', p.temperature, 'K'),
-          _row('Orbital Period', p.orbitalPeriod, 'days'),
-        ],
-      ),
-    );
-  }
+    final color = _temperatureToColor(widget.planet.temperature ?? 800);
 
-  Widget _row(String label, double? value, String unit) {
-    return ListTile(
-      title: Text(label),
-      trailing: Text(value == null ? '—' : '${value.toStringAsFixed(1)} $unit'),
+    return Container(
+      height: 320,
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          center: const Alignment(0, -0.6),
+          radius: 1.2,
+          colors: [color.withValues(alpha: 0.25), Theme.of(context).colorScheme.surface],
+        ),
+      ),
+      child: FadeTransition(
+        opacity: _fade,
+        child: ScaleTransition(
+          scale: _scale,
+          child: CustomPaint(painter: PlanetPainter(widget.planet)),
+        ),
+      ),
     );
   }
 }

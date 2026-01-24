@@ -1,5 +1,4 @@
 import 'package:exohabit/database.dart';
-import 'package:exohabit/exoplanet_details/planet_details_screen.dart';
 import 'package:exohabit/exoplanet_details/planet_visual.dart';
 import 'package:exohabit/rewards/reward_repository.dart';
 import 'package:flutter/material.dart';
