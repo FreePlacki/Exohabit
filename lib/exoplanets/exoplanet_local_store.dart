@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'package:exohabit/database.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -24,13 +25,35 @@ class ExoplanetLocalStore {
     return row;
   }
 
-  Future<Exoplanet?> fetchRandom() async {
+  Future<Exoplanet?> fetchRandom({
+    List<String>? excludedNames,
+    bool withTemperature = true,
+  }) async {
+    if (excludedNames == null || excludedNames.isEmpty) {
+      final row = await _db
+          .customSelect(
+            'SELECT * FROM Exoplanets WHERE temperature IS NOT NULL ORDER BY RANDOM() LIMIT 1',
+            readsFrom: {_db.exoplanets},
+          )
+          .getSingleOrNull();
+      return row == null ? null : _db.exoplanets.map(row.data);
+    }
+
+    // build placeholders for parameterized NOT IN
+    final placeholders = List.filled(excludedNames.length, '?').join(',');
+    final sql =
+        'SELECT * FROM Exoplanets '
+        'WHERE temperature IS NOT NULL AND name NOT IN ($placeholders) '
+        'ORDER BY RANDOM() LIMIT 1';
+
     final row = await _db
         .customSelect(
-          'SELECT * from Exoplanets ORDER BY RANDOM() LIMIT 1',
+          sql,
+          variables: excludedNames.map(Variable.withString).toList(),
           readsFrom: {_db.exoplanets},
         )
         .getSingleOrNull();
+
     return row == null ? null : _db.exoplanets.map(row.data);
   }
 

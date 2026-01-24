@@ -6,8 +6,10 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'exoplanet_repository.g.dart';
 
 @riverpod
-ExoplanetRepository exoplanetRepository(Ref ref) =>
-    ExoplanetRepository(localStore: ref.watch(exoplanetLocalStoreProvider), remoteStore: ref.watch(exoplanetRemoteStoreProvider));
+ExoplanetRepository exoplanetRepository(Ref ref) => ExoplanetRepository(
+  localStore: ref.watch(exoplanetLocalStoreProvider),
+  remoteStore: ref.watch(exoplanetRemoteStoreProvider),
+);
 
 class ExoplanetRepository {
   ExoplanetRepository({
@@ -29,9 +31,14 @@ class ExoplanetRepository {
     }
   }
 
-  Future<Exoplanet> getRandom() async {
+  Future<Exoplanet> getRandom(List<String> excluded) async {
     await _syncWithRemote();
-    final exoplanet = await _localStore.fetchRandom();
+
+    const availablePlanetsWithTemperature = 30;
+    final exoplanet = await _localStore.fetchRandom(
+      excludedNames: excluded,
+      withTemperature: excluded.length < availablePlanetsWithTemperature,
+    );
     return exoplanet!;
   }
 

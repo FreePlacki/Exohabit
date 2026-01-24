@@ -39,7 +39,9 @@ class RewardRepository {
   final ExoplanetRepository _exoplanetRepository;
 
   Future<void> awardRandom() async {
-    final exoplanet = await _exoplanetRepository.getRandom();
+    final rewards = await watchRewards().first;
+    final excluded = rewards.map((r) => r.id).toList();
+    final exoplanet = await _exoplanetRepository.getRandom(excluded);
     await _localStore.upsert(
       RewardExtensions.create(exoplanetName: exoplanet.name),
     );
