@@ -40,7 +40,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final authRepo = ref.read(authRepositoryProvider);
 
     final habits = ref.watch(todayHabitsProvider);
-    final state = ref.watch(homeControllerProvider);
+    ref.watch(homeControllerProvider);
     final syncState = ref.watch(syncMutation);
 
     return Scaffold(

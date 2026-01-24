@@ -30,7 +30,12 @@ Stream<List<HabitToday>> todayHabits(Ref ref) {
   ref.watch(completionsProvider);
 
   return habits.asyncMap((habits) async {
-    final today = DateUtils.dateOnly(DateTime.now().toUtc());
+    final today = DateUtils.dateOnly(
+      DateTime.now().toLocal(),
+    );
+    final todayEnd = DateUtils.dateOnly(
+      DateTime.now().toLocal().add(const Duration(days: 1)),
+    ).subtract(const Duration(seconds: 1));
     final weekStart = today.subtract(
       Duration(days: today.weekday - DateTime.monday),
     );
@@ -38,12 +43,12 @@ Stream<List<HabitToday>> todayHabits(Ref ref) {
     final result = <HabitToday>[];
 
     for (final habit in habits) {
-      final completedToday = await completionRepo.existsForDay(habit.id, today);
+      final completedToday = await completionRepo.existsForDay(habit.id, todayEnd);
 
       final weeklyProgress = await completionRepo.countDistinctDays(
         habit.id,
         from: weekStart,
-        to: today,
+        to: todayEnd,
       );
 
       result.add(
@@ -94,9 +99,7 @@ class CompletionRepository {
     if (await existsForDay(habitId, date)) {
       return false;
     }
-    await _localStore.upsert(
-      CompletionExtensions.create(habitId: habitId, completedAt: date),
-    );
+    await _localStore.upsert(CompletionExtensions.create(habitId: habitId));
     return true;
   }
 

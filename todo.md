@@ -4,5 +4,6 @@
     - [ ] connectivity
     - [ ] when habit list changes
     - [ ] onResume (when opening the app)
+- [ ] deploy to gh pages
 
 - [ ] when habit with deleted=true gets sync=true we can remove it from local db

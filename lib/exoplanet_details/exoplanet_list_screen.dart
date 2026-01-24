@@ -15,6 +15,7 @@ class ExoplanetListScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Exoplanets')),
       body: exoplanets.when(
+        skipLoadingOnReload: true,
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
         data: (planets) => planets.isEmpty

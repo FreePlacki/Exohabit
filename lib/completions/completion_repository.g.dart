@@ -46,7 +46,7 @@ final class TodayHabitsProvider
   }
 }
 
-String _$todayHabitsHash() => r'8c3ab5df226d120e999caadac860cbe2c991cdee';
+String _$todayHabitsHash() => r'8d1b334a08f7cb979e68fe96c4cdfb8acb97ad6c';
 
 @ProviderFor(completionRepository)
 const completionRepositoryProvider = CompletionRepositoryProvider._();

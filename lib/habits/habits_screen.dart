@@ -37,6 +37,7 @@ class HabitsScreen extends ConsumerWidget {
         child: const Icon(Icons.add),
       ),
       body: habits.when(
+        skipLoadingOnReload: true,
         data: (list) {
           if (list.isEmpty) {
             return const Center(child: Text('No habits yet...'));

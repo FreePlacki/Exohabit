@@ -61,6 +61,7 @@ class HabitTodayCard extends ConsumerWidget {
     final messenger = ScaffoldMessenger.of(context)..clearMaterialBanners();
     messenger.showMaterialBanner(
       MaterialBanner(
+        dividerColor: Theme.of(context).colorScheme.primary,
         content: Text(message),
         actions: [
           TextButton(
@@ -73,7 +74,6 @@ class HabitTodayCard extends ConsumerWidget {
         ],
       ),
     );
-    // Auto-hide after 2 seconds
     Future.delayed(const Duration(seconds: 10), messenger.clearMaterialBanners);
   }
 }
@@ -128,6 +128,112 @@ class _HabitText extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class TodayOverviewCard extends StatelessWidget {
+  const TodayOverviewCard({
+    super.key,
+    required this.completed,
+    required this.total,
+  });
+
+  final int completed;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final progress = total == 0 ? 0.0 : completed / total;
+
+    return Material(
+      elevation: 1,
+      borderRadius: BorderRadius.circular(20),
+      color: theme.colorScheme.surfaceContainerHighest,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            _ProgressRing(progress: progress),
+
+            const SizedBox(width: 16),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Today',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$completed of $total habits completed',
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    _statusText(completed, total),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: _statusColor(theme, completed, total),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static String _statusText(int completed, int total) {
+    if (total == 0) return 'No habits scheduled';
+    if (completed == total) return 'All missions completed';
+    if (completed == 0) return 'Mission not started';
+    return 'In progress';
+  }
+
+  static Color _statusColor(
+    ThemeData theme,
+    int completed,
+    int total,
+  ) {
+    if (completed == total && total > 0) {
+      return Colors.green;
+    }
+    return theme.colorScheme.onSurfaceVariant;
+  }
+}
+
+class _ProgressRing extends StatelessWidget {
+  const _ProgressRing({required this.progress});
+
+  final double progress;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return SizedBox(
+      width: 56,
+      height: 56,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CircularProgressIndicator(
+            value: progress,
+            strokeWidth: 6,
+            backgroundColor:
+                theme.colorScheme.onSurface.withOpacity(0.1),
+          ),
+          Text(
+            '${(progress * 100).round()}%',
+            style: theme.textTheme.labelMedium,
+          ),
+        ],
+      ),
     );
   }
 }
