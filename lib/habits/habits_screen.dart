@@ -39,7 +39,7 @@ class HabitsScreen extends ConsumerWidget {
       body: habits.when(
         data: (list) {
           if (list.isEmpty) {
-            return const Center(child: Text('No habits yet.'));
+            return const Center(child: Text('No habits yet...'));
           }
           return ListView.builder(
             itemCount: list.length,

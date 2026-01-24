@@ -1,7 +1,7 @@
 import 'package:exohabit/database.dart';
 import 'package:flutter/material.dart';
 
-Color _temperatureToColor(double tempK) {
+Color temperatureToColor(double tempK) {
   return switch (tempK) {
     < 500 => const Color(0xFF2E5FFF),
     < 1000 => const Color(0xFF6FA8FF),
@@ -29,7 +29,7 @@ class PlanetPainter extends CustomPainter {
     final center = size.center(Offset.zero);
     final radius = _planetRadiusPx(planet.radius);
 
-    final baseColor = _temperatureToColor(planet.temperature ?? 800);
+    final baseColor = temperatureToColor(planet.temperature ?? 800);
 
     final paint = Paint()
       ..shader = RadialGradient(
@@ -86,7 +86,7 @@ class _PlanetVisualState extends State<PlanetVisual>
 
   @override
   Widget build(BuildContext context) {
-    final color = _temperatureToColor(widget.planet.temperature ?? 800);
+    final color = temperatureToColor(widget.planet.temperature ?? 800);
 
     return Container(
       height: 320,

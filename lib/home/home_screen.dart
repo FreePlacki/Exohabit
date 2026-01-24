@@ -70,7 +70,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         skipLoadingOnReload: true,
         data: (data) => RefreshIndicator(
           onRefresh: ref.read(homeControllerProvider.notifier).sync,
-          child: ListView.separated(
+          child: data.isEmpty ?
+            const Center(child: Text('No habits yet...'))
+          : ListView.separated(
             padding: const .all(16),
             itemCount: data.length,
             separatorBuilder: (_, _) => const SizedBox(height: 12),

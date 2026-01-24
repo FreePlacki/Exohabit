@@ -16,9 +16,7 @@ class ExoplanetListScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Exoplanets')),
       body: exoplanets.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-
         error: (err, stack) => Center(child: Text('Error: $err')),
-
         data: (planets) => ListView.separated(
           itemCount: planets.length,
           separatorBuilder: (_, _) => const Divider(height: 1),
@@ -38,11 +36,15 @@ class ExoplanetListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: PlanetMiniature(planet),
-      title: Text(planet.name),
-      subtitle: _subtitle(),
-      onTap: () => context.push('/exoplanet-details', extra: planet),
+    return Padding(
+      padding: const .all(12),
+      child: ListTile(
+        dense: false,
+        leading: PlanetMiniature(planet),
+        title: Text(planet.name),
+        subtitle: _subtitle(),
+        onTap: () => context.push('/exoplanet-details', extra: planet),
+      ),
     );
   }
 

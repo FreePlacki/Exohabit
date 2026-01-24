@@ -15,7 +15,7 @@ class HabitTodayCard extends ConsumerWidget {
 
     return Material(
       borderRadius: .circular(16),
-      color: Theme.of(context).colorScheme.surface,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       elevation: 1,
       child: InkWell(
         borderRadius: .circular(16),
