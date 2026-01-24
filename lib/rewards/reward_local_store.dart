@@ -1,7 +1,5 @@
 import 'package:drift/drift.dart';
 import 'package:exohabit/database.dart';
-import 'package:exohabit/exoplanets/exoplanet_repository.dart';
-import 'package:exohabit/rewards/reward_repository.dart';
 import 'package:exohabit/rewards/rewards_table.dart';
 import 'package:exohabit/sync/sync_store.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

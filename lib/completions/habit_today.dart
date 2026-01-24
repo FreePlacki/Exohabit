@@ -2,6 +2,7 @@ import 'package:exohabit/completions/completion_repository.dart';
 import 'package:exohabit/rewards/reward_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class HabitTodayCard extends ConsumerWidget {
   const HabitTodayCard({super.key, required this.habit});
@@ -20,9 +21,21 @@ class HabitTodayCard extends ConsumerWidget {
       child: InkWell(
         borderRadius: .circular(16),
         onTap: () async {
-          final newCompletion = await completionRepo.complete(habit.habit.id, DateTime.now());
+          final newCompletion = await completionRepo.complete(
+            habit.habit.id,
+            DateTime.now(),
+          );
           if (newCompletion) {
-            await rewardRepo.awardRandom();
+            final exoplanet = await rewardRepo.awardRandom();
+            if (!context.mounted) {
+              return;
+            }
+            _showAutoHideBanner(
+              context,
+              'New exoplanet discovered!',
+              () => context.push('/exoplanet-details', extra: exoplanet),
+              'Show',
+            );
           }
         },
         child: Padding(
@@ -37,6 +50,31 @@ class HabitTodayCard extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  void _showAutoHideBanner(
+    BuildContext context,
+    String message,
+    void Function() action,
+    String actionText,
+  ) {
+    final messenger = ScaffoldMessenger.of(context)..clearMaterialBanners();
+    messenger.showMaterialBanner(
+      MaterialBanner(
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              messenger.clearMaterialBanners();
+              action();
+            },
+            child: Text(actionText),
+          ),
+        ],
+      ),
+    );
+    // Auto-hide after 2 seconds
+    Future.delayed(const Duration(seconds: 10), messenger.clearMaterialBanners);
   }
 }
 
