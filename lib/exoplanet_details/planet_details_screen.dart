@@ -81,8 +81,7 @@ class PhysicalParameters extends StatelessWidget {
                 p.orbitalPeriod,
                 'days',
               ),
-              if (p.syDistance != null)
-                _stat(context, Icons.public, 'Distance', p.syDistance, 'pc'),
+              _stat(context, Icons.public, 'Distance', p.syDistance, 'pc'),
             ],
           );
         },

@@ -1,20 +1,42 @@
+import 'dart:math' as math;
+
 import 'package:exohabit/database.dart';
 import 'package:flutter/material.dart';
 
 Color temperatureToColor(double tempK) {
-  return switch (tempK) {
-    < 500 => const Color(0xFF2E5FFF),
-    < 1000 => const Color(0xFF6FA8FF),
-    < 1500 => const Color(0xFFFFC46A),
-    < 2000 => const Color(0xFFFF8C42),
-    _ => const Color(0xFFFF4C4C),
-  };
+  const minT = 400.0;
+  const maxT = 2000.0;
+
+  final t = ((tempK - minT) / (maxT - minT)).clamp(0.0, 1.0);
+
+  const colors = [
+    Color(0xFF2E5FFF),
+    Color(0xFF6FA8FF),
+    Color(0xFFFFD27D),
+    Color(0xFFFF8C42),
+    Color(0xFFFF4C4C),
+  ];
+
+  final scaled = t * (colors.length - 1);
+  final i = scaled.floor();
+  final frac = scaled - i;
+
+  if (i >= colors.length - 1) {
+    return colors.last;
+  }
+  return Color.lerp(colors[i], colors[i + 1], frac)!;
 }
 
 class PlanetPainter extends CustomPainter {
-  PlanetPainter(this.planet, {double maxRadius = 120}) : _maxRadius = maxRadius;
+  PlanetPainter(
+    this.planet, {
+    required double? rotation,
+    double maxRadius = 120,
+  }) : _maxRadius = maxRadius,
+       _rotation = rotation ?? 0.1;
 
   final Exoplanet planet;
+  final double _rotation;
   final double _maxRadius;
 
   double _planetRadiusPx(double? earthRadii) {
@@ -28,12 +50,17 @@ class PlanetPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
     final radius = _planetRadiusPx(planet.radius);
-
     final baseColor = temperatureToColor(planet.temperature ?? 800);
+
+    canvas
+      ..save()
+      ..translate(center.dx, center.dy)
+      ..rotate(_rotation)
+      ..translate(-center.dx, -center.dy);
 
     final paint = Paint()
       ..shader = RadialGradient(
-        center: const Alignment(-0.3, -0.3),
+        center: const Alignment(-0.4, -0.4),
         radius: 1,
         colors: [
           baseColor.withValues(alpha: 0.95),
@@ -44,19 +71,21 @@ class PlanetPainter extends CustomPainter {
 
     canvas
       ..drawCircle(center, radius, paint)
-      // Atmosphere
       ..drawCircle(
         center,
         radius + 6,
         Paint()
-          ..color = baseColor.withValues(alpha: 0.15)
+          ..color = baseColor.withValues(alpha: 0.18)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 12,
-      );
+      )
+      ..restore();
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant PlanetPainter oldDelegate) {
+    return oldDelegate._rotation != _rotation || oldDelegate.planet != planet;
+  }
 }
 
 class PlanetVisual extends StatefulWidget {
@@ -68,21 +97,44 @@ class PlanetVisual extends StatefulWidget {
 }
 
 class _PlanetVisualState extends State<PlanetVisual>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 800),
-  )..forward();
+    with TickerProviderStateMixin {
+  late final AnimationController _introController;
+  late final AnimationController _rotationController;
 
-  late final Animation<double> _scale = CurvedAnimation(
-    parent: _controller,
-    curve: Curves.easeOutBack,
-  );
+  late final Animation<double> _scale;
+  late final Animation<double> _fade;
 
-  late final Animation<double> _fade = CurvedAnimation(
-    parent: _controller,
-    curve: Curves.easeIn,
-  );
+  @override
+  void initState() {
+    super.initState();
+
+    _introController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..forward();
+
+    final periodDays = widget.planet.orbitalPeriod ?? 100;
+    final secondsPerRotation = (periodDays * 1.5).clamp(6.0, 50.0);
+
+    _rotationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: (secondsPerRotation * 1000).round()),
+    )..repeat();
+
+    _scale = CurvedAnimation(
+      parent: _introController,
+      curve: Curves.easeOutBack,
+    );
+
+    _fade = CurvedAnimation(parent: _introController, curve: Curves.easeIn);
+  }
+
+  @override
+  void dispose() {
+    _introController.dispose();
+    _rotationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,14 +146,27 @@ class _PlanetVisualState extends State<PlanetVisual>
         gradient: RadialGradient(
           center: const Alignment(0, -0.6),
           radius: 1.2,
-          colors: [color.withValues(alpha: 0.25), Theme.of(context).colorScheme.surface],
+          colors: [
+            color.withValues(alpha: 0.25),
+            Theme.of(context).colorScheme.surface,
+          ],
         ),
       ),
       child: FadeTransition(
         opacity: _fade,
         child: ScaleTransition(
           scale: _scale,
-          child: CustomPaint(painter: PlanetPainter(widget.planet)),
+          child: AnimatedBuilder(
+            animation: _rotationController,
+            builder: (context, _) {
+              return CustomPaint(
+                painter: PlanetPainter(
+                  widget.planet,
+                  rotation: _rotationController.value * 2 * math.pi,
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

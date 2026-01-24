@@ -17,13 +17,15 @@ class ExoplanetListScreen extends ConsumerWidget {
       body: exoplanets.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
-        data: (planets) => ListView.separated(
-          itemCount: planets.length,
-          separatorBuilder: (_, _) => const Divider(height: 1),
-          itemBuilder: (context, index) {
-            return ExoplanetListTile(planets[index]);
-          },
-        ),
+        data: (planets) => planets.isEmpty
+            ? const Center(child: Text('Complete habits to unlock exoplanets.'))
+            : ListView.separated(
+                itemCount: planets.length,
+                separatorBuilder: (_, _) => const Divider(height: 1),
+                itemBuilder: (context, index) {
+                  return ExoplanetListTile(planets[index]);
+                },
+              ),
       ),
     );
   }
@@ -71,10 +73,11 @@ class PlanetMiniature extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final rotation = planet.orbitalPeriod != null ? 1 / planet.orbitalPeriod! * 0.1 : 0.1;
     return SizedBox(
       width: size,
       height: size,
-      child: CustomPaint(painter: PlanetPainter(planet, maxRadius: size)),
+      child: CustomPaint(painter: PlanetPainter(planet, maxRadius: size, rotation: rotation)),
     );
   }
 }

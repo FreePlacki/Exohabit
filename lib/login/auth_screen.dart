@@ -24,11 +24,11 @@ class _AuthScreenState extends State<AuthScreen> {
         }),
       ),
       body: Padding(
-        padding: const .all(16),
+        padding: const .directional(start: 16, end: 16, top: 16, bottom: 24),
         child: Column(
           children: [
             Expanded(child: AuthForm(authMode: _authMode)),
-            Row(
+            Column(
               mainAxisAlignment: .center,
               children: [
                 TextButton(
