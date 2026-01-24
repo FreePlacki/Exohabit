@@ -184,6 +184,15 @@ class _Drawer extends ConsumerWidget {
               },
             ),
 
+            ListTile(
+              leading: const Icon(Icons.public),
+              title: const Text('Exoplanets'),
+              onTap: () async {
+                Navigator.pop(context);
+                await context.push('/exoplanets');
+              },
+            ),
+
             const Spacer(),
             const Divider(),
 

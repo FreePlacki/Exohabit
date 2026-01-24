@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:exohabit/database.dart';
+import 'package:exohabit/exoplanet_details/exoplanet_list_screen.dart';
+import 'package:exohabit/exoplanet_details/planet_details_screen.dart';
 import 'package:exohabit/habits/habit_edit_screen.dart';
 import 'package:exohabit/habits/habits_screen.dart';
 import 'package:exohabit/habits/habits_table.dart';
@@ -34,6 +37,14 @@ GoRouter router(Ref ref) {
     routes: [
       GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
       GoRoute(path: '/habits', builder: (context, state) => const HabitsScreen()),
+      GoRoute(path: '/exoplanets', builder: (context, state) => const ExoplanetListScreen()),
+      GoRoute(
+        path: '/exoplanet-details',
+        builder: (context, state) {
+          final exoplanet = state.extra! as Exoplanet;
+          return PlanetDetailsScreen(exoplanet: exoplanet);
+        },
+      ),
       GoRoute(path: '/auth', builder: (context, state) => const AuthScreen()),
       GoRoute(
         path: '/create-habit',
