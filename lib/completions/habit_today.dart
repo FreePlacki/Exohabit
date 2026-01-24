@@ -20,8 +20,10 @@ class HabitTodayCard extends ConsumerWidget {
       child: InkWell(
         borderRadius: .circular(16),
         onTap: () async {
-          await rewardRepo.awardRandom();
-          return completionRepo.complete(habit.habit.id, DateTime.now());
+          final newCompletion = await completionRepo.complete(habit.habit.id, DateTime.now());
+          if (newCompletion) {
+            await rewardRepo.awardRandom();
+          }
         },
         child: Padding(
           padding: const .all(16),

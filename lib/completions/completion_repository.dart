@@ -90,9 +90,15 @@ class CompletionRepository {
     required DateTime to,
   }) => _localStore.countDistinctDays(habitId, from: from, to: to);
 
-  Future<void> complete(String habitId, DateTime date) => _localStore.upsert(
-    CompletionExtensions.create(habitId: habitId, completedAt: date),
-  );
+  Future<bool> complete(String habitId, DateTime date) async {
+    if (await existsForDay(habitId, date)) {
+      return false;
+    }
+    await _localStore.upsert(
+      CompletionExtensions.create(habitId: habitId, completedAt: date),
+    );
+    return true;
+  }
 
   Stream<List<Completion>> watchCompletions() => _localStore.watch();
 }
