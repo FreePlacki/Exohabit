@@ -56,6 +56,7 @@ class PhysicalParameters extends StatelessWidget {
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
               childAspectRatio: 2.4,
+              mainAxisExtent: 110,
             ),
             children: [
               _stat(context, Icons.circle_outlined, 'Radius', p.radius, 'R⊕'),
@@ -120,26 +121,32 @@ class PhysicalParameters extends StatelessWidget {
                 height: 36,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: (accent ?? scheme.primary).withOpacity(0.15),
+                  color: (accent ?? scheme.primary).withValues(alpha: 0.15),
                 ),
                 child: Icon(icon, size: 20, color: accent ?? scheme.primary),
               ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: .center,
+                  crossAxisAlignment: .start,
                   children: [
                     Text(
                       label.toUpperCase(),
                       style: Theme.of(context).textTheme.labelMedium,
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      value == null
-                          ? '???'
-                          : '${value.toStringAsFixed(1)} $unit',
-                      style: Theme.of(context).textTheme.titleMedium,
+                    FittedBox(
+                      fit: .scaleDown,
+                      alignment: .centerLeft,
+                      child: Text(
+                        value == null
+                            ? '???'
+                            : '${value.toStringAsFixed(1)} $unit',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                     ),
                   ],
                 ),

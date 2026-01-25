@@ -187,9 +187,15 @@ class TodayOverviewCard extends StatelessWidget {
   }
 
   static String _statusText(int completed, int total) {
-    if (total == 0) return 'No habits scheduled';
-    if (completed == total) return 'All missions completed';
-    if (completed == 0) return 'Mission not started';
+    if (total == 0) {
+      return 'No habits scheduled';
+    }
+    if (completed == total) {
+      return 'All missions completed';
+    }
+    if (completed == 0) {
+      return 'Mission not started';
+    }
     return 'In progress';
   }
 
@@ -219,7 +225,7 @@ class _ProgressRing extends StatelessWidget {
           CircularProgressIndicator(
             value: progress,
             strokeWidth: 6,
-            backgroundColor: theme.colorScheme.onSurface.withOpacity(0.1),
+            backgroundColor: theme.colorScheme.onSurface.withValues(alpha: 0.1),
           ),
           Text(
             '${(progress * 100).round()}%',
