@@ -20,6 +20,7 @@ GoRouter router(Ref ref) {
 
   return GoRouter(
     initialLocation: '/',
+    routerNeglect: true,
     refreshListenable: SupabaseAuthListenable(auth),
     redirect: (context, state) {
       final user = ref.read(currentUserProvider);
