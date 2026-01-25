@@ -10,7 +10,7 @@ class ExoplanetListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final exoplanets = ref.watch(exoplanetsProvider);
+    final exoplanets = ref.watch(unlockedExoplanetsProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Exoplanets')),

@@ -5,7 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HabitTodayCard extends ConsumerWidget {
-  const HabitTodayCard({super.key, required this.habit, required this.onReward});
+  const HabitTodayCard({
+    super.key,
+    required this.habit,
+    required this.onReward,
+  });
 
   final HabitToday habit;
   final void Function(Exoplanet) onReward;
@@ -47,7 +51,6 @@ class HabitTodayCard extends ConsumerWidget {
       ),
     );
   }
-
 }
 
 class _CompletionIndicator extends StatelessWidget {
@@ -101,12 +104,40 @@ class _HabitText extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 4),
-        LinearProgressIndicator(
-          value: habit.weeklyProgress / habit.habit.row.frequencyPerWeek,
-          minHeight: 4,
-          color: habit.weeklyGoalMet ? Colors.green : scheme.primary,
-          backgroundColor: scheme.onSurface.withValues(alpha: 0.2),
-          borderRadius: const .all(.circular(12)),
+        // TweenAnimationBuilder<double>(
+        //   tween: Tween(begin: 0, end: progress),
+        //   duration: const Duration(milliseconds: 600),
+        //   curve: Curves.easeOutCubic,
+        //   builder: (context, value, child) {
+        //     return SizedBox(
+        //       width: 56,
+        //       height: 56,
+        //       child: CircularProgressIndicator(
+        //         value: value,
+        //         strokeWidth: 6,
+        //         backgroundColor: theme.colorScheme.onSurface.withValues(
+        //           alpha: 0.1,
+        //         ),
+        //       ),
+        //     );
+        //   },
+        // ),
+        TweenAnimationBuilder(
+          tween: Tween(
+            begin: 0.toDouble(),
+            end: habit.weeklyProgress.toDouble() / habit.habit.row.frequencyPerWeek.toDouble(),
+          ),
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+          builder: (context, value, child) {
+            return LinearProgressIndicator(
+              value: value,
+              minHeight: 4,
+              color: habit.weeklyGoalMet ? Colors.green : scheme.primary,
+              backgroundColor: scheme.onSurface.withValues(alpha: 0.2),
+              borderRadius: const .all(.circular(12)),
+            );
+          },
         ),
       ],
     );

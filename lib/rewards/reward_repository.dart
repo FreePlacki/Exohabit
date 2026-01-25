@@ -10,16 +10,34 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'reward_repository.g.dart';
 
-final exoplanetsProvider = StreamProvider.autoDispose<List<Exoplanet>>((ref) {
-  final rewardsStream = ref.watch(rewardRepositoryProvider).watchRewards();
+final rewardsProvider = StreamProvider.autoDispose<List<Reward>>((ref) {
+  return ref.watch(rewardRepositoryProvider).watchRewards();
+});
 
-  return rewardsStream.asyncMap((rewards) async {
-    final repo = ref.watch(exoplanetRepositoryProvider);
+final unlockedExoplanetsProvider =
+    Provider.autoDispose<AsyncValue<List<Exoplanet>>>((ref) {
+  final rewardsAsync = ref.watch(rewardsProvider);
+  final exoplanetsAsync = ref.watch(exoplanetsProvider);
 
-    return (await Future.wait(
-      rewards.map((r) => repo.getFromName(r.id)),
-    )).whereType<Exoplanet>().toList();
-  });
+  return rewardsAsync.when(
+    loading: () => const AsyncLoading(),
+    error: AsyncError.new,
+    data: (rewards) {
+      return exoplanetsAsync.when(
+        loading: () => const AsyncLoading(),
+        error: AsyncError.new,
+        data: (exoplanets) {
+          final rewardIds = rewards.map((r) => r.id).toSet();
+
+          final filtered = exoplanets
+              .where((e) => rewardIds.contains(e.name))
+              .toList();
+
+          return AsyncData(filtered);
+        },
+      );
+    },
+  );
 });
 
 @riverpod
