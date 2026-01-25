@@ -115,6 +115,7 @@ class _HabitText extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final style = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
 
     return Column(
       crossAxisAlignment: .start,
@@ -127,6 +128,14 @@ class _HabitText extends ConsumerWidget {
           style: style.bodySmall?.copyWith(
             color: habit.weeklyGoalMet ? Colors.green : Colors.grey,
           ),
+        ),
+        const SizedBox(height: 4),
+        LinearProgressIndicator(
+          value: habit.weeklyProgress / habit.habit.row.frequencyPerWeek,
+          minHeight: 4,
+          color: habit.weeklyGoalMet ? Colors.green : scheme.primary,
+          backgroundColor: scheme.onSurface.withValues(alpha: 0.2),
+          borderRadius: const .all(.circular(12)),
         ),
       ],
     );
@@ -149,7 +158,7 @@ class TodayOverviewCard extends StatelessWidget {
     final progress = total == 0 ? 0.0 : completed / total;
 
     return Material(
-      elevation: 1,
+      elevation: 2,
       borderRadius: BorderRadius.circular(20),
       color: theme.colorScheme.surfaceContainerHighest,
       child: Padding(
@@ -216,23 +225,35 @@ class _ProgressRing extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return SizedBox(
-      width: 56,
-      height: 56,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          CircularProgressIndicator(
-            value: progress,
-            strokeWidth: 6,
-            backgroundColor: theme.colorScheme.onSurface.withValues(alpha: 0.1),
-          ),
-          Text(
+    return Stack(
+      alignment: .center,
+      children: [
+        TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: progress),
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeOutCubic,
+          builder: (context, value, child) {
+            return SizedBox(
+              width: 56,
+              height: 56,
+              child: CircularProgressIndicator(
+                value: value,
+                strokeWidth: 6,
+                backgroundColor: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+              ),
+            );
+          },
+        ),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
             '${(progress * 100).round()}%',
-            style: theme.textTheme.labelMedium,
+            style: theme.textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
