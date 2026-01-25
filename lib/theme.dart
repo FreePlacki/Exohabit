@@ -50,6 +50,26 @@ ThemeData buildExoplanetTheme() {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
 
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: _surfaceVariant,
+      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide:
+            BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(
+          color: _purplePrimary,
+          width: 2,
+        ),
+      ),
+      hintStyle: const TextStyle(color: Colors.white70),
+      labelStyle: const TextStyle(color: Colors.white70),
+    ),
+
     listTileTheme: const ListTileThemeData(
       iconColor: Colors.white70,
       textColor: Colors.white,

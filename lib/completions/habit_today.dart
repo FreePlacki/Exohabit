@@ -3,6 +3,7 @@ import 'package:exohabit/database.dart';
 import 'package:exohabit/rewards/reward_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class HabitTodayCard extends ConsumerWidget {
   const HabitTodayCard({
@@ -38,6 +39,7 @@ class HabitTodayCard extends ConsumerWidget {
             onReward(exoplanet);
           }
         },
+        onLongPress: () => context.push('/edit-habit/${habit.habit.id}'),
         child: Padding(
           padding: const .all(16),
           child: Row(
