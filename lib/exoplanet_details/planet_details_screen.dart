@@ -1,12 +1,18 @@
 import 'package:exohabit/database.dart';
 import 'package:exohabit/exoplanet_details/planet_visual.dart';
 import 'package:exohabit/exoplanets/exoplanet_repository.dart';
+import 'package:exohabit/rewards/reward_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final exoplanetProvider = FutureProvider.family<Exoplanet?, String>(
-  (ref, name) => ref.read(exoplanetRepositoryProvider).getFromName(name),
-);
+// final exoplanetProvider =
+//     FutureProvider.autoDispose.family<Exoplanet?, String>((ref, id) {
+//   final link = ref.keepAlive();
+
+//   final repo = ref.read(exoplanetRepositoryProvider);
+//   return repo.getFromName(id);
+// });
+
 
 class PlanetDetailsScreen extends ConsumerWidget {
   const PlanetDetailsScreen({super.key, required this.exoplanetName});
@@ -15,20 +21,22 @@ class PlanetDetailsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final exoplanet = ref.read(exoplanetProvider(exoplanetName));
+    final exoplanets = ref.read(exoplanetsProvider);
     return Scaffold(
-      body: exoplanet.when(
+      body: exoplanets.when(
         error: (err, _) =>
             Center(child: Text('Failed to load exoplanet ($err)')),
         loading: () => const Center(child: CircularProgressIndicator()),
-        data: (exoplanet) => CustomScrollView(
+        data: (exoplanets) {
+          final exoplanet = exoplanets.where((e) => e.name == exoplanetName).first;
+          return CustomScrollView(
           slivers: [
             SliverAppBar(
               expandedHeight: 320,
               pinned: true,
               title: const Text('Exoplanet Details'),
               flexibleSpace: FlexibleSpaceBar(
-                background: PlanetVisual(exoplanet!),
+                background: PlanetVisual(exoplanet),
               ),
             ),
             SliverList(
@@ -40,7 +48,7 @@ class PlanetDetailsScreen extends ConsumerWidget {
               ]),
             ),
           ],
-        ),
+        );}
       ),
     );
   }
