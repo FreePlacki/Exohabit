@@ -30,10 +30,10 @@ class HabitTodayCard extends ConsumerWidget {
             if (!context.mounted) {
               return;
             }
-            _showAutoHideBanner(
+            _showRewardSnackBar(
               context,
               'New exoplanet discovered!',
-              () => context.push('/exoplanet-details', extra: exoplanet),
+              () => context.push('/exoplanet-details/${exoplanet.name}'),
               'Show',
             );
           }
@@ -52,29 +52,30 @@ class HabitTodayCard extends ConsumerWidget {
     );
   }
 
-  void _showAutoHideBanner(
+  void _showRewardSnackBar(
     BuildContext context,
     String message,
     void Function() action,
     String actionText,
   ) {
-    final messenger = ScaffoldMessenger.of(context)..clearMaterialBanners();
-    messenger.showMaterialBanner(
-      MaterialBanner(
-        dividerColor: Theme.of(context).colorScheme.primary,
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              messenger.clearMaterialBanners();
-              action();
-            },
-            child: Text(actionText),
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          duration: const Duration(seconds: 5),
+          backgroundColor: Theme.of(
+            context,
+          ).colorScheme.surfaceContainerHighest,
+          content: Text(message),
+          action: SnackBarAction(
+            label: actionText,
+            onPressed: action,
+            textColor: Theme.of(context).colorScheme.primary,
           ),
-        ],
-      ),
-    );
-    Future.delayed(const Duration(seconds: 10), messenger.clearMaterialBanners);
+        ),
+      );
   }
 }
 
@@ -163,10 +164,7 @@ class TodayOverviewCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Today',
-                    style: theme.textTheme.titleMedium,
-                  ),
+                  Text('Today', style: theme.textTheme.titleMedium),
                   const SizedBox(height: 4),
                   Text(
                     '$completed of $total habits completed',
@@ -195,11 +193,7 @@ class TodayOverviewCard extends StatelessWidget {
     return 'In progress';
   }
 
-  static Color _statusColor(
-    ThemeData theme,
-    int completed,
-    int total,
-  ) {
+  static Color _statusColor(ThemeData theme, int completed, int total) {
     if (completed == total && total > 0) {
       return Colors.green;
     }
@@ -225,8 +219,7 @@ class _ProgressRing extends StatelessWidget {
           CircularProgressIndicator(
             value: progress,
             strokeWidth: 6,
-            backgroundColor:
-                theme.colorScheme.onSurface.withOpacity(0.1),
+            backgroundColor: theme.colorScheme.onSurface.withOpacity(0.1),
           ),
           Text(
             '${(progress * 100).round()}%',

@@ -46,7 +46,7 @@ class ExoplanetListTile extends StatelessWidget {
         leading: PlanetMiniature(planet),
         title: Text(planet.name),
         subtitle: _subtitle(),
-        onTap: () => context.push('/exoplanet-details', extra: planet),
+        onTap: () => context.push('/exoplanet-details/${planet.name}'),
       ),
     );
   }

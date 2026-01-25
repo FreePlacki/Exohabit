@@ -68,23 +68,47 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       drawer: const _Drawer(),
       body: habits.when(
         skipLoadingOnReload: true,
-        data: (data) => RefreshIndicator(
-          onRefresh: ref.read(homeControllerProvider.notifier).sync,
-          child: data.isEmpty ?
-            const Center(child: Text('No habits yet...'))
-          : ListView.separated(
-            padding: const .all(16),
-            itemCount: data.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 12),
-            itemBuilder: (buildContext, i) {
-              final habit = data[i];
-              return HabitTodayCard(habit: habit);
-            },
-          ),
-        ),
-        error: (err, st) => Center(child: Text('Error loading habits ($err)')),
+        data: (data) {
+          final completed = data.where((h) => h.completedToday).length;
+          final total = data.length;
+
+          return RefreshIndicator(
+            onRefresh: ref.read(homeControllerProvider.notifier).sync,
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: TodayOverviewCard(
+                      completed: completed,
+                      total: total,
+                    ),
+                  ),
+                ),
+
+                if (data.isEmpty)
+                  const SliverFillRemaining(
+                    child: Center(child: Text('No habits yet...')),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.all(16),
+                    sliver: SliverList.separated(
+                      itemCount: data.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 12),
+                      itemBuilder: (_, i) {
+                        return HabitTodayCard(habit: data[i]);
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
+        error: (err, _) => Center(child: Text('Error loading habits ($err)')),
         loading: () => const Center(child: CircularProgressIndicator()),
       ),
+
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.edit),
         onPressed: () {

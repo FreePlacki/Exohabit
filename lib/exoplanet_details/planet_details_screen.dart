@@ -1,35 +1,46 @@
 import 'package:exohabit/database.dart';
 import 'package:exohabit/exoplanet_details/planet_visual.dart';
+import 'package:exohabit/exoplanets/exoplanet_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class PlanetDetailsScreen extends ConsumerWidget {
-  const PlanetDetailsScreen({super.key, required this.exoplanet});
+final exoplanetProvider = FutureProvider.family<Exoplanet?, String>(
+  (ref, name) => ref.read(exoplanetRepositoryProvider).getFromName(name),
+);
 
-  final Exoplanet exoplanet;
+class PlanetDetailsScreen extends ConsumerWidget {
+  const PlanetDetailsScreen({super.key, required this.exoplanetName});
+
+  final String exoplanetName;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final exoplanet = ref.read(exoplanetProvider(exoplanetName));
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 320,
-            pinned: true,
-            title: const Text('Exoplanet Details'),
-            flexibleSpace: FlexibleSpaceBar(
-              background: PlanetVisual(exoplanet),
+      body: exoplanet.when(
+        error: (err, _) =>
+            Center(child: Text('Failed to load exoplanet ($err)')),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        data: (exoplanet) => CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 320,
+              pinned: true,
+              title: const Text('Exoplanet Details'),
+              flexibleSpace: FlexibleSpaceBar(
+                background: PlanetVisual(exoplanet!),
+              ),
             ),
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate([
-              PlanetSummary(exoplanet),
-              const SizedBox(height: 8),
-              PhysicalParameters(exoplanet),
-              const SizedBox(height: 24),
-            ]),
-          ),
-        ],
+            SliverList(
+              delegate: SliverChildListDelegate([
+                PlanetSummary(exoplanet),
+                const SizedBox(height: 8),
+                PhysicalParameters(exoplanet),
+                const SizedBox(height: 24),
+              ]),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -56,13 +67,7 @@ class PhysicalParameters extends StatelessWidget {
               childAspectRatio: 2.4,
             ),
             children: [
-              _stat(
-                context,
-                Icons.circle_outlined,
-                'Radius',
-                p.radius,
-                'R⊕',
-              ),
+              _stat(context, Icons.circle_outlined, 'Radius', p.radius, 'R⊕'),
               _stat(context, Icons.scale, 'Mass', p.mass, 'M⊕'),
               _stat(
                 context,
@@ -140,7 +145,9 @@ class PhysicalParameters extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      value == null ? '???' : '${value.toStringAsFixed(1)} $unit',
+                      value == null
+                          ? '???'
+                          : '${value.toStringAsFixed(1)} $unit',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ],
@@ -194,7 +201,11 @@ class PlanetSummary extends StatelessWidget {
               runSpacing: 8,
               children: [
                 _chip(context, Icons.star, p.hostName ?? 'Unknown star'),
-                _chip(context, Icons.search, p.discoveryMethod ?? 'Unknown method'),
+                _chip(
+                  context,
+                  Icons.search,
+                  p.discoveryMethod ?? 'Unknown method',
+                ),
                 if (p.discYear != null)
                   _chip(context, Icons.calendar_today, p.discYear.toString()),
               ],

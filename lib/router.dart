@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:exohabit/database.dart';
 import 'package:exohabit/exoplanet_details/exoplanet_list_screen.dart';
 import 'package:exohabit/exoplanet_details/planet_details_screen.dart';
 import 'package:exohabit/habits/habit_edit_screen.dart';
@@ -19,7 +18,7 @@ part 'router.g.dart';
 @riverpod
 GoRouter router(Ref ref) {
   final auth = ref.read(supabaseAuthProvider);
-  
+
   return GoRouter(
     initialLocation: '/',
     refreshListenable: SupabaseAuthListenable(auth),
@@ -36,13 +35,20 @@ GoRouter router(Ref ref) {
     },
     routes: [
       GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
-      GoRoute(path: '/habits', builder: (context, state) => const HabitsScreen()),
-      GoRoute(path: '/exoplanets', builder: (context, state) => const ExoplanetListScreen()),
       GoRoute(
-        path: '/exoplanet-details',
+        path: '/habits',
+        builder: (context, state) => const HabitsScreen(),
+      ),
+      GoRoute(
+        path: '/exoplanets',
+        builder: (context, state) => const ExoplanetListScreen(),
+      ),
+      GoRoute(
+        path: '/exoplanet-details/:name',
         builder: (context, state) {
-          final exoplanet = state.extra! as Exoplanet;
-          return PlanetDetailsScreen(exoplanet: exoplanet);
+          final name = state.pathParameters['name']!;
+          print(name);
+          return PlanetDetailsScreen(exoplanetName: name);
         },
       ),
       GoRoute(path: '/auth', builder: (context, state) => const AuthScreen()),
