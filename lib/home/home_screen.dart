@@ -97,7 +97,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       itemCount: data.length,
                       separatorBuilder: (_, _) => const SizedBox(height: 12),
                       itemBuilder: (_, i) {
-                        return HabitTodayCard(habit: data[i]);
+                        return HabitTodayCard(
+                          habit: data[i],
+                          onReward: (exoplanet) => _showRewardSnackBar(
+                            'New exoplanet discovered!',
+                            () => context.push(
+                              '/exoplanet-details/${exoplanet.name}',
+                            ),
+                            'Show',
+                          ),
+                        );
                       },
                     ),
                   ),
@@ -116,6 +125,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         },
       ),
     );
+  }
+
+  void _showRewardSnackBar(
+    String message,
+    void Function() action,
+    String actionText,
+  ) {
+    // Schedule it to run after the current frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      const duration = Duration(seconds: 5);
+      final messenger = ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            duration: duration,
+            backgroundColor: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest,
+            content: Text(message),
+            action: SnackBarAction(
+              label: actionText,
+              onPressed: action,
+              textColor: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        );
+      // Manually hide because it doesn't do that for some reason...
+      Future.delayed(duration, messenger.hideCurrentSnackBar);
+    });
   }
 
   Future<void> _showSyncDialog() async {

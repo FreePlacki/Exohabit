@@ -1,13 +1,14 @@
 import 'package:exohabit/completions/completion_repository.dart';
+import 'package:exohabit/database.dart';
 import 'package:exohabit/rewards/reward_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class HabitTodayCard extends ConsumerWidget {
-  const HabitTodayCard({super.key, required this.habit});
+  const HabitTodayCard({super.key, required this.habit, required this.onReward});
 
   final HabitToday habit;
+  final void Function(Exoplanet) onReward;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,12 +31,7 @@ class HabitTodayCard extends ConsumerWidget {
             if (!context.mounted) {
               return;
             }
-            _showRewardSnackBar(
-              context,
-              'New exoplanet discovered!',
-              () => context.push('/exoplanet-details/${exoplanet.name}'),
-              'Show',
-            );
+            onReward(exoplanet);
           }
         },
         child: Padding(
@@ -52,31 +48,6 @@ class HabitTodayCard extends ConsumerWidget {
     );
   }
 
-  void _showRewardSnackBar(
-    BuildContext context,
-    String message,
-    void Function() action,
-    String actionText,
-  ) {
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          duration: const Duration(seconds: 5),
-          backgroundColor: Theme.of(
-            context,
-          ).colorScheme.surfaceContainerHighest,
-          content: Text(message),
-          action: SnackBarAction(
-            label: actionText,
-            onPressed: action,
-            textColor: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-      );
-  }
 }
 
 class _CompletionIndicator extends StatelessWidget {
@@ -239,7 +210,9 @@ class _ProgressRing extends StatelessWidget {
               child: CircularProgressIndicator(
                 value: value,
                 strokeWidth: 6,
-                backgroundColor: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                backgroundColor: theme.colorScheme.onSurface.withValues(
+                  alpha: 0.1,
+                ),
               ),
             );
           },
