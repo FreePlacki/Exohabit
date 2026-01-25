@@ -4,7 +4,6 @@ import 'package:exohabit/exoplanet_details/exoplanet_list_screen.dart';
 import 'package:exohabit/exoplanet_details/planet_details_screen.dart';
 import 'package:exohabit/habits/habit_edit_screen.dart';
 import 'package:exohabit/habits/habits_screen.dart';
-import 'package:exohabit/habits/habits_table.dart';
 import 'package:exohabit/home/home_screen.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/login/auth_screen.dart';
@@ -47,7 +46,6 @@ GoRouter router(Ref ref) {
         path: '/exoplanet-details/:name',
         builder: (context, state) {
           final name = state.pathParameters['name']!;
-          print(name);
           return PlanetDetailsScreen(exoplanetName: name);
         },
       ),
@@ -57,10 +55,10 @@ GoRouter router(Ref ref) {
         builder: (context, state) => const HabitEditScreen(),
       ),
       GoRoute(
-        path: '/edit-habit',
+        path: '/edit-habit/:id',
         builder: (context, state) {
-          final habit = state.extra as Habit?;
-          return HabitEditScreen(habit: habit);
+          final id = state.pathParameters['id']!;
+          return HabitEditScreen(habitId: id);
         },
       ),
     ],

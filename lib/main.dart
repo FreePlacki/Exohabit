@@ -1,3 +1,5 @@
+import 'package:exohabit/exoplanets/exoplanet_repository.dart';
+import 'package:exohabit/habits/habit_controller.dart';
 import 'package:exohabit/router.dart';
 import 'package:exohabit/sync/override_sync_service.dart';
 import 'package:exohabit/theme.dart';
@@ -27,7 +29,9 @@ class ExohabitApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
-    ref.watch(authSyncListenerProvider);
+    ref..watch(authSyncListenerProvider)
+    ..watch(exoplanetsProvider)
+    ..watch(habitsProvider);
 
     return MaterialApp.router(
       routerConfig: router,

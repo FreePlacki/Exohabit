@@ -48,7 +48,7 @@ class HabitsScreen extends ConsumerWidget {
               final h = list[i];
               return _HabitListItem(
                 habit: h,
-                onEdit: () => context.push('/edit-habit', extra: h),
+                onEdit: () => context.push('/edit-habit/${h.id}'),
                 onDelete: () => _showDeleteDialog(context, ref, h),
               );
             },

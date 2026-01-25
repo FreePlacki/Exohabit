@@ -64,4 +64,6 @@ class ExoplanetLocalStore {
   Future<void> clear() => _db.delete(_db.exoplanets).go();
 
   Future<bool> exists() => _exoplanets.exists();
+
+  Stream<List<Exoplanet>> watch() => _exoplanets.watch();
 }

@@ -6,6 +6,26 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'habit_controller.g.dart';
 
+final habitProvider = Provider.autoDispose.family<Habit?, String?>((ref, id) {
+  return id == null
+      ? null
+      : ref.watch(
+          habitsProvider.select((async) {
+            final list = async.value;
+            if (list == null) {
+              return null;
+            }
+
+            for (final e in list) {
+              if (e.id == id) {
+                return e;
+              }
+            }
+            return null;
+          }),
+        );
+});
+
 final habitsProvider = StreamProvider.autoDispose<List<Habit>>(
   (ref) => ref.watch(habitRepositoryProvider).watchHabits(),
 );

@@ -1,18 +1,8 @@
 import 'package:exohabit/database.dart';
 import 'package:exohabit/exoplanet_details/planet_visual.dart';
 import 'package:exohabit/exoplanets/exoplanet_repository.dart';
-import 'package:exohabit/rewards/reward_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-// final exoplanetProvider =
-//     FutureProvider.autoDispose.family<Exoplanet?, String>((ref, id) {
-//   final link = ref.keepAlive();
-
-//   final repo = ref.read(exoplanetRepositoryProvider);
-//   return repo.getFromName(id);
-// });
-
 
 class PlanetDetailsScreen extends ConsumerWidget {
   const PlanetDetailsScreen({super.key, required this.exoplanetName});
@@ -21,34 +11,27 @@ class PlanetDetailsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final exoplanets = ref.read(exoplanetsProvider);
+    final exoplanet = ref.watch(exoplanetProvider(exoplanetName));
     return Scaffold(
-      body: exoplanets.when(
-        error: (err, _) =>
-            Center(child: Text('Failed to load exoplanet ($err)')),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        data: (exoplanets) {
-          final exoplanet = exoplanets.where((e) => e.name == exoplanetName).first;
-          return CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 320,
-              pinned: true,
-              title: const Text('Exoplanet Details'),
-              flexibleSpace: FlexibleSpaceBar(
-                background: PlanetVisual(exoplanet),
-              ),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 320,
+            pinned: true,
+            title: const Text('Exoplanet Details'),
+            flexibleSpace: FlexibleSpaceBar(
+              background: PlanetVisual(exoplanet!),
             ),
-            SliverList(
-              delegate: SliverChildListDelegate([
-                PlanetSummary(exoplanet),
-                const SizedBox(height: 8),
-                PhysicalParameters(exoplanet),
-                const SizedBox(height: 24),
-              ]),
-            ),
-          ],
-        );}
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              PlanetSummary(exoplanet),
+              const SizedBox(height: 8),
+              PhysicalParameters(exoplanet),
+              const SizedBox(height: 24),
+            ]),
+          ),
+        ],
       ),
     );
   }

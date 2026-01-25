@@ -1,13 +1,12 @@
 import 'package:exohabit/habits/habit_controller.dart';
-import 'package:exohabit/habits/habits_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class HabitEditScreen extends ConsumerStatefulWidget {
-  const HabitEditScreen({super.key, this.habit});
+  const HabitEditScreen({super.key, this.habitId});
   // null for create, non-null for edit
-  final Habit? habit;
+  final String? habitId;
 
   @override
   ConsumerState<HabitEditScreen> createState() => _HabitEditScreenState();
@@ -18,14 +17,25 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
   late final TextEditingController descCtrl;
   late int freq;
 
-  bool get isEditing => widget.habit != null;
+  bool get isEditing => widget.habitId != null;
 
   @override
   void initState() {
     super.initState();
-    titleCtrl = TextEditingController(text: widget.habit?.row.title ?? '');
-    descCtrl = TextEditingController(text: widget.habit?.row.description ?? '');
-    freq = widget.habit?.row.frequencyPerWeek ?? 3;
+
+    titleCtrl = TextEditingController();
+    descCtrl = TextEditingController();
+    freq = 3;
+
+    ref.listenManual(habitProvider(widget.habitId), (previous, next) {
+      if (next == null) {
+        return;
+      }
+
+      titleCtrl.text = next.row.title;
+      descCtrl.text = next.row.description;
+      freq = next.row.frequencyPerWeek;
+    }, fireImmediately: true);
   }
 
   @override
@@ -43,9 +53,10 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
   Future<void> submit() async {
     final state = ref.read(habitControllerProvider);
     final controller = ref.read(habitControllerProvider.notifier);
+    final habit = ref.watch(habitProvider(widget.habitId));
 
     await controller.submit(
-      existingHabit: widget.habit,
+      existingHabit: habit,
       title: titleCtrl.text.trim(),
       description: descCtrl.text.trim(),
       frequency: freq,
@@ -87,8 +98,10 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
                   onChanged: (v) => setState(() => freq = v!),
                   items: List.generate(
                     7,
-                    (i) =>
-                        DropdownMenuItem(value: i + 1, child: Text('${i + 1} per week')),
+                    (i) => DropdownMenuItem(
+                      value: i + 1,
+                      child: Text('${i + 1} per week'),
+                    ),
                   ),
                 ),
               ],
@@ -97,7 +110,10 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
             if (state.hasError)
               Padding(
                 padding: const EdgeInsets.only(top: 20),
-                child: Text(state.error.toString(), style: const TextStyle(color: Colors.red)),
+                child: Text(
+                  state.error.toString(),
+                  style: const TextStyle(color: Colors.red),
+                ),
               ),
 
             const Spacer(),

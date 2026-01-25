@@ -1,6 +1,7 @@
 import 'package:exohabit/database.dart';
 import 'package:exohabit/exoplanets/exoplanet_local_store.dart';
 import 'package:exohabit/exoplanets/exoplanet_remote_store.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'exoplanet_repository.g.dart';
@@ -9,6 +10,31 @@ part 'exoplanet_repository.g.dart';
 ExoplanetRepository exoplanetRepository(Ref ref) => ExoplanetRepository(
   localStore: ref.watch(exoplanetLocalStoreProvider),
   remoteStore: ref.watch(exoplanetRemoteStoreProvider),
+);
+
+final exoplanetProvider =
+    Provider.autoDispose.family<Exoplanet?, String>((ref, name) {
+  return ref.watch(
+    exoplanetsProvider.select((async) {
+      final list = async.value;
+      if (list == null) {
+        return null;
+      }
+
+      for (final e in list) {
+        if (e.name == name) {
+          return e;
+        }
+      }
+      return null;
+    }),
+  );
+});
+
+
+
+final exoplanetsProvider = StreamProvider.autoDispose<List<Exoplanet>>(
+  (ref) => ref.watch(exoplanetLocalStoreProvider).watch(),
 );
 
 class ExoplanetRepository {

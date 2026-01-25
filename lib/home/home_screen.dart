@@ -32,7 +32,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           _showSyncDialog();
         });
       }
-    });
+    }, fireImmediately: true);
   }
 
   @override
