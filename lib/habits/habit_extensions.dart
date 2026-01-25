@@ -7,6 +7,7 @@ extension HabitExtensions on Habit {
   static Habit createHabit({
     required String title,
     required int frequencyPerWeek,
+    required HabitCategory category,
     String description = '',
   }) {
     assert(title.trim().isNotEmpty);
@@ -20,6 +21,7 @@ extension HabitExtensions on Habit {
         frequencyPerWeek: frequencyPerWeek,
         createdAt: DateTime.timestamp(),
         updatedAt: DateTime.timestamp(),
+        category: category,
         deleted: false,
         synced: false,
       ),
@@ -32,21 +34,28 @@ extension HabitExtensions on Habit {
     'userId': userId,
     'description': row.description,
     'frequencyPerWeek': row.frequencyPerWeek,
+    'category': row.category.name,
     'createdAt': toTimestampString(row.createdAt.toString()),
     'updatedAt': toTimestampString(updatedAt.toString()),
     'deleted': deleted,
   };
 
   static Habit fromRemote(Map<String, dynamic> habit, {required bool synced}) {
-    return Habit(HabitRow(
-      id: habit['id'] as String,
-      title: habit['title'] as String,
-      description: habit['description'] as String,
-      frequencyPerWeek: habit['frequencyPerWeek'] as int,
-      createdAt: DateTime.parse(habit['createdAt'] as String).toUtc(),
-      updatedAt: DateTime.parse(habit['createdAt'] as String).toUtc(),
-      deleted: habit['deleted'] as bool,
-      synced: synced,
-    ));
+    return Habit(
+      HabitRow(
+        id: habit['id'] as String,
+        title: habit['title'] as String,
+        description: habit['description'] as String,
+        frequencyPerWeek: habit['frequencyPerWeek'] as int,
+        category: HabitCategory.values.firstWhere(
+          (e) => e.name == habit['category'] as String,
+          orElse: () => .other,
+        ),
+        createdAt: DateTime.parse(habit['createdAt'] as String).toUtc(),
+        updatedAt: DateTime.parse(habit['createdAt'] as String).toUtc(),
+        deleted: habit['deleted'] as bool,
+        synced: synced,
+      ),
+    );
   }
 }

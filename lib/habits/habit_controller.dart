@@ -40,6 +40,7 @@ class HabitController extends _$HabitController {
     required String title,
     required String description,
     required int frequency,
+    required HabitCategory category,
   }) async {
     state = const AsyncLoading();
 
@@ -60,6 +61,7 @@ class HabitController extends _$HabitController {
           title: title,
           description: description,
           frequencyPerWeek: frequency,
+          category: category,
         );
         await repo.createHabit(habit);
       }

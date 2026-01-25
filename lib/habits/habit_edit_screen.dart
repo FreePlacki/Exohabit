@@ -1,4 +1,5 @@
 import 'package:exohabit/habits/habit_controller.dart';
+import 'package:exohabit/habits/habits_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +17,7 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
   late final TextEditingController titleCtrl;
   late final TextEditingController descCtrl;
   late int freq;
+  late HabitCategory category;
 
   bool get isEditing => widget.habitId != null;
 
@@ -26,6 +28,7 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
     titleCtrl = TextEditingController();
     descCtrl = TextEditingController();
     freq = 3;
+    category = .other;
 
     ref.listenManual(habitProvider(widget.habitId), (previous, next) {
       if (next == null) {
@@ -35,6 +38,7 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
       titleCtrl.text = next.row.title;
       descCtrl.text = next.row.description;
       freq = next.row.frequencyPerWeek;
+      category = next.row.category;
     }, fireImmediately: true);
   }
 
@@ -60,6 +64,7 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
       title: titleCtrl.text.trim(),
       description: descCtrl.text.trim(),
       frequency: freq,
+      category: category,
     );
 
     if (!state.hasError && mounted) {
@@ -101,6 +106,20 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
                     (i) => DropdownMenuItem(
                       value: i + 1,
                       child: Text('${i + 1} per week'),
+                    ),
+                  ),
+                ),
+
+                const Text('Category:'),
+                const SizedBox(width: 16),
+                DropdownButton<HabitCategory>(
+                  value: category,
+                  onChanged: (v) => setState(() => category = v!),
+                  items: List.generate(
+                    HabitCategory.values.length,
+                    (i) => DropdownMenuItem(
+                      value: HabitCategory.values[i],
+                      child: Text(HabitCategory.values[i].name),
                     ),
                   ),
                 ),

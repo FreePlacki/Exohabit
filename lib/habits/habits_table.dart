@@ -13,16 +13,12 @@ class Habit implements SyncEntity {
   @override
   bool get deleted => row.deleted;
 
-  HabitRow copyRow({
-    DateTime? updatedAt,
-    bool? synced,
-  }) {
-    return row.copyWith(
-      updatedAt: updatedAt,
-      synced: synced,
-    );
+  HabitRow copyRow({DateTime? updatedAt, bool? synced}) {
+    return row.copyWith(updatedAt: updatedAt, synced: synced);
   }
 }
+
+enum HabitCategory { health, sports, study, work, reading, other }
 
 @DataClassName('HabitRow')
 class Habits extends Table {
@@ -32,6 +28,7 @@ class Habits extends Table {
   IntColumn get frequencyPerWeek => integer()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
+  IntColumn get category => intEnum<HabitCategory>()();
 
   BoolColumn get deleted => boolean().withDefault(const Constant(false))();
   BoolColumn get synced => boolean().withDefault(const Constant(false))();

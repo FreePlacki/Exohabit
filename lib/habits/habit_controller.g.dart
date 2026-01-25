@@ -33,7 +33,7 @@ final class HabitControllerProvider
   HabitController create() => HabitController();
 }
 
-String _$habitControllerHash() => r'69d8efab2508d0a27c759cc818d1f05304b586cb';
+String _$habitControllerHash() => r'bd839dedf307283c43e0d93068a99e7c27c743f9';
 
 abstract class _$HabitController extends $AsyncNotifier<void> {
   FutureOr<void> build();

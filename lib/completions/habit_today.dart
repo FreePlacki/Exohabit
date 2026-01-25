@@ -104,24 +104,6 @@ class _HabitText extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 4),
-        // TweenAnimationBuilder<double>(
-        //   tween: Tween(begin: 0, end: progress),
-        //   duration: const Duration(milliseconds: 600),
-        //   curve: Curves.easeOutCubic,
-        //   builder: (context, value, child) {
-        //     return SizedBox(
-        //       width: 56,
-        //       height: 56,
-        //       child: CircularProgressIndicator(
-        //         value: value,
-        //         strokeWidth: 6,
-        //         backgroundColor: theme.colorScheme.onSurface.withValues(
-        //           alpha: 0.1,
-        //         ),
-        //       ),
-        //     );
-        //   },
-        // ),
         TweenAnimationBuilder(
           tween: Tween(
             begin: 0.toDouble(),
