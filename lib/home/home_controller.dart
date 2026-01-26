@@ -1,4 +1,4 @@
-import 'package:exohabit/habits/habit_category.dart';
+import 'package:exohabit/habits/habits_table.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/sync/merge_sync_service.dart';
 import 'package:flutter_riverpod/experimental/mutation.dart';

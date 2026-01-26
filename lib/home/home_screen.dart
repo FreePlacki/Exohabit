@@ -1,7 +1,7 @@
 import 'package:exohabit/completions/completion_repository.dart';
-import 'package:exohabit/habits/habit_category.dart';
 import 'package:exohabit/habits/habit_controller.dart';
 import 'package:exohabit/habits/habit_today.dart';
+import 'package:exohabit/habits/habits_table.dart';
 import 'package:exohabit/home/home_controller.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/sync/merge_sync_service.dart';

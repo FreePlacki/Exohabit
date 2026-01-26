@@ -1,5 +1,4 @@
 import 'package:exohabit/database.dart';
-import 'package:exohabit/habits/habit_category.dart';
 import 'package:exohabit/habits/habits_table.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';

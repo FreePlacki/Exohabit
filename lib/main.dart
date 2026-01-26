@@ -30,8 +30,8 @@ class ExohabitApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     ref..watch(authSyncListenerProvider)
-    ..watch(habitsProvider)
-    ..watch(exoplanetsProvider);
+    ..watch(habitsProvider);
+    ref.watch(exoplanetsProvider);
 
     return MaterialApp.router(
       routerConfig: router,

@@ -33,7 +33,7 @@ final exoplanetProvider =
 
 
 
-final exoplanetsProvider = StreamProvider.autoDispose<List<Exoplanet>>(
+final exoplanetsProvider = StreamProvider<List<Exoplanet>>(
   (ref) => ref.watch(exoplanetLocalStoreProvider).watch(),
 );
 
