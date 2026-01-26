@@ -2,6 +2,7 @@ import 'package:exohabit/completions/completion_extensions.dart';
 import 'package:exohabit/completions/completion_local_store.dart';
 import 'package:exohabit/completions/completions_table.dart';
 import 'package:exohabit/habits/habit_repository.dart';
+import 'package:exohabit/habits/habits_screen.dart';
 import 'package:exohabit/habits/habits_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,6 +58,51 @@ Stream<List<HabitToday>> todayHabits(Ref ref) {
           habit: habit,
           completedToday: completedToday,
           weeklyProgress: weeklyProgress,
+        ),
+      );
+    }
+
+    return result;
+  });
+}
+
+@riverpod
+Stream<List<HabitWeekly>> weeklyHabits(Ref ref) {
+  final habits = ref.watch(habitRepositoryProvider).watchHabits();
+  final completionRepo = ref.watch(completionRepositoryProvider);
+  ref.watch(completionsProvider);
+
+  return habits.asyncMap((habits) async {
+    final now = DateTime.now().toLocal();
+    final today = DateUtils.dateOnly(now);
+
+    final weekStart = today.subtract(
+      Duration(days: today.weekday - DateTime.monday),
+    );
+
+    final result = <HabitWeekly>[];
+
+    for (final habit in habits) {
+      final completedDays = <bool>[];
+
+      for (var i = 0; i < 7; i++) {
+        final day = weekStart.add(Duration(days: i));
+        final dayEnd = day
+            .add(const Duration(days: 1))
+            .subtract(const Duration(seconds: 1));
+
+        final completed = await completionRepo.existsForDay(
+          habit.id,
+          dayEnd,
+        );
+
+        completedDays.add(completed);
+      }
+
+      result.add(
+        HabitWeekly(
+          habit: habit,
+          completedDays: completedDays,
         ),
       );
     }

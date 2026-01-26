@@ -48,6 +48,47 @@ final class TodayHabitsProvider
 
 String _$todayHabitsHash() => r'8d1b334a08f7cb979e68fe96c4cdfb8acb97ad6c';
 
+@ProviderFor(weeklyHabits)
+const weeklyHabitsProvider = WeeklyHabitsProvider._();
+
+final class WeeklyHabitsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<HabitWeekly>>,
+          List<HabitWeekly>,
+          Stream<List<HabitWeekly>>
+        >
+    with
+        $FutureModifier<List<HabitWeekly>>,
+        $StreamProvider<List<HabitWeekly>> {
+  const WeeklyHabitsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'weeklyHabitsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$weeklyHabitsHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<HabitWeekly>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<HabitWeekly>> create(Ref ref) {
+    return weeklyHabits(ref);
+  }
+}
+
+String _$weeklyHabitsHash() => r'f966683f15d7f337b4fbc8153c9316ec06320f90';
+
 @ProviderFor(completionRepository)
 const completionRepositoryProvider = CompletionRepositoryProvider._();
 

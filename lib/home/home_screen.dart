@@ -28,13 +28,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.initState();
 
     ref.listenManual(pendingSyncDecisionProvider, (prev, next) {
-      if (next != null && !_syncDialogShown) {
+      if (prev == null && !_syncDialogShown) {
         _syncDialogShown = true;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _showSyncDialog();
         });
       }
-    }, fireImmediately: true);
+    }, fireImmediately: false);
   }
 
   @override
@@ -248,7 +248,7 @@ class _Drawer extends ConsumerWidget {
               title: const Text('Habits'),
               onTap: () {
                 Navigator.pop(context);
-                context.go('/');
+                context.push('/habits');
               },
             ),
 

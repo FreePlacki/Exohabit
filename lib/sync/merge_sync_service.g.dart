@@ -174,7 +174,7 @@ final class SyncListenerProvider extends $FunctionalProvider<void, void, void>
   }
 }
 
-String _$syncListenerHash() => r'569cc920e874e73ffb5700a948767c2cf34fb6c3';
+String _$syncListenerHash() => r'990804ca84497e639f4383e925028d897ac66fc4';
 
 @ProviderFor(mergeSyncCoordinator)
 const mergeSyncCoordinatorProvider = MergeSyncCoordinatorProvider._();

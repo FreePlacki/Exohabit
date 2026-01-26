@@ -48,16 +48,15 @@ void syncListener(Ref ref) {
     return true;
   }
 
-  final merge = ref.read(mergeSyncCoordinatorProvider);
   ref
     ..listen(habitsProvider, (prev, next) {
       if (!sameRevision(prev?.value, next.value)) {
-        merge.sync();
+        ref.read(mergeSyncCoordinatorProvider).sync();
       }
     })
     ..listen(completionsProvider, (prev, next) {
       if (!sameRevision(prev?.value, next.value)) {
-        merge.sync();
+        ref.read(mergeSyncCoordinatorProvider).sync();
       }
     });
 }
@@ -79,7 +78,7 @@ class MergeSyncService<T extends SyncEntity> implements SyncService {
   final RemoteSyncStore<T> _remote;
 
   @override
-  Future<void> sync(String userId) async {
+  Future<void> sync(String userId) => _local.transaction(() async {
     final localUnsynced = await _local.unsynced();
     final localAll = await _local.fetchAll();
     final remoteAll = await _remote.fetchAll(userId);
@@ -115,7 +114,7 @@ class MergeSyncService<T extends SyncEntity> implements SyncService {
 
       await _local.markSynced(remote.id);
     }
-  }
+  });
 }
 
 @riverpod
