@@ -1,6 +1,7 @@
 import 'package:exohabit/completions/completion_repository.dart';
-import 'package:exohabit/completions/habit_today.dart';
+import 'package:exohabit/habits/habit_category.dart';
 import 'package:exohabit/habits/habit_controller.dart';
+import 'package:exohabit/habits/habit_today.dart';
 import 'package:exohabit/home/home_controller.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/sync/merge_sync_service.dart';
@@ -69,8 +70,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: habits.when(
         skipLoadingOnReload: true,
         data: (data) {
+          final selectedCategory = ref.watch(selectedCategoryProvider);
+          final visibleHabits = selectedCategory == null
+              ? data
+              : data
+                    .where((h) => h.habit.row.category == selectedCategory)
+                    .toList();
           final completed = data.where((h) => h.completedToday).length;
-          final total = data.length;
+          final total = data
+              .where((h) => !h.weeklyGoalMet || h.completedToday)
+              .length;
 
           return RefreshIndicator(
             onRefresh: ref.read(homeControllerProvider.notifier).sync,
@@ -86,6 +95,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
 
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: _CategoryFilterChips(),
+                  ),
+                ),
+
                 if (data.isEmpty)
                   const SliverFillRemaining(
                     child: Center(child: Text('No habits yet...')),
@@ -94,11 +110,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   SliverPadding(
                     padding: const EdgeInsets.all(16),
                     sliver: SliverList.separated(
-                      itemCount: data.length,
+                      itemCount: visibleHabits.length,
                       separatorBuilder: (_, _) => const SizedBox(height: 12),
                       itemBuilder: (_, i) {
                         return HabitTodayCard(
-                          habit: data[i],
+                          habit: visibleHabits[i],
                           onReward: (exoplanet) => _showRewardSnackBar(
                             'New exoplanet discovered!',
                             () => context.push(
@@ -286,6 +302,35 @@ class _Drawer extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _CategoryFilterChips extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selected = ref.watch(selectedCategoryProvider);
+
+    const categories = HabitCategory.values;
+
+    return Wrap(
+      spacing: 8,
+      children: [
+        ChoiceChip(
+          label: const Text('All'),
+          selected: selected == null,
+          onSelected: (_) =>
+              ref.read(selectedCategoryProvider.notifier).clear(),
+        ),
+        for (final cat in categories)
+          ChoiceChip(
+            label: Text(cat.name),
+            selected: selected == cat,
+            onSelected: (_) =>
+                ref.read(selectedCategoryProvider.notifier).select(cat),
+            selectedColor: cat.color.withValues(alpha: 0.25),
+          ),
+      ],
     );
   }
 }

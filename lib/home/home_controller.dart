@@ -1,3 +1,4 @@
+import 'package:exohabit/habits/habit_category.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/sync/merge_sync_service.dart';
 import 'package:flutter_riverpod/experimental/mutation.dart';
@@ -18,4 +19,20 @@ class HomeController extends _$HomeController {
       await ref.read(mergeSyncCoordinatorProvider).sync();
     }
   });
+}
+
+@riverpod
+class SelectedCategory extends _$SelectedCategory {
+  @override
+  HabitCategory? build() {
+    return null; // null = no filter ("All")
+  }
+
+  void select(HabitCategory? category) {
+    state = category;
+  }
+
+  void clear() {
+    state = null;
+  }
 }

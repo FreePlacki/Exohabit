@@ -1,7 +1,7 @@
 import 'dart:math';
 
+import 'package:exohabit/habits/habit_category.dart';
 import 'package:exohabit/habits/habit_controller.dart';
-import 'package:exohabit/habits/habits_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -226,7 +226,7 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
         Column(
           children: HabitCategory.values.map((cat) {
             final isSelected = cat == category;
-            final color = _categoryColor(cat);
+            final color = cat.color;
             return Padding(
               padding: const .all(4),
               child: InkWell(
@@ -248,7 +248,12 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(_categoryIcon(cat), color: color),
+                      Icon(
+                        isSelected
+                            ? cat.iconFilled
+                            : cat.iconOutlined,
+                        color: color,
+                      ),
                       const SizedBox(width: 12),
                       Text(
                         cat.name,
@@ -268,39 +273,5 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
         ),
       ],
     );
-  }
-
-  Color _categoryColor(HabitCategory cat) {
-    switch (cat) {
-      case .health:
-        return Colors.green;
-      case .reading:
-        return Colors.yellow;
-      case .work:
-        return Colors.orange;
-      case .study:
-        return Colors.purple;
-      case .other:
-        return Colors.grey;
-      case .sports:
-        return Colors.blue;
-    }
-  }
-
-  IconData _categoryIcon(HabitCategory cat) {
-    switch (cat) {
-      case .health:
-        return Icons.fitness_center;
-      case .reading:
-        return Icons.menu_book;
-      case .work:
-        return Icons.work;
-      case .sports:
-        return Icons.self_improvement;
-      case .study:
-        return Icons.school;
-      case .other:
-        return Icons.category;
-    }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:exohabit/database.dart';
+import 'package:exohabit/habits/habit_category.dart';
 import 'package:exohabit/sync/sync_service.dart';
 
 class Habit implements SyncEntity {
@@ -17,8 +18,6 @@ class Habit implements SyncEntity {
     return row.copyWith(updatedAt: updatedAt, synced: synced);
   }
 }
-
-enum HabitCategory { health, sports, study, work, reading, other }
 
 @DataClassName('HabitRow')
 class Habits extends Table {

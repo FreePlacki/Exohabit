@@ -1,3 +1,4 @@
+import 'package:exohabit/habits/habit_category.dart';
 import 'package:exohabit/habits/habit_extensions.dart';
 import 'package:exohabit/habits/habit_repository.dart';
 import 'package:exohabit/habits/habits_table.dart';
