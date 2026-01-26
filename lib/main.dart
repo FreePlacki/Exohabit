@@ -1,5 +1,6 @@
 import 'package:exohabit/exoplanets/exoplanet_repository.dart';
 import 'package:exohabit/router.dart';
+import 'package:exohabit/sync/merge_sync_service.dart';
 import 'package:exohabit/sync/override_sync_service.dart';
 import 'package:exohabit/theme.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,8 @@ class ExohabitApp extends ConsumerWidget {
 
     // pre-fetch exoplanets from remote if running for the first time
     ref.read(exoplanetRepositoryProvider).syncWithRemote();
+
+    ref.read(syncListenerProvider);
 
     return MaterialApp.router(
       routerConfig: router,

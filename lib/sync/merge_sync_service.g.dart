@@ -136,6 +136,46 @@ final class RewardMergeSyncServiceProvider
 String _$rewardMergeSyncServiceHash() =>
     r'81973c9c53c0ed93b0a7ddb3bea6d597a3e019e6';
 
+@ProviderFor(syncListener)
+const syncListenerProvider = SyncListenerProvider._();
+
+final class SyncListenerProvider extends $FunctionalProvider<void, void, void>
+    with $Provider<void> {
+  const SyncListenerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'syncListenerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$syncListenerHash();
+
+  @$internal
+  @override
+  $ProviderElement<void> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  void create(Ref ref) {
+    return syncListener(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(void value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<void>(value),
+    );
+  }
+}
+
+String _$syncListenerHash() => r'569cc920e874e73ffb5700a948767c2cf34fb6c3';
+
 @ProviderFor(mergeSyncCoordinator)
 const mergeSyncCoordinatorProvider = MergeSyncCoordinatorProvider._();
 

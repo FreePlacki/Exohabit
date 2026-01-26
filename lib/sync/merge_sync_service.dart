@@ -1,5 +1,7 @@
 import 'package:exohabit/completions/completion_local_store.dart';
 import 'package:exohabit/completions/completion_remote_store.dart';
+import 'package:exohabit/completions/completion_repository.dart';
+import 'package:exohabit/habits/habit_controller.dart';
 import 'package:exohabit/habits/habit_local_store.dart';
 import 'package:exohabit/habits/habit_remote_store.dart';
 import 'package:exohabit/login/auth_repository.dart';
@@ -28,6 +30,37 @@ SyncService rewardMergeSyncService(Ref ref) => MergeSyncService(
   localStore: ref.watch(rewardLocalStoreProvider),
   remoteStore: ref.watch(rewardRemoteStoreProvider),
 );
+
+@Riverpod(keepAlive: true)
+void syncListener(Ref ref) {
+  bool sameRevision(List<SyncEntity>? a, List<SyncEntity>? b) {
+    if (a == null && b == null) {
+      return true;
+    }
+    if (a == null || b == null || a.length != b.length) {
+      return false;
+    }
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].updatedAt != b[i].updatedAt) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  final merge = ref.read(mergeSyncCoordinatorProvider);
+  ref
+    ..listen(habitsProvider, (prev, next) {
+      if (!sameRevision(prev?.value, next.value)) {
+        merge.sync();
+      }
+    })
+    ..listen(completionsProvider, (prev, next) {
+      if (!sameRevision(prev?.value, next.value)) {
+        merge.sync();
+      }
+    });
+}
 
 /// Merges the remote with local database
 /// 1) pull all data from remote
