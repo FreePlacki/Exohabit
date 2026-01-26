@@ -53,11 +53,9 @@ class ExoplanetListTile extends StatelessWidget {
 
   Widget _subtitle() {
     final parts = <String>[];
-
     if (planet.hostName != null) {
       parts.add(planet.hostName!);
     }
-
     if (planet.discoveryMethod != null) {
       parts.add(planet.discoveryMethod!);
     }
@@ -74,11 +72,15 @@ class PlanetMiniature extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rotation = planet.orbitalPeriod != null ? 1 / planet.orbitalPeriod! * 0.1 : 0.1;
+    final rotation = planet.orbitalPeriod != null
+        ? 1 / planet.orbitalPeriod! * 0.1
+        : 0.1;
     return SizedBox(
       width: size,
       height: size,
-      child: CustomPaint(painter: PlanetPainter(planet, maxRadius: size, rotation: rotation)),
+      child: CustomPaint(
+        painter: PlanetPainter(planet, maxRadius: size, rotation: rotation),
+      ),
     );
   }
 }

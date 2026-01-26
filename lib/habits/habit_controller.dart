@@ -26,7 +26,7 @@ final habitProvider = Provider.autoDispose.family<Habit?, String?>((ref, id) {
         );
 });
 
-final habitsProvider = StreamProvider.autoDispose<List<Habit>>(
+final habitsProvider = StreamProvider<List<Habit>>(
   (ref) => ref.watch(habitRepositoryProvider).watchHabits(),
 );
 

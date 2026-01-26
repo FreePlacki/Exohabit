@@ -19,7 +19,6 @@ class Habit implements SyncEntity {
   }
 }
 
-
 enum HabitCategory {
   health,
   sports,

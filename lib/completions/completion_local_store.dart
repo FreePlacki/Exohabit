@@ -96,7 +96,7 @@ class CompletionLocalStore implements LocalSyncStore<Completion> {
       ..where(_db.completions.deleted.equals(false))
       ..where(_db.completions.habitId.equals(habitId))
       ..where(
-        _db.completions.completedAt.day.isBetweenValues(from.day-1, to.day),
+        _db.completions.completedAt.day.isBetweenValues(from.day - 1, to.day),
       );
 
     final row = await query.getSingle();

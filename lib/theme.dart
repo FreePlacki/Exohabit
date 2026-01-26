@@ -40,7 +40,11 @@ ThemeData buildExoplanetTheme() {
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: false,
-      titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
+      titleTextStyle: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
     ),
 
     cardTheme: CardThemeData(
@@ -56,15 +60,11 @@ ThemeData buildExoplanetTheme() {
       contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide:
-            BorderSide.none,
+        borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
-          color: _purplePrimary,
-          width: 2,
-        ),
+        borderSide: const BorderSide(color: _purplePrimary, width: 2),
       ),
       hintStyle: const TextStyle(color: Colors.white70),
       labelStyle: const TextStyle(color: Colors.white70),

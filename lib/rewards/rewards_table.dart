@@ -14,14 +14,8 @@ class Reward implements SyncEntity {
   @override
   bool get deleted => row.deleted;
 
-  RewardRow copyRow({
-    DateTime? createdAt,
-    bool? synced,
-  }) {
-    return row.copyWith(
-      createdAt: createdAt,
-      synced: synced,
-    );
+  RewardRow copyRow({DateTime? createdAt, bool? synced}) {
+    return row.copyWith(createdAt: createdAt, synced: synced);
   }
 }
 

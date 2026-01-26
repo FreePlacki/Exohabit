@@ -14,8 +14,7 @@ final rewardsProvider = StreamProvider.autoDispose<List<Reward>>((ref) {
   return ref.watch(rewardRepositoryProvider).watchRewards();
 });
 
-final unlockedExoplanetsProvider =
-    Provider.autoDispose<AsyncValue<List<Exoplanet>>>((ref) {
+final unlockedExoplanetsProvider = Provider<AsyncValue<List<Exoplanet>>>((ref) {
   final rewardsAsync = ref.watch(rewardsProvider);
   final exoplanetsAsync = ref.watch(exoplanetsProvider);
 

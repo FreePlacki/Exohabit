@@ -4,6 +4,7 @@ import 'package:exohabit/habits/habit_today.dart';
 import 'package:exohabit/habits/habits_table.dart';
 import 'package:exohabit/home/home_controller.dart';
 import 'package:exohabit/login/auth_repository.dart';
+import 'package:exohabit/rewards/reward_repository.dart';
 import 'package:exohabit/sync/merge_sync_service.dart';
 import 'package:exohabit/sync/override_sync_service.dart';
 import 'package:exohabit/sync/sync_decision_dialog.dart';
@@ -41,7 +42,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final authRepo = ref.read(authRepositoryProvider);
 
     final habits = ref.watch(todayHabitsProvider);
-    ref.watch(homeControllerProvider);
+    ref
+      ..watch(homeControllerProvider)
+      ..watch(unlockedExoplanetsProvider);
     final syncState = ref.watch(syncMutation);
 
     return Scaffold(
@@ -148,7 +151,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     void Function() action,
     String actionText,
   ) {
-    // Schedule it to run after the current frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
         return;
@@ -317,6 +319,7 @@ class _CategoryFilterChips extends ConsumerWidget {
       spacing: 8,
       children: [
         ChoiceChip(
+          showCheckmark: false,
           label: const Text('All'),
           selected: selected == null,
           onSelected: (_) =>
@@ -324,6 +327,7 @@ class _CategoryFilterChips extends ConsumerWidget {
         ),
         for (final cat in categories)
           ChoiceChip(
+            showCheckmark: false,
             label: Text(cat.name),
             selected: selected == cat,
             onSelected: (_) =>

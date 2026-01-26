@@ -14,14 +14,8 @@ class Completion implements SyncEntity {
   @override
   bool get deleted => row.deleted;
 
-  CompletionRow copyRow({
-    DateTime? updatedAt,
-    bool? synced,
-  }) {
-    return row.copyWith(
-      updatedAt: updatedAt,
-      synced: synced,
-    );
+  CompletionRow copyRow({DateTime? updatedAt, bool? synced}) {
+    return row.copyWith(updatedAt: updatedAt, synced: synced);
   }
 }
 

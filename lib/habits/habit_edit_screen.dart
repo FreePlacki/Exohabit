@@ -249,9 +249,7 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
                   child: Row(
                     children: [
                       Icon(
-                        isSelected
-                            ? cat.iconFilled
-                            : cat.iconOutlined,
+                        isSelected ? cat.iconFilled : cat.iconOutlined,
                         color: color,
                       ),
                       const SizedBox(width: 12),

@@ -1,5 +1,6 @@
 import 'package:exohabit/completions/completion_repository.dart';
 import 'package:exohabit/database.dart';
+import 'package:exohabit/habits/habits_table.dart';
 import 'package:exohabit/rewards/reward_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,7 +45,10 @@ class HabitTodayCard extends ConsumerWidget {
           padding: const .all(16),
           child: Row(
             children: [
-              _CompletionIndicator(completed: habit.completedToday),
+              _CompletionIndicator(
+                completed: habit.completedToday,
+                category: habit.habit.row.category,
+              ),
               const SizedBox(width: 16),
               Expanded(child: _HabitText(habit: habit)),
             ],
@@ -56,9 +60,10 @@ class HabitTodayCard extends ConsumerWidget {
 }
 
 class _CompletionIndicator extends StatelessWidget {
-  const _CompletionIndicator({required this.completed});
+  const _CompletionIndicator({required this.completed, required this.category});
 
   final bool completed;
+  final HabitCategory category;
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +79,7 @@ class _CompletionIndicator extends StatelessWidget {
         border: .all(
           color: completed
               ? Theme.of(context).colorScheme.primary
-              : Colors.grey,
+              : category.color,
           width: 2,
         ),
       ),
@@ -109,7 +114,9 @@ class _HabitText extends ConsumerWidget {
         TweenAnimationBuilder(
           tween: Tween(
             begin: 0.toDouble(),
-            end: habit.weeklyProgress.toDouble() / habit.habit.row.frequencyPerWeek.toDouble(),
+            end:
+                habit.weeklyProgress.toDouble() /
+                habit.habit.row.frequencyPerWeek.toDouble(),
           ),
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOutCubic,

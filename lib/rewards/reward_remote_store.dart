@@ -25,10 +25,7 @@ class RewardRemoteStore implements RemoteSyncStore<Reward> {
 
   @override
   Future<List<Reward>> fetchAll(String userId) async {
-    final response = await _db
-        .from(_table)
-        .select()
-        .eq('userId', userId);
+    final response = await _db.from(_table).select().eq('userId', userId);
 
     return response
         .map((row) => RewardExtensions.fromRemote(row, synced: false))

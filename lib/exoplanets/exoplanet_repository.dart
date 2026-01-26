@@ -12,26 +12,20 @@ ExoplanetRepository exoplanetRepository(Ref ref) => ExoplanetRepository(
   remoteStore: ref.watch(exoplanetRemoteStoreProvider),
 );
 
-final exoplanetProvider =
-    Provider.autoDispose.family<Exoplanet?, String>((ref, name) {
-  return ref.watch(
-    exoplanetsProvider.select((async) {
-      final list = async.value;
-      if (list == null) {
-        return null;
-      }
-
-      for (final e in list) {
-        if (e.name == name) {
-          return e;
-        }
-      }
-      return null;
-    }),
-  );
+final exoplanetProvider = Provider.family<Exoplanet?, String>((ref, name) {
+  return ref
+      .watch(exoplanetsProvider)
+      .mapOrNull(
+        data: (list) {
+          for (final e in list.value) {
+            if (e.name == name) {
+              return e;
+            }
+          }
+          return null;
+        },
+      );
 });
-
-
 
 final exoplanetsProvider = StreamProvider<List<Exoplanet>>(
   (ref) => ref.watch(exoplanetLocalStoreProvider).watch(),
@@ -47,7 +41,7 @@ class ExoplanetRepository {
   final ExoplanetLocalStore _localStore;
   final ExoplanetRemoteStore _remoteStore;
 
-  Future<void> _syncWithRemote() async {
+  Future<void> syncWithRemote() async {
     final hasData = await _localStore.exists();
     if (!hasData) {
       final exoplanets = await _remoteStore.fetchAll();
@@ -58,7 +52,7 @@ class ExoplanetRepository {
   }
 
   Future<Exoplanet> getRandom(List<String> excluded) async {
-    await _syncWithRemote();
+    await syncWithRemote();
 
     const availablePlanetsWithTemperature = 30;
     final exoplanet = await _localStore.fetchRandom(
@@ -69,7 +63,7 @@ class ExoplanetRepository {
   }
 
   Future<Exoplanet?> getFromName(String name) async {
-    await _syncWithRemote();
+    await syncWithRemote();
     return _localStore.fetchByName(name);
   }
 }
