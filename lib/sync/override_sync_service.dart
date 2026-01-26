@@ -40,10 +40,11 @@ void authSyncListener(Ref ref) {
     if (nextSession != null) {
       final userId = nextSession.user.id;
       final prevUserId = prevSession?.user.id;
-      // account switch
       if (userId != prevUserId) {
-        final hasData = await ref.read(habitLocalStoreProvider).hasAny();
-        if (hasData) {
+        final unsynced = await ref.read(habitLocalStoreProvider).unsynced();
+        // only ask for merge if there were unsynced habits
+        // (detecting not logged in -> logged in)
+        if (unsynced.isNotEmpty) {
           ref.read(pendingSyncDecisionProvider.notifier).init();
         } else {
           await ref.read(overrideSyncCoordinatorProvider).sync();

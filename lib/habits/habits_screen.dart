@@ -131,7 +131,6 @@ class HabitSummaryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Row(
               children: [
                 Expanded(
@@ -169,12 +168,10 @@ class HabitSummaryCard extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            // Completion strip
             _CompletionStrip(completedDays: habit.completedDays),
 
             const SizedBox(height: 8),
 
-            // Weekly summary
             Text(
               '${habit.completedCount} / ${habit.habit.row.frequencyPerWeek} this week'
               '${habit.weeklyGoalMet ? ' · goal met' : ''}',
