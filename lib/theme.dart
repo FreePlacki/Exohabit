@@ -40,7 +40,7 @@ ThemeData buildExoplanetTheme() {
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: false,
-      titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+      titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
     ),
 
     cardTheme: CardThemeData(
