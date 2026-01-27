@@ -90,7 +90,7 @@ class MergeSyncService<T extends SyncEntity> implements SyncService {
   final RemoteSyncStore<T> _remote;
 
   @override
-  Future<void> sync(String userId) => _local.transaction(() async {
+  Future<void> sync(String userId) async {
     final localUnsynced = await _local.unsynced();
     final localAll = await _local.fetchAll();
     final remoteAll = await _remote.fetchAll(userId);
@@ -126,7 +126,7 @@ class MergeSyncService<T extends SyncEntity> implements SyncService {
 
       await _local.markSynced(remote.id);
     }
-  });
+  }
 }
 
 @Riverpod(keepAlive: true)
@@ -172,7 +172,7 @@ class MergeSyncCoordinator {
   }
 
   Future<void> delayedSync({
-    Duration duration = const Duration(seconds: 3),
+    Duration duration = const Duration(seconds: 1),
   }) async {
     if (isSyncing || scheduledSync) {
       return;

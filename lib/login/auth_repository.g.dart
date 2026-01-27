@@ -137,7 +137,7 @@ final class CurrentSessionProvider
         argument: null,
         retry: null,
         name: r'currentSessionProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -164,7 +164,7 @@ final class CurrentSessionProvider
   }
 }
 
-String _$currentSessionHash() => r'057b2ea3e52da7e3ce1a34b334083eeb3089d15c';
+String _$currentSessionHash() => r'3db13369093934ca0114cc484c6784c3f94c347c';
 
 @ProviderFor(currentUser)
 const currentUserProvider = CurrentUserProvider._();

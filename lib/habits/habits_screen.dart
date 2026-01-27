@@ -22,13 +22,11 @@ class HabitsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authRepo = ref.read(authRepositoryProvider);
-    final user = ref.watch(currentUserProvider);
-    final userEmail = user?.email ?? 'Signed out';
     final habits = ref.watch(weeklyHabitsProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Your Habits - $userEmail'),
+        title: const Text('Habits'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),

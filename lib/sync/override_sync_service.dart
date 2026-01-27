@@ -99,14 +99,14 @@ class OverrideSyncService<T extends SyncEntity> implements SyncService {
   final RemoteSyncStore<T> _remote;
 
   @override
-  Future<void> sync(String userId) => _local.transaction(() async {
+  Future<void> sync(String userId) async {
     logger.i('Syncing with remote (override)');
     await _local.clear();
     final remotes = await _remote.fetchNotDeleted(userId);
     for (final e in remotes) {
       await _local.upsert(e);
     }
-  });
+  }
 }
 
 @Riverpod(keepAlive: true)

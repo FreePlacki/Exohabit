@@ -1,3 +1,4 @@
+import 'package:exohabit/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -14,7 +15,7 @@ AuthRepository authRepository(Ref ref) =>
 Stream<AuthState> authState(Ref ref) =>
     ref.watch(supabaseAuthProvider).onAuthStateChange;
 
-@riverpod
+@Riverpod(keepAlive: true)
 Session? currentSession(Ref ref) {
   ref.watch(authStateProvider);
   return ref.watch(supabaseAuthProvider).currentSession;
@@ -44,11 +45,12 @@ class AuthFailure implements Exception {
     if (msg.contains('user already registered')) {
       return AuthFailure('This email is already registered.');
     }
-    if (msg.contains('password')) {
-      return AuthFailure('Password is too weak.');
-    }
-    if (msg.contains('network')) {
+    if (msg.contains('failed host lookup')) {
       return AuthFailure('Network error. Please check your connection.');
+    }
+    if (msg.contains('password')) {
+      logger.i(msg);
+      return AuthFailure('Password is too weak.');
     }
 
     return AuthFailure('Authentication failed.');
@@ -88,6 +90,10 @@ class AuthRepository {
   }
 
   Future<void> signOut() async {
-    await _auth.signOut();
+    try {
+      await _auth.signOut();
+    } on Exception catch (e) {
+      logger.e('Error logging out', error: e);
+    }
   }
 }

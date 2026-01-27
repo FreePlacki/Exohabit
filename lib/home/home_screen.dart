@@ -40,12 +40,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final authRepo = ref.read(authRepositoryProvider);
+    final userId = ref.watch(currentUserIdProvider);
 
     final habits = ref.watch(todayHabitsProvider);
     ref
       ..watch(homeControllerProvider)
       ..watch(unlockedExoplanetsProvider);
     final syncState = ref.watch(syncMutation);
+
+    if (syncState is MutationError) {
+      Future.delayed(const Duration(seconds: 2), () => syncMutation.reset(ref));
+      _showSnackBar("Couldn't sync, check your internet connection", null, '');
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -60,13 +66,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               }
             },
           ),
-          switch (syncState) {
-            MutationPending() => const CircularProgressIndicator(),
-            _ => IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: ref.read(homeControllerProvider.notifier).sync,
-            ),
-          },
+          if (userId != null)
+            switch (syncState) {
+              MutationPending() => const CircularProgressIndicator(),
+              MutationError() => IconButton(
+                onPressed: ref.read(homeControllerProvider.notifier).sync,
+                icon: const Icon(Icons.error, color: Colors.redAccent),
+              ),
+              _ => IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: ref.read(homeControllerProvider.notifier).sync,
+              ),
+            },
         ],
       ),
       drawer: const _Drawer(),
@@ -81,11 +92,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     .toList();
           final completed = data.where((h) => h.completedToday).length;
           final total = data
-              .where((h) => !h.weeklyGoalMet || h.weeklyProgress == h.habit.row.frequencyPerWeek)
+              .where(
+                (h) =>
+                    !h.weeklyGoalMet ||
+                    h.weeklyProgress == h.habit.row.frequencyPerWeek,
+              )
               .length;
 
           return RefreshIndicator(
-            onRefresh: ref.read(homeControllerProvider.notifier).sync,
+            onRefresh: userId != null
+                ? () async => ref.read(homeControllerProvider.notifier).sync
+                : () async {},
             child: CustomScrollView(
               slivers: [
                 SliverToBoxAdapter(
@@ -118,7 +135,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       itemBuilder: (_, i) {
                         return HabitTodayCard(
                           habit: visibleHabits[i],
-                          onReward: (exoplanet) => _showRewardSnackBar(
+                          onReward: (exoplanet) => _showSnackBar(
                             'New exoplanet discovered!',
                             () => context.push(
                               '/exoplanet-details/${exoplanet.name}',
@@ -146,11 +163,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  void _showRewardSnackBar(
-    String message,
-    void Function() action,
-    String actionText,
-  ) {
+  void _showSnackBar(
+    String message, [
+    void Function()? action,
+    String? actionText,
+  ]) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
         return;
@@ -167,11 +184,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               context,
             ).colorScheme.surfaceContainerHighest,
             content: Text(message),
-            action: SnackBarAction(
-              label: actionText,
-              onPressed: action,
-              textColor: Theme.of(context).colorScheme.primary,
-            ),
+            action: action != null
+                ? SnackBarAction(
+                    label: actionText ?? 'OK',
+                    onPressed: action,
+                    textColor: Theme.of(context).colorScheme.primary,
+                  )
+                : null,
           ),
         );
       // Manually hide because it doesn't do that for some reason...
@@ -265,9 +284,9 @@ class _Drawer extends ConsumerWidget {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : null,
-              onTap: () async {
+              onTap: () {
                 Navigator.pop(context);
-                await ref.read(homeControllerProvider.notifier).sync();
+                ref.read(homeControllerProvider.notifier).sync();
               },
             ),
 

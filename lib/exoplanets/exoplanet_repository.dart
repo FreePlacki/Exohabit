@@ -1,6 +1,7 @@
 import 'package:exohabit/database.dart';
 import 'package:exohabit/exoplanets/exoplanet_local_store.dart';
 import 'package:exohabit/exoplanets/exoplanet_remote_store.dart';
+import 'package:exohabit/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -42,12 +43,16 @@ class ExoplanetRepository {
   final ExoplanetRemoteStore _remoteStore;
 
   Future<void> syncWithRemote() async {
-    final hasData = await _localStore.exists();
-    if (!hasData) {
-      final exoplanets = await _remoteStore.fetchAll();
-      for (final exoplanet in exoplanets) {
-        await _localStore.upsert(exoplanet);
+    try {
+      final hasData = await _localStore.exists();
+      if (!hasData) {
+        final exoplanets = await _remoteStore.fetchAll();
+        for (final exoplanet in exoplanets) {
+          await _localStore.upsert(exoplanet);
+        }
       }
+    } on Exception catch (e) {
+      logger.e("Couldn't get exoplanets", error: e);
     }
   }
 

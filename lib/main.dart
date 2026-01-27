@@ -13,6 +13,7 @@ void main() async {
   await Supabase.initialize(
     url: 'https://nmykcwruezxwtpxvoeth.supabase.co',
     anonKey: 'sb_publishable_As2X_jKoGUb7ggx8h-qSlQ_qmJS7Dp-',
+    authOptions: const FlutterAuthClientOptions(autoRefreshToken: false),
   );
 
   runApp(
@@ -35,11 +36,12 @@ class ExohabitApp extends ConsumerWidget {
 
     ref.watch(syncListenerProvider);
 
+    final theme = buildExoplanetTheme();
     return MaterialApp.router(
       routerConfig: ref.watch(routerProvider),
       debugShowCheckedModeBanner: false,
-      theme: buildExoplanetTheme(),
-      darkTheme: buildExoplanetTheme(),
+      theme: theme,
+      darkTheme: theme,
       themeMode: ThemeMode.dark,
     );
   }
