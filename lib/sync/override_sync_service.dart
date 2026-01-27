@@ -4,6 +4,7 @@ import 'package:exohabit/completions/completions_table.dart';
 import 'package:exohabit/habits/habit_local_store.dart';
 import 'package:exohabit/habits/habit_remote_store.dart';
 import 'package:exohabit/habits/habits_table.dart';
+import 'package:exohabit/logger.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/rewards/reward_local_store.dart';
 import 'package:exohabit/rewards/reward_remote_store.dart';
@@ -99,15 +100,16 @@ class OverrideSyncService<T extends SyncEntity> implements SyncService {
 
   @override
   Future<void> sync(String userId) => _local.transaction(() async {
+    logger.i('Syncing with remote (override)');
     await _local.clear();
-    final remoteHabits = await _remote.fetchNotDeleted(userId);
-    for (final habit in remoteHabits) {
-      await _local.upsert(habit);
+    final remotes = await _remote.fetchNotDeleted(userId);
+    for (final e in remotes) {
+      await _local.upsert(e);
     }
   });
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 OverrideSyncCoordinator overrideSyncCoordinator(Ref ref) =>
     OverrideSyncCoordinator(
       userId: ref.watch(currentUserIdProvider),
@@ -131,14 +133,17 @@ class OverrideSyncCoordinator {
   final OverrideSyncService<Habit> _habitSyncService;
   final OverrideSyncService<Completion> _completionSyncService;
   final OverrideSyncService<Reward> _rewardSyncService;
+  bool isSyncing = false;
 
   Future<void> sync() async {
-    if (_userId == null) {
+    if (_userId == null || isSyncing) {
       return;
     }
 
+    isSyncing = true;
     await _habitSyncService.sync(_userId);
     await _completionSyncService.sync(_userId);
     await _rewardSyncService.sync(_userId);
+    isSyncing = false;
   }
 }

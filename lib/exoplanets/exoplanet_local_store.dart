@@ -29,32 +29,36 @@ class ExoplanetLocalStore {
     List<String>? excludedNames,
     bool withTemperature = true,
   }) async {
-    if (excludedNames == null || excludedNames.isEmpty) {
+    Future<Exoplanet?> runQuery({List<String>? exclude}) async {
+      final whereClauses = <String>[];
+      final variables = <Variable>[];
+
+      if (withTemperature) {
+        whereClauses.add('temperature IS NOT NULL');
+      }
+
+      if (exclude != null && exclude.isNotEmpty) {
+        final placeholders = List.filled(exclude.length, '?').join(',');
+        whereClauses.add('name NOT IN ($placeholders)');
+        variables.addAll(exclude.map(Variable.withString));
+      }
+
+      final whereSql = whereClauses.isEmpty
+          ? ''
+          : 'WHERE ${whereClauses.join(' AND ')}';
+
       final row = await _db
           .customSelect(
-            'SELECT * FROM Exoplanets WHERE temperature IS NOT NULL ORDER BY RANDOM() LIMIT 1',
+            'SELECT * FROM Exoplanets $whereSql ORDER BY RANDOM() LIMIT 1',
+            variables: variables,
             readsFrom: {_db.exoplanets},
           )
           .getSingleOrNull();
-      return row == null ? null : _db.exoplanets.map(row.data);
+
+      return row == null ? null : _db.exoplanets.mapFromRow(row);
     }
 
-    // build placeholders for parameterized NOT IN
-    final placeholders = List.filled(excludedNames.length, '?').join(',');
-    final sql =
-        'SELECT * FROM Exoplanets '
-        'WHERE temperature IS NOT NULL AND name NOT IN ($placeholders) '
-        'ORDER BY RANDOM() LIMIT 1';
-
-    final row = await _db
-        .customSelect(
-          sql,
-          variables: excludedNames.map(Variable.withString).toList(),
-          readsFrom: {_db.exoplanets},
-        )
-        .getSingleOrNull();
-
-    return row == null ? null : _db.exoplanets.map(row.data);
+    return await runQuery(exclude: excludedNames) ?? await runQuery();
   }
 
   Future<void> upsert(Exoplanet exoplanet) {

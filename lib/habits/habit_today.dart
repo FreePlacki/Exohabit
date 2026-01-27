@@ -34,7 +34,7 @@ class HabitTodayCard extends ConsumerWidget {
           );
           if (newCompletion) {
             final exoplanet = await rewardRepo.awardRandom();
-            if (!context.mounted) {
+            if (!context.mounted || exoplanet == null) {
               return;
             }
             onReward(exoplanet);

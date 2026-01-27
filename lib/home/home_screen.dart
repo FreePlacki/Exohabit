@@ -81,7 +81,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     .toList();
           final completed = data.where((h) => h.completedToday).length;
           final total = data
-              .where((h) => !h.weeklyGoalMet || h.completedToday)
+              .where((h) => !h.weeklyGoalMet || h.weeklyProgress == h.habit.row.frequencyPerWeek)
               .length;
 
           return RefreshIndicator(

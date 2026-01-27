@@ -66,7 +66,7 @@ Stream<List<HabitToday>> todayHabits(Ref ref) {
   });
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Stream<List<HabitWeekly>> weeklyHabits(Ref ref) {
   final habits = ref.watch(habitRepositoryProvider).watchHabits();
   final completionRepo = ref.watch(completionRepositoryProvider);
@@ -91,29 +91,26 @@ Stream<List<HabitWeekly>> weeklyHabits(Ref ref) {
             .add(const Duration(days: 1))
             .subtract(const Duration(seconds: 1));
 
-        final completed = await completionRepo.existsForDay(
-          habit.id,
-          dayEnd,
-        );
+        final completed = await completionRepo.existsForDay(habit.id, dayEnd);
 
         completedDays.add(completed);
       }
 
-      result.add(
-        HabitWeekly(
-          habit: habit,
-          completedDays: completedDays,
-        ),
-      );
+      result.add(HabitWeekly(habit: habit, completedDays: completedDays));
     }
 
     return result;
   });
 }
 
-final completionsProvider = StreamProvider.autoDispose<List<Completion>>(
+final completionsProvider = StreamProvider<List<Completion>>(
   (ref) => ref.watch(completionRepositoryProvider).watchCompletions(),
 );
+
+final unsyncedCompletionsProvider =
+    StreamProvider.autoDispose<List<Completion>>(
+      (ref) => ref.watch(completionRepositoryProvider).watchUnsynced(),
+    );
 
 @riverpod
 CompletionRepository completionRepository(Ref ref) =>
@@ -151,4 +148,6 @@ class CompletionRepository {
   }
 
   Stream<List<Completion>> watchCompletions() => _localStore.watch();
+
+  Stream<List<Completion>> watchUnsynced() => _localStore.watchUnsynced();
 }

@@ -1,0 +1,1 @@
+- when logged in, completing is somewhat slow

@@ -270,7 +270,7 @@ final class OverrideSyncCoordinatorProvider
         argument: null,
         retry: null,
         name: r'overrideSyncCoordinatorProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -299,4 +299,4 @@ final class OverrideSyncCoordinatorProvider
 }
 
 String _$overrideSyncCoordinatorHash() =>
-    r'8989f232d79736d24bcb978440f0f238d75ec635';
+    r'2331bb82a46ab41555fa5701bcd37b9b8433e8bc';

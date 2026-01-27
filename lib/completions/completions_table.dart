@@ -17,6 +17,17 @@ class Completion implements SyncEntity {
   CompletionRow copyRow({DateTime? updatedAt, bool? synced}) {
     return row.copyWith(updatedAt: updatedAt, synced: synced);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is Completion && row == other.row;
+  }
+  
+  @override
+  int get hashCode => row.hashCode;
 }
 
 @DataClassName('CompletionRow')

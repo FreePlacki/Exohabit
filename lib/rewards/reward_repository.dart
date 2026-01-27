@@ -55,10 +55,13 @@ class RewardRepository {
   final RewardLocalStore _localStore;
   final ExoplanetRepository _exoplanetRepository;
 
-  Future<Exoplanet> awardRandom() async {
+  Future<Exoplanet?> awardRandom() async {
     final rewards = await watchRewards().first;
     final excluded = rewards.map((r) => r.id).toList();
     final exoplanet = await _exoplanetRepository.getRandom(excluded);
+    if (exoplanet == null) {
+      return null;
+    }
     await _localStore.upsert(
       RewardExtensions.create(exoplanetName: exoplanet.name),
     );

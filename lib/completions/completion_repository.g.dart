@@ -67,7 +67,7 @@ final class WeeklyHabitsProvider
         argument: null,
         retry: null,
         name: r'weeklyHabitsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -87,7 +87,7 @@ final class WeeklyHabitsProvider
   }
 }
 
-String _$weeklyHabitsHash() => r'f966683f15d7f337b4fbc8153c9316ec06320f90';
+String _$weeklyHabitsHash() => r'08172552e76f59d303f2faa2091ce9289e3f8049';
 
 @ProviderFor(completionRepository)
 const completionRepositoryProvider = CompletionRepositoryProvider._();

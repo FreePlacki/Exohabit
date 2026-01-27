@@ -17,6 +17,17 @@ class Habit implements SyncEntity {
   HabitRow copyRow({DateTime? updatedAt, bool? synced}) {
     return row.copyWith(updatedAt: updatedAt, synced: synced);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is Habit && row == other.row;
+  }
+  
+  @override
+  int get hashCode => row.hashCode;
 }
 
 enum HabitCategory {

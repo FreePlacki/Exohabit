@@ -174,7 +174,7 @@ final class SyncListenerProvider extends $FunctionalProvider<void, void, void>
   }
 }
 
-String _$syncListenerHash() => r'990804ca84497e639f4383e925028d897ac66fc4';
+String _$syncListenerHash() => r'f5e59ef52fde3f7719f8820b219af5b5f3bc4275';
 
 @ProviderFor(mergeSyncCoordinator)
 const mergeSyncCoordinatorProvider = MergeSyncCoordinatorProvider._();
@@ -193,7 +193,7 @@ final class MergeSyncCoordinatorProvider
         argument: null,
         retry: null,
         name: r'mergeSyncCoordinatorProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -222,4 +222,4 @@ final class MergeSyncCoordinatorProvider
 }
 
 String _$mergeSyncCoordinatorHash() =>
-    r'2a083427b4adbd252191caacde7a2bf54c0ca76a';
+    r'1b55043baeb05a4b42a4161b275c3c8a25867aa0';

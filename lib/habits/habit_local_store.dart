@@ -7,8 +7,12 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'habit_local_store.g.dart';
 
 @riverpod
+Stream<List<Habit>> unsyncedHabits(Ref ref) =>
+    ref.read(habitLocalStoreProvider).watchUnsynced();
+
+@riverpod
 HabitLocalStore habitLocalStore(Ref ref) =>
-    HabitLocalStore(ref.watch(databaseProvider));
+    HabitLocalStore(ref.read(databaseProvider));
 
 class HabitLocalStore implements LocalSyncStore<Habit> {
   HabitLocalStore(this._db);
@@ -24,6 +28,11 @@ class HabitLocalStore implements LocalSyncStore<Habit> {
   Future<List<Habit>> unsynced() async {
     final rows = await _habits.filter((h) => h.synced(false)).get();
     return rows.map(Habit.new).toList();
+  }
+
+  Stream<List<Habit>> watchUnsynced() {
+    final rows = _habits.filter((h) => h.synced(false)).watch();
+    return rows.map((l) => l.map(Habit.new).toList());
   }
 
   @override

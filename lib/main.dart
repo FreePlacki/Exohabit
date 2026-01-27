@@ -28,16 +28,15 @@ class ExohabitApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(routerProvider);
     ref.watch(authSyncListenerProvider);
 
     // pre-fetch exoplanets from remote if running for the first time
     ref.read(exoplanetRepositoryProvider).syncWithRemote();
 
-    ref.read(syncListenerProvider);
+    ref.watch(syncListenerProvider);
 
     return MaterialApp.router(
-      routerConfig: router,
+      routerConfig: ref.watch(routerProvider),
       debugShowCheckedModeBanner: false,
       theme: buildExoplanetTheme(),
       darkTheme: buildExoplanetTheme(),

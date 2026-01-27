@@ -23,6 +23,11 @@ class CompletionLocalStore implements LocalSyncStore<Completion> {
     return rows.map(Completion.new).toList();
   }
 
+  Stream<List<Completion>> watchUnsynced() {
+    final rows = _completions.filter((h) => h.synced(false)).watch();
+    return rows.map((l) => l.map(Completion.new).toList());
+  }
+
   @override
   Future<List<Completion>> fetchAll() async {
     final rows = await _completions.get();

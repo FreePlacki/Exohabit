@@ -1,14 +1,15 @@
 import 'package:exohabit/completions/completion_local_store.dart';
 import 'package:exohabit/completions/completion_remote_store.dart';
 import 'package:exohabit/completions/completion_repository.dart';
-import 'package:exohabit/habits/habit_controller.dart';
 import 'package:exohabit/habits/habit_local_store.dart';
 import 'package:exohabit/habits/habit_remote_store.dart';
+import 'package:exohabit/logger.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/rewards/reward_local_store.dart';
 import 'package:exohabit/rewards/reward_remote_store.dart';
 import 'package:exohabit/sync/sync_service.dart';
 import 'package:exohabit/sync/sync_store.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'merge_sync_service.g.dart';
@@ -31,34 +32,45 @@ SyncService rewardMergeSyncService(Ref ref) => MergeSyncService(
   remoteStore: ref.watch(rewardRemoteStoreProvider),
 );
 
+void _listenForUnsynced<T>(
+  Ref ref, {
+  required ProviderListenable<AsyncValue<List<T>>> provider,
+  required bool Function(T) isUnsynced,
+  required String reason,
+}) {
+  ref.listen<bool>(
+    provider.select((async) {
+      final list = async.value;
+      return list != null && list.any(isUnsynced);
+    }),
+    (prev, next) async {
+      if (prev == false && next == true) {
+        logger.i('Sync triggered by $reason');
+        try {
+          await ref.read(mergeSyncCoordinatorProvider).delayedSync();
+        } catch (e, st) {
+          logger.e("Couldn't sync with remote", error: e, stackTrace: st);
+        }
+      }
+    },
+  );
+}
+
 @Riverpod(keepAlive: true)
 void syncListener(Ref ref) {
-  bool sameRevision(List<SyncEntity>? a, List<SyncEntity>? b) {
-    if (a == null && b == null) {
-      return true;
-    }
-    if (a == null || b == null || a.length != b.length) {
-      return false;
-    }
-    for (var i = 0; i < a.length; i++) {
-      if (a[i].updatedAt != b[i].updatedAt) {
-        return false;
-      }
-    }
-    return true;
-  }
+  _listenForUnsynced(
+    ref,
+    provider: unsyncedHabitsProvider,
+    isUnsynced: (e) => !e.row.synced,
+    reason: 'unsynced Habits',
+  );
 
-  ref
-    ..listen(habitsProvider, (prev, next) {
-      if (!sameRevision(prev?.value, next.value)) {
-        ref.read(mergeSyncCoordinatorProvider).sync();
-      }
-    })
-    ..listen(completionsProvider, (prev, next) {
-      if (!sameRevision(prev?.value, next.value)) {
-        ref.read(mergeSyncCoordinatorProvider).sync();
-      }
-    });
+  _listenForUnsynced(
+    ref,
+    provider: unsyncedCompletionsProvider,
+    isUnsynced: (e) => !e.row.synced,
+    reason: 'unsynced Completions',
+  );
 }
 
 /// Merges the remote with local database
@@ -117,7 +129,7 @@ class MergeSyncService<T extends SyncEntity> implements SyncService {
   });
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 MergeSyncCoordinator mergeSyncCoordinator(Ref ref) => MergeSyncCoordinator(
   userId: ref.watch(currentUserIdProvider),
   habitSyncService: ref.watch(habitMergeSyncServiceProvider),
@@ -140,14 +152,38 @@ class MergeSyncCoordinator {
   final SyncService _habitSyncService;
   final SyncService _completionSyncService;
   final SyncService _rewardSyncService;
+  bool isSyncing = false;
+  bool scheduledSync = false;
 
   Future<void> sync() async {
-    if (_userId == null) {
+    if (_userId == null || isSyncing) {
       return;
     }
 
-    await _habitSyncService.sync(_userId);
-    await _completionSyncService.sync(_userId);
-    await _rewardSyncService.sync(_userId);
+    logger.i('Syncing with remote (merge)');
+    isSyncing = true;
+    try {
+      await _habitSyncService.sync(_userId);
+      await _completionSyncService.sync(_userId);
+      await _rewardSyncService.sync(_userId);
+    } finally {
+      isSyncing = false;
+    }
+  }
+
+  Future<void> delayedSync({
+    Duration duration = const Duration(seconds: 3),
+  }) async {
+    if (isSyncing || scheduledSync) {
+      return;
+    }
+
+    scheduledSync = true;
+    try {
+      await Future.delayed(duration, () {});
+      await sync();
+    } finally {
+      scheduledSync = false;
+    }
   }
 }

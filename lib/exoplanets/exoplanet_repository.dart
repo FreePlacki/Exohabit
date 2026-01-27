@@ -51,15 +51,14 @@ class ExoplanetRepository {
     }
   }
 
-  Future<Exoplanet> getRandom(List<String> excluded) async {
+  Future<Exoplanet?> getRandom(List<String> excluded) async {
     await syncWithRemote();
 
     const availablePlanetsWithTemperature = 30;
-    final exoplanet = await _localStore.fetchRandom(
+    return _localStore.fetchRandom(
       excludedNames: excluded,
       withTemperature: excluded.length < availablePlanetsWithTemperature,
     );
-    return exoplanet!;
   }
 
   Future<Exoplanet?> getFromName(String name) async {

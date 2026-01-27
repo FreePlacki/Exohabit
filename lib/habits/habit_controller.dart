@@ -71,9 +71,8 @@ class HabitController extends _$HabitController {
   Future<void> delete(Habit habit) async {
     state = const AsyncLoading();
 
-    final repo = ref.read(habitRepositoryProvider);
-    state = await AsyncValue.guard(() async {
-      await repo.deleteHabit(habit);
-    });
+    state = await AsyncValue.guard(
+      () => ref.read(habitRepositoryProvider).deleteHabit(habit),
+    );
   }
 }
