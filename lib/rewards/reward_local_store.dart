@@ -38,8 +38,8 @@ class RewardLocalStore implements LocalSyncStore<Reward> {
   }
 
   @override
-  Future<void> upsert(Reward reward) {
-    final updatedRow = reward.copyRow(synced: false);
+  Future<void> upsert(Reward reward, {bool synced = false}) {
+    final updatedRow = reward.copyRow(synced: synced);
 
     return _db.into(_db.rewards).insertOnConflictUpdate(updatedRow);
   }

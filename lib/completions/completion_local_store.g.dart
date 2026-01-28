@@ -56,3 +56,43 @@ final class CompletionLocalStoreProvider
 
 String _$completionLocalStoreHash() =>
     r'4b3652fc3be93857f72120d2d8cf70babb04d7f2';
+
+@ProviderFor(unsyncedCompletions)
+const unsyncedCompletionsProvider = UnsyncedCompletionsProvider._();
+
+final class UnsyncedCompletionsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Completion>>,
+          List<Completion>,
+          Stream<List<Completion>>
+        >
+    with $FutureModifier<List<Completion>>, $StreamProvider<List<Completion>> {
+  const UnsyncedCompletionsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'unsyncedCompletionsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$unsyncedCompletionsHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<Completion>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<Completion>> create(Ref ref) {
+    return unsyncedCompletions(ref);
+  }
+}
+
+String _$unsyncedCompletionsHash() =>
+    r'e698d7af8de592fdf7559378fd093369fc947254';

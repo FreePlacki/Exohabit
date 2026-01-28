@@ -5,6 +5,7 @@ import 'package:exohabit/exoplanet_details/planet_details_screen.dart';
 import 'package:exohabit/habits/habit_edit_screen.dart';
 import 'package:exohabit/habits/habits_screen.dart';
 import 'package:exohabit/home/home_screen.dart';
+import 'package:exohabit/logger.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/login/auth_screen.dart';
 import 'package:flutter/material.dart';
@@ -16,18 +17,16 @@ part 'router.g.dart';
 
 @riverpod
 GoRouter router(Ref ref) {
-  final auth = ref.read(supabaseAuthProvider);
-
   return GoRouter(
     initialLocation: '/',
     routerNeglect: true,
-    refreshListenable: SupabaseAuthListenable(auth),
     redirect: (context, state) {
-      final user = ref.read(currentUserProvider);
+      final user = ref.watch(currentUserProvider);
       final isLoggedIn = user != null;
       final isOnAuthPage = state.uri.toString().startsWith('/auth');
 
       if (isLoggedIn && isOnAuthPage) {
+        logger.i('Logged in, redirecting to /');
         return '/';
       }
 

@@ -10,6 +10,10 @@ part 'completion_local_store.g.dart';
 CompletionLocalStore completionLocalStore(Ref ref) =>
     CompletionLocalStore(ref.watch(databaseProvider));
 
+@riverpod
+Stream<List<Completion>> unsyncedCompletions(Ref ref) =>
+    ref.read(completionLocalStoreProvider).watchUnsynced();
+
 class CompletionLocalStore implements LocalSyncStore<Completion> {
   CompletionLocalStore(AppDatabase db) : _db = db;
 
@@ -43,10 +47,10 @@ class CompletionLocalStore implements LocalSyncStore<Completion> {
   }
 
   @override
-  Future<void> upsert(Completion completion) {
+  Future<void> upsert(Completion completion, {bool synced = false}) {
     final updatedRow = completion.copyRow(
       updatedAt: DateTime.timestamp(),
-      synced: false,
+      synced: synced,
     );
 
     return _db.into(_db.completions).insertOnConflictUpdate(updatedRow);

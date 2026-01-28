@@ -107,11 +107,6 @@ final completionsProvider = StreamProvider<List<Completion>>(
   (ref) => ref.watch(completionRepositoryProvider).watchCompletions(),
 );
 
-final unsyncedCompletionsProvider =
-    StreamProvider.autoDispose<List<Completion>>(
-      (ref) => ref.watch(completionRepositoryProvider).watchUnsynced(),
-    );
-
 @riverpod
 CompletionRepository completionRepository(Ref ref) =>
     CompletionRepository(localStore: ref.watch(completionLocalStoreProvider));

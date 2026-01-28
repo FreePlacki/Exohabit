@@ -48,10 +48,10 @@ class HabitLocalStore implements LocalSyncStore<Habit> {
   }
 
   @override
-  Future<void> upsert(Habit habit) {
+  Future<void> upsert(Habit habit, {bool synced = false}) {
     final updatedRow = habit.copyRow(
       updatedAt: DateTime.timestamp(),
-      synced: false,
+      synced: synced,
     );
 
     return _db.into(_db.habits).insertOnConflictUpdate(updatedRow);

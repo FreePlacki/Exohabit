@@ -1,6 +1,5 @@
 import 'package:exohabit/completions/completion_local_store.dart';
 import 'package:exohabit/completions/completion_remote_store.dart';
-import 'package:exohabit/completions/completion_repository.dart';
 import 'package:exohabit/habits/habit_local_store.dart';
 import 'package:exohabit/habits/habit_remote_store.dart';
 import 'package:exohabit/logger.dart';
@@ -121,10 +120,8 @@ class MergeSyncService<T extends SyncEntity> implements SyncService {
           (local != null && local.updatedAt.isBefore(remote.updatedAt));
 
       if (updateLocal) {
-        await _local.upsert(remote);
+        await _local.upsert(remote, synced: true);
       }
-
-      await _local.markSynced(remote.id);
     }
   }
 }

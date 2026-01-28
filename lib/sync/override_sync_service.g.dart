@@ -48,7 +48,7 @@ final class AuthSyncListenerProvider
   }
 }
 
-String _$authSyncListenerHash() => r'b3afad7a3771dfe58a4ddedf5b4cb2636b2eb679';
+String _$authSyncListenerHash() => r'43fca56506999cd9c28e5d603d2c9cc728dd0881';
 
 @ProviderFor(PendingSyncDecisionNotifier)
 const pendingSyncDecisionProvider = PendingSyncDecisionNotifierProvider._();

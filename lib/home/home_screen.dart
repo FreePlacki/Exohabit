@@ -3,8 +3,10 @@ import 'package:exohabit/habits/habit_controller.dart';
 import 'package:exohabit/habits/habit_today.dart';
 import 'package:exohabit/habits/habits_table.dart';
 import 'package:exohabit/home/home_controller.dart';
+import 'package:exohabit/logger.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/rewards/reward_repository.dart';
+import 'package:exohabit/router.dart';
 import 'package:exohabit/sync/merge_sync_service.dart';
 import 'package:exohabit/sync/override_sync_service.dart';
 import 'package:exohabit/sync/sync_decision_dialog.dart';
@@ -48,6 +50,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ..watch(unlockedExoplanetsProvider);
     final syncState = ref.watch(syncMutation);
 
+    ref.listen(authStateProvider, (prev, next) {
+      final prevSession = prev?.value?.session;
+      final nextSession = next.value?.session;
+
+      // logout detected
+      if (prevSession != null && nextSession == null) {
+        ref.read(routerProvider).go('/auth');
+      }
+    });
+
     if (syncState is MutationError) {
       Future.delayed(const Duration(seconds: 2), () => syncMutation.reset(ref));
       _showSnackBar("Couldn't sync, check your internet connection", null, '');
@@ -61,9 +73,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await authRepo.signOut();
-              if (context.mounted) {
-                context.go('/auth');
-              }
             },
           ),
           if (userId != null)
@@ -214,11 +223,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     switch (result) {
       case .merge:
         try {
+          logger.i('Merge strategy chosen...');
           await ref.read(mergeSyncCoordinatorProvider).sync();
         } on Exception catch (_) {
+          logger.i('Merge failed overriding...');
           await ref.read(overrideSyncCoordinatorProvider).sync();
         }
       case .override:
+        logger.i('Override strategy chosen...');
         await ref.read(overrideSyncCoordinatorProvider).sync();
     }
 
@@ -315,9 +327,6 @@ class _Drawer extends ConsumerWidget {
                 onTap: () async {
                   Navigator.pop(context);
                   await authRepo.signOut();
-                  if (context.mounted) {
-                    context.go('/auth');
-                  }
                 },
               ),
           ],
