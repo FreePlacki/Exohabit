@@ -2,9 +2,11 @@ import 'package:drift/drift.dart';
 import 'package:exohabit/database.dart';
 import 'package:exohabit/exoplanets/exoplanets_table.dart';
 import 'package:exohabit/sync/sync_service.dart';
+import 'package:flutter/material.dart' show immutable;
 
+@immutable
 class Reward implements SyncEntity {
-  Reward(this.row);
+  const Reward(this.row);
   final RewardRow row;
 
   @override

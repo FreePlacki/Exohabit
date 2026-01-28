@@ -1,10 +1,12 @@
 import 'package:drift/drift.dart';
 import 'package:exohabit/database.dart';
 import 'package:exohabit/sync/sync_service.dart';
-import 'package:flutter/material.dart' show Color, Colors, IconData, Icons;
+import 'package:flutter/material.dart'
+    show Color, Colors, IconData, Icons, immutable;
 
+@immutable
 class Habit implements SyncEntity {
-  Habit(this.row);
+  const Habit(this.row);
   final HabitRow row;
 
   @override
@@ -14,8 +16,12 @@ class Habit implements SyncEntity {
   @override
   bool get deleted => row.deleted;
 
-  HabitRow copyRow({DateTime? updatedAt, bool? synced}) {
-    return row.copyWith(updatedAt: updatedAt, synced: synced);
+  HabitRow copyRow({DateTime? updatedAt, bool? synced, bool? hasBeenSynced}) {
+    return row.copyWith(
+      updatedAt: updatedAt,
+      synced: synced,
+      hasBeenSynced: hasBeenSynced,
+    );
   }
 
   @override
@@ -25,7 +31,7 @@ class Habit implements SyncEntity {
     }
     return other is Habit && row == other.row;
   }
-  
+
   @override
   int get hashCode => row.hashCode;
 }
@@ -93,6 +99,9 @@ class Habits extends Table {
 
   BoolColumn get deleted => boolean().withDefault(const Constant(false))();
   BoolColumn get synced => boolean().withDefault(const Constant(false))();
+  // whether it's associated with a remote account
+  BoolColumn get hasBeenSynced =>
+      boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};

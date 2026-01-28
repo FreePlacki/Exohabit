@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 enum SyncChoice { merge, override }
 
 class SyncDecisionDialog extends StatelessWidget {
-  const SyncDecisionDialog({super.key});
+  const SyncDecisionDialog({super.key, required bool isCreatingNewAccount})
+    : _isCreatingNewAccount = isCreatingNewAccount;
+  final bool _isCreatingNewAccount;
 
   @override
   Widget build(BuildContext context) {
@@ -16,11 +18,13 @@ class SyncDecisionDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, SyncChoice.override),
-          child: const Text('Replace local data'),
+          child: Text(
+            _isCreatingNewAccount ? 'Start fresh' : 'Replace local data',
+          ),
         ),
         ElevatedButton(
           onPressed: () => Navigator.pop(context, SyncChoice.merge),
-          child: const Text('Merge'),
+          child: Text(_isCreatingNewAccount ? 'Copy your data' : 'Merge'),
         ),
       ],
     );

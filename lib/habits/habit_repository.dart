@@ -27,4 +27,8 @@ class HabitRepository {
 
   Stream<List<Habit>> watchHabits() =>
       _localStore.watch().map((hs) => hs.where((h) => !h.deleted).toList());
+
+  // is it possible to merge with another account
+  Future<bool> isMergePossible() async =>
+      await _localStore.hasAny() && !await _localStore.anyHasBeenSynced();
 }

@@ -46,7 +46,9 @@ void _listenForUnsynced<T>(
       if (prev == false && next == true) {
         logger.i('Sync triggered by $reason');
         try {
-          await ref.read(mergeSyncCoordinatorProvider).delayedSync();
+          await ref
+              .read(mergeSyncCoordinatorProvider)
+              .delayedSync(ref.read(currentUserIdProvider));
         } catch (e, st) {
           logger.e("Couldn't sync with remote", error: e, stackTrace: st);
         }
@@ -128,7 +130,6 @@ class MergeSyncService<T extends SyncEntity> implements SyncService {
 
 @Riverpod(keepAlive: true)
 MergeSyncCoordinator mergeSyncCoordinator(Ref ref) => MergeSyncCoordinator(
-  userId: ref.watch(currentUserIdProvider),
   habitSyncService: ref.watch(habitMergeSyncServiceProvider),
   completionSyncService: ref.watch(completionMergeSyncServiceProvider),
   rewardSyncService: ref.watch(rewardMergeSyncServiceProvider),
@@ -136,39 +137,38 @@ MergeSyncCoordinator mergeSyncCoordinator(Ref ref) => MergeSyncCoordinator(
 
 class MergeSyncCoordinator {
   MergeSyncCoordinator({
-    required String? userId,
     required SyncService habitSyncService,
     required SyncService completionSyncService,
     required SyncService rewardSyncService,
-  }) : _userId = userId,
-       _habitSyncService = habitSyncService,
+  }) : _habitSyncService = habitSyncService,
        _completionSyncService = completionSyncService,
        _rewardSyncService = rewardSyncService;
 
-  final String? _userId;
   final SyncService _habitSyncService;
   final SyncService _completionSyncService;
   final SyncService _rewardSyncService;
   bool isSyncing = false;
   bool scheduledSync = false;
 
-  Future<void> sync() async {
-    if (_userId == null || isSyncing) {
+  Future<void> sync(String? userId) async {
+    if (userId == null || isSyncing) {
       return;
     }
 
-    logger.i('Syncing with remote (merge)');
+    logger.i('Syncing with remote (merge)...');
     isSyncing = true;
     try {
-      await _habitSyncService.sync(_userId);
-      await _completionSyncService.sync(_userId);
-      await _rewardSyncService.sync(_userId);
+      await _habitSyncService.sync(userId);
+      await _completionSyncService.sync(userId);
+      await _rewardSyncService.sync(userId);
     } finally {
       isSyncing = false;
     }
+    logger.i('Syncing with remote (merge) finished');
   }
 
-  Future<void> delayedSync({
+  Future<void> delayedSync(
+    String? userId, {
     Duration duration = const Duration(seconds: 1),
   }) async {
     if (isSyncing || scheduledSync) {
@@ -178,7 +178,7 @@ class MergeSyncCoordinator {
     scheduledSync = true;
     try {
       await Future.delayed(duration, () {});
-      await sync();
+      await sync(userId);
     } finally {
       scheduledSync = false;
     }

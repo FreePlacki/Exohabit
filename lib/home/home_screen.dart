@@ -3,13 +3,9 @@ import 'package:exohabit/habits/habit_controller.dart';
 import 'package:exohabit/habits/habit_today.dart';
 import 'package:exohabit/habits/habits_table.dart';
 import 'package:exohabit/home/home_controller.dart';
-import 'package:exohabit/logger.dart';
 import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/rewards/reward_repository.dart';
 import 'package:exohabit/router.dart';
-import 'package:exohabit/sync/merge_sync_service.dart';
-import 'package:exohabit/sync/override_sync_service.dart';
-import 'package:exohabit/sync/sync_decision_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/experimental/mutation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,22 +19,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  var _syncDialogShown = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    ref.listenManual(pendingSyncDecisionProvider, (prev, next) {
-      if (prev == null && !_syncDialogShown) {
-        _syncDialogShown = true;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _showSyncDialog();
-        });
-      }
-    }, fireImmediately: false);
-  }
-
   @override
   Widget build(BuildContext context) {
     final authRepo = ref.read(authRepositoryProvider);
@@ -69,12 +49,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       appBar: AppBar(
         title: const Text('Home'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await authRepo.signOut();
-            },
-          ),
+          if (userId != null)
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () async {
+                await authRepo.signOut();
+              },
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.login),
+              onPressed: () {
+                context.go('/auth');
+              },
+            ),
           if (userId != null)
             switch (syncState) {
               MutationPending() => const CircularProgressIndicator(),
@@ -205,36 +193,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // Manually hide because it doesn't do that for some reason...
       Future.delayed(duration, messenger.hideCurrentSnackBar);
     });
-  }
-
-  Future<void> _showSyncDialog() async {
-    final result = await showDialog<SyncChoice>(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const SyncDecisionDialog(),
-    );
-    _syncDialogShown = false;
-
-    final userId = ref.read(currentUserIdProvider);
-    if (!mounted || userId == null || result == null) {
-      return;
-    }
-
-    switch (result) {
-      case .merge:
-        try {
-          logger.i('Merge strategy chosen...');
-          await ref.read(mergeSyncCoordinatorProvider).sync();
-        } on Exception catch (_) {
-          logger.i('Merge failed overriding...');
-          await ref.read(overrideSyncCoordinatorProvider).sync();
-        }
-      case .override:
-        logger.i('Override strategy chosen...');
-        await ref.read(overrideSyncCoordinatorProvider).sync();
-    }
-
-    ref.read(pendingSyncDecisionProvider.notifier).clear();
   }
 }
 

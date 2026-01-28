@@ -1,5 +1,6 @@
 import 'package:exohabit/habits/habits_table.dart';
 import 'package:exohabit/logger.dart';
+import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/sync/merge_sync_service.dart';
 import 'package:flutter_riverpod/experimental/mutation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -15,7 +16,9 @@ class HomeController extends _$HomeController {
 
   Future<void> sync() => syncMutation
       .run(ref, (tsx) async {
-        await tsx.get(mergeSyncCoordinatorProvider).sync();
+        await tsx
+            .get(mergeSyncCoordinatorProvider)
+            .sync(ref.read(currentUserIdProvider));
       })
       .catchError(
         (Object? e) => logger.e("Couldn't sync with remote.", error: e),

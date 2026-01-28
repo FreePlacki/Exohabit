@@ -24,6 +24,7 @@ extension HabitExtensions on Habit {
         category: category,
         deleted: false,
         synced: false,
+        hasBeenSynced: false,
       ),
     );
   }
@@ -51,10 +52,11 @@ extension HabitExtensions on Habit {
           (e) => e.name == habit['category'] as String,
           orElse: () => .other,
         ),
-        createdAt: DateTime.parse(habit['createdAt'] as String).toUtc(),
-        updatedAt: DateTime.parse(habit['createdAt'] as String).toUtc(),
+        createdAt: DateTime.parse(habit['createdAt'] as String).toLocal(),
+        updatedAt: DateTime.parse(habit['createdAt'] as String).toLocal(),
         deleted: habit['deleted'] as bool,
         synced: synced,
+        hasBeenSynced: true,
       ),
     );
   }

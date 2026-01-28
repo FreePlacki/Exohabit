@@ -26,7 +26,7 @@ extension RewardExtensions on Reward {
     return Reward(
       RewardRow(
         exoplanetName: reward['pl_name'] as String,
-        createdAt: DateTime.parse(reward['createdAt'] as String).toUtc(),
+        createdAt: DateTime.parse(reward['createdAt'] as String).toLocal(),
         deleted: reward['deleted'] as bool,
         synced: synced,
       ),

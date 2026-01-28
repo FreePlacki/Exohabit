@@ -2,9 +2,11 @@ import 'package:drift/drift.dart';
 import 'package:exohabit/database.dart';
 import 'package:exohabit/habits/habits_table.dart';
 import 'package:exohabit/sync/sync_service.dart';
+import 'package:flutter/material.dart' show immutable;
 
+@immutable
 class Completion implements SyncEntity {
-  Completion(this.row);
+  const Completion(this.row);
   final CompletionRow row;
 
   @override
@@ -25,7 +27,7 @@ class Completion implements SyncEntity {
     }
     return other is Completion && row == other.row;
   }
-  
+
   @override
   int get hashCode => row.hashCode;
 }

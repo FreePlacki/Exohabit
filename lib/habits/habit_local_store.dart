@@ -52,6 +52,7 @@ class HabitLocalStore implements LocalSyncStore<Habit> {
     final updatedRow = habit.copyRow(
       updatedAt: DateTime.timestamp(),
       synced: synced,
+      hasBeenSynced: habit.row.hasBeenSynced || synced,
     );
 
     return _db.into(_db.habits).insertOnConflictUpdate(updatedRow);
@@ -65,7 +66,9 @@ class HabitLocalStore implements LocalSyncStore<Habit> {
   Future<void> markSynced(String habitId) {
     return _habits
         .filter((h) => h.id(habitId))
-        .update((h) => h(synced: const Value(true)));
+        .update(
+          (h) => h(synced: const Value(true), hasBeenSynced: const Value(true)),
+        );
   }
 
   @override
@@ -76,4 +79,7 @@ class HabitLocalStore implements LocalSyncStore<Habit> {
       _db.transaction(action);
 
   Future<bool> hasAny() => _habits.exists();
+
+  Future<bool> anyHasBeenSynced() =>
+      _habits.filter((h) => h.hasBeenSynced(true)).exists();
 }

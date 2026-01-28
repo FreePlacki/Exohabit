@@ -1,5 +1,7 @@
+import 'package:exohabit/habits/habit_repository.dart';
 import 'package:exohabit/login/auth_controller.dart';
 import 'package:exohabit/login/auth_screen.dart';
+import 'package:exohabit/sync/sync_decision_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -40,18 +42,38 @@ class _AuthFormState extends ConsumerState<AuthForm> {
   }
 
   Future<void> submit() async {
+    final shouldAsk = await ref
+        .watch(habitRepositoryProvider)
+        .isMergePossible();
+    if (!mounted) {
+      return;
+    }
+    final result = shouldAsk
+        ? await showDialog<SyncChoice>(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => SyncDecisionDialog(
+              isCreatingNewAccount: widget.authMode == AuthMode.signup,
+            ),
+          )
+        : SyncChoice.override;
     final controller = ref.read(authControllerProvider.notifier);
 
+    if (!mounted || result == null) {
+      return;
+    }
     switch (widget.authMode) {
       case AuthMode.login:
         await controller.submitLogin(
           email: email.text.trim(),
           password: password.text.trim(),
+          syncChoice: result,
         );
       case AuthMode.signup:
         await controller.submitSignup(
           email: email.text.trim(),
           password: password.text.trim(),
+          syncChoice: result,
         );
     }
   }
@@ -79,9 +101,9 @@ class _AuthFormState extends ConsumerState<AuthForm> {
           textInputAction: TextInputAction.done,
           decoration: const InputDecoration(labelText: 'Password'),
           onChanged: (_) => setState(() {}),
-          onSubmitted: (_) {
+          onSubmitted: (_) async {
             if (canSubmit()) {
-              submit();
+              await submit();
             }
           },
         ),
@@ -99,7 +121,11 @@ class _AuthFormState extends ConsumerState<AuthForm> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: canSubmit() ? submit : null,
+            onPressed: () async {
+              if (canSubmit()) {
+                await submit();
+              }
+            },
             child: state.isLoading
                 ? const SizedBox(
                     height: 16,

@@ -107,6 +107,21 @@ class $HabitsTable extends Habits with TableInfo<$HabitsTable, HabitRow> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _hasBeenSyncedMeta = const VerificationMeta(
+    'hasBeenSynced',
+  );
+  @override
+  late final GeneratedColumn<bool> hasBeenSynced = GeneratedColumn<bool>(
+    'has_been_synced',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("has_been_synced" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -118,6 +133,7 @@ class $HabitsTable extends Habits with TableInfo<$HabitsTable, HabitRow> {
     category,
     deleted,
     synced,
+    hasBeenSynced,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -194,6 +210,15 @@ class $HabitsTable extends Habits with TableInfo<$HabitsTable, HabitRow> {
         synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta),
       );
     }
+    if (data.containsKey('has_been_synced')) {
+      context.handle(
+        _hasBeenSyncedMeta,
+        hasBeenSynced.isAcceptableOrUnknown(
+          data['has_been_synced']!,
+          _hasBeenSyncedMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -241,6 +266,10 @@ class $HabitsTable extends Habits with TableInfo<$HabitsTable, HabitRow> {
         DriftSqlType.bool,
         data['${effectivePrefix}synced'],
       )!,
+      hasBeenSynced: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}has_been_synced'],
+      )!,
     );
   }
 
@@ -263,6 +292,7 @@ class HabitRow extends DataClass implements Insertable<HabitRow> {
   final HabitCategory category;
   final bool deleted;
   final bool synced;
+  final bool hasBeenSynced;
   const HabitRow({
     required this.id,
     required this.title,
@@ -273,6 +303,7 @@ class HabitRow extends DataClass implements Insertable<HabitRow> {
     required this.category,
     required this.deleted,
     required this.synced,
+    required this.hasBeenSynced,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -290,6 +321,7 @@ class HabitRow extends DataClass implements Insertable<HabitRow> {
     }
     map['deleted'] = Variable<bool>(deleted);
     map['synced'] = Variable<bool>(synced);
+    map['has_been_synced'] = Variable<bool>(hasBeenSynced);
     return map;
   }
 
@@ -304,6 +336,7 @@ class HabitRow extends DataClass implements Insertable<HabitRow> {
       category: Value(category),
       deleted: Value(deleted),
       synced: Value(synced),
+      hasBeenSynced: Value(hasBeenSynced),
     );
   }
 
@@ -324,6 +357,7 @@ class HabitRow extends DataClass implements Insertable<HabitRow> {
       ),
       deleted: serializer.fromJson<bool>(json['deleted']),
       synced: serializer.fromJson<bool>(json['synced']),
+      hasBeenSynced: serializer.fromJson<bool>(json['hasBeenSynced']),
     );
   }
   @override
@@ -341,6 +375,7 @@ class HabitRow extends DataClass implements Insertable<HabitRow> {
       ),
       'deleted': serializer.toJson<bool>(deleted),
       'synced': serializer.toJson<bool>(synced),
+      'hasBeenSynced': serializer.toJson<bool>(hasBeenSynced),
     };
   }
 
@@ -354,6 +389,7 @@ class HabitRow extends DataClass implements Insertable<HabitRow> {
     HabitCategory? category,
     bool? deleted,
     bool? synced,
+    bool? hasBeenSynced,
   }) => HabitRow(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -364,6 +400,7 @@ class HabitRow extends DataClass implements Insertable<HabitRow> {
     category: category ?? this.category,
     deleted: deleted ?? this.deleted,
     synced: synced ?? this.synced,
+    hasBeenSynced: hasBeenSynced ?? this.hasBeenSynced,
   );
   HabitRow copyWithCompanion(HabitsCompanion data) {
     return HabitRow(
@@ -380,6 +417,9 @@ class HabitRow extends DataClass implements Insertable<HabitRow> {
       category: data.category.present ? data.category.value : this.category,
       deleted: data.deleted.present ? data.deleted.value : this.deleted,
       synced: data.synced.present ? data.synced.value : this.synced,
+      hasBeenSynced: data.hasBeenSynced.present
+          ? data.hasBeenSynced.value
+          : this.hasBeenSynced,
     );
   }
 
@@ -394,7 +434,8 @@ class HabitRow extends DataClass implements Insertable<HabitRow> {
           ..write('updatedAt: $updatedAt, ')
           ..write('category: $category, ')
           ..write('deleted: $deleted, ')
-          ..write('synced: $synced')
+          ..write('synced: $synced, ')
+          ..write('hasBeenSynced: $hasBeenSynced')
           ..write(')'))
         .toString();
   }
@@ -410,6 +451,7 @@ class HabitRow extends DataClass implements Insertable<HabitRow> {
     category,
     deleted,
     synced,
+    hasBeenSynced,
   );
   @override
   bool operator ==(Object other) =>
@@ -423,7 +465,8 @@ class HabitRow extends DataClass implements Insertable<HabitRow> {
           other.updatedAt == this.updatedAt &&
           other.category == this.category &&
           other.deleted == this.deleted &&
-          other.synced == this.synced);
+          other.synced == this.synced &&
+          other.hasBeenSynced == this.hasBeenSynced);
 }
 
 class HabitsCompanion extends UpdateCompanion<HabitRow> {
@@ -436,6 +479,7 @@ class HabitsCompanion extends UpdateCompanion<HabitRow> {
   final Value<HabitCategory> category;
   final Value<bool> deleted;
   final Value<bool> synced;
+  final Value<bool> hasBeenSynced;
   final Value<int> rowid;
   const HabitsCompanion({
     this.id = const Value.absent(),
@@ -447,6 +491,7 @@ class HabitsCompanion extends UpdateCompanion<HabitRow> {
     this.category = const Value.absent(),
     this.deleted = const Value.absent(),
     this.synced = const Value.absent(),
+    this.hasBeenSynced = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   HabitsCompanion.insert({
@@ -459,6 +504,7 @@ class HabitsCompanion extends UpdateCompanion<HabitRow> {
     required HabitCategory category,
     this.deleted = const Value.absent(),
     this.synced = const Value.absent(),
+    this.hasBeenSynced = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        title = Value(title),
@@ -477,6 +523,7 @@ class HabitsCompanion extends UpdateCompanion<HabitRow> {
     Expression<int>? category,
     Expression<bool>? deleted,
     Expression<bool>? synced,
+    Expression<bool>? hasBeenSynced,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -489,6 +536,7 @@ class HabitsCompanion extends UpdateCompanion<HabitRow> {
       if (category != null) 'category': category,
       if (deleted != null) 'deleted': deleted,
       if (synced != null) 'synced': synced,
+      if (hasBeenSynced != null) 'has_been_synced': hasBeenSynced,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -503,6 +551,7 @@ class HabitsCompanion extends UpdateCompanion<HabitRow> {
     Value<HabitCategory>? category,
     Value<bool>? deleted,
     Value<bool>? synced,
+    Value<bool>? hasBeenSynced,
     Value<int>? rowid,
   }) {
     return HabitsCompanion(
@@ -515,6 +564,7 @@ class HabitsCompanion extends UpdateCompanion<HabitRow> {
       category: category ?? this.category,
       deleted: deleted ?? this.deleted,
       synced: synced ?? this.synced,
+      hasBeenSynced: hasBeenSynced ?? this.hasBeenSynced,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -551,6 +601,9 @@ class HabitsCompanion extends UpdateCompanion<HabitRow> {
     if (synced.present) {
       map['synced'] = Variable<bool>(synced.value);
     }
+    if (hasBeenSynced.present) {
+      map['has_been_synced'] = Variable<bool>(hasBeenSynced.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -569,6 +622,7 @@ class HabitsCompanion extends UpdateCompanion<HabitRow> {
           ..write('category: $category, ')
           ..write('deleted: $deleted, ')
           ..write('synced: $synced, ')
+          ..write('hasBeenSynced: $hasBeenSynced, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1987,6 +2041,7 @@ typedef $$HabitsTableCreateCompanionBuilder =
       required HabitCategory category,
       Value<bool> deleted,
       Value<bool> synced,
+      Value<bool> hasBeenSynced,
       Value<int> rowid,
     });
 typedef $$HabitsTableUpdateCompanionBuilder =
@@ -2000,6 +2055,7 @@ typedef $$HabitsTableUpdateCompanionBuilder =
       Value<HabitCategory> category,
       Value<bool> deleted,
       Value<bool> synced,
+      Value<bool> hasBeenSynced,
       Value<int> rowid,
     });
 
@@ -2078,6 +2134,11 @@ class $$HabitsTableFilterComposer
 
   ColumnFilters<bool> get synced => $composableBuilder(
     column: $table.synced,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get hasBeenSynced => $composableBuilder(
+    column: $table.hasBeenSynced,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2160,6 +2221,11 @@ class $$HabitsTableOrderingComposer
     column: $table.synced,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get hasBeenSynced => $composableBuilder(
+    column: $table.hasBeenSynced,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$HabitsTableAnnotationComposer
@@ -2201,6 +2267,11 @@ class $$HabitsTableAnnotationComposer
 
   GeneratedColumn<bool> get synced =>
       $composableBuilder(column: $table.synced, builder: (column) => column);
+
+  GeneratedColumn<bool> get hasBeenSynced => $composableBuilder(
+    column: $table.hasBeenSynced,
+    builder: (column) => column,
+  );
 
   Expression<T> completionsRefs<T extends Object>(
     Expression<T> Function($$CompletionsTableAnnotationComposer a) f,
@@ -2265,6 +2336,7 @@ class $$HabitsTableTableManager
                 Value<HabitCategory> category = const Value.absent(),
                 Value<bool> deleted = const Value.absent(),
                 Value<bool> synced = const Value.absent(),
+                Value<bool> hasBeenSynced = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => HabitsCompanion(
                 id: id,
@@ -2276,6 +2348,7 @@ class $$HabitsTableTableManager
                 category: category,
                 deleted: deleted,
                 synced: synced,
+                hasBeenSynced: hasBeenSynced,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2289,6 +2362,7 @@ class $$HabitsTableTableManager
                 required HabitCategory category,
                 Value<bool> deleted = const Value.absent(),
                 Value<bool> synced = const Value.absent(),
+                Value<bool> hasBeenSynced = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => HabitsCompanion.insert(
                 id: id,
@@ -2300,6 +2374,7 @@ class $$HabitsTableTableManager
                 category: category,
                 deleted: deleted,
                 synced: synced,
+                hasBeenSynced: hasBeenSynced,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

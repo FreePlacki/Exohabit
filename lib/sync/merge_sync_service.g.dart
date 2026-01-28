@@ -222,4 +222,4 @@ final class MergeSyncCoordinatorProvider
 }
 
 String _$mergeSyncCoordinatorHash() =>
-    r'1b55043baeb05a4b42a4161b275c3c8a25867aa0';
+    r'85cf223f2a261d55ddf18b90e67328b2b4b1e554';

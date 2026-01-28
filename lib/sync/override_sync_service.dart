@@ -5,7 +5,6 @@ import 'package:exohabit/habits/habit_local_store.dart';
 import 'package:exohabit/habits/habit_remote_store.dart';
 import 'package:exohabit/habits/habits_table.dart';
 import 'package:exohabit/logger.dart';
-import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/rewards/reward_local_store.dart';
 import 'package:exohabit/rewards/reward_remote_store.dart';
 import 'package:exohabit/rewards/rewards_table.dart';
@@ -14,59 +13,6 @@ import 'package:exohabit/sync/sync_store.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'override_sync_service.g.dart';
-
-@Riverpod(keepAlive: true)
-void authSyncListener(Ref ref) {
-  var initialized = false;
-
-  ref.listen(authStateProvider, (prev, next) async {
-    if (next.isLoading || next.hasError) {
-      return;
-    }
-
-    if (!initialized) {
-      initialized = true;
-      return;
-    }
-
-    final prevSession = prev?.value?.session;
-    final nextSession = next.value?.session;
-
-    // logout
-    if (prevSession != null && nextSession == null) {
-      // no clear for now
-      return;
-    }
-
-    if (nextSession != null) {
-      final userId = nextSession.user.id;
-      final prevUserId = prevSession?.user.id;
-      if (userId != prevUserId) {
-        final unsynced = await ref.read(habitLocalStoreProvider).unsynced();
-        // only ask for merge if there were unsynced habits
-        // (detecting not logged in -> logged in)
-        if (unsynced.isNotEmpty) {
-          logger.i('Pending sync decision...');
-          ref.read(pendingSyncDecisionProvider.notifier).init();
-        } else {
-          logger.i('Overriding since no unsynced habits found');
-          await ref.read(overrideSyncCoordinatorProvider).sync();
-        }
-      }
-    }
-  });
-}
-
-class PendingSyncDecision {}
-
-@riverpod
-class PendingSyncDecisionNotifier extends _$PendingSyncDecisionNotifier {
-  @override
-  PendingSyncDecision? build() => null;
-
-  void init() => state = PendingSyncDecision();
-  void clear() => state = null;
-}
 
 @riverpod
 OverrideSyncService<Habit> habitOverrideSyncService(Ref ref) =>
@@ -113,7 +59,6 @@ class OverrideSyncService<T extends SyncEntity> implements SyncService {
 @Riverpod(keepAlive: true)
 OverrideSyncCoordinator overrideSyncCoordinator(Ref ref) =>
     OverrideSyncCoordinator(
-      userId: ref.watch(currentUserIdProvider),
       habitSyncService: ref.watch(habitOverrideSyncServiceProvider),
       completionSyncService: ref.watch(completionOverrideSyncServiceProvider),
       rewardSyncService: ref.watch(rewardOverrideSyncServiceProvider),
@@ -121,34 +66,32 @@ OverrideSyncCoordinator overrideSyncCoordinator(Ref ref) =>
 
 class OverrideSyncCoordinator {
   OverrideSyncCoordinator({
-    required String? userId,
     required OverrideSyncService<Habit> habitSyncService,
     required OverrideSyncService<Completion> completionSyncService,
     required OverrideSyncService<Reward> rewardSyncService,
-  }) : _userId = userId,
-       _habitSyncService = habitSyncService,
+  }) : _habitSyncService = habitSyncService,
        _completionSyncService = completionSyncService,
        _rewardSyncService = rewardSyncService;
 
-  final String? _userId;
   final OverrideSyncService<Habit> _habitSyncService;
   final OverrideSyncService<Completion> _completionSyncService;
   final OverrideSyncService<Reward> _rewardSyncService;
   bool isSyncing = false;
 
-  Future<void> sync() async {
-    if (_userId == null || isSyncing) {
+  Future<void> sync(String? userId) async {
+    if (userId == null || isSyncing) {
       return;
     }
 
-    logger.i('Syncing with remote (override)');
+    logger.i('Syncing with remote (override)...');
     isSyncing = true;
     try {
-      await _habitSyncService.sync(_userId);
-      await _completionSyncService.sync(_userId);
-      await _rewardSyncService.sync(_userId);
+      await _habitSyncService.sync(userId);
+      await _completionSyncService.sync(userId);
+      await _rewardSyncService.sync(userId);
     } finally {
       isSyncing = false;
     }
+    logger.i('Syncing with remote (override) finished');
   }
 }
