@@ -49,6 +49,7 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
       descCtrl.text = next.row.description;
       freq = next.row.frequencyPerWeek;
       category = next.row.category;
+      setState(() {});
     }, fireImmediately: true);
   }
 
@@ -92,7 +93,6 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // SCROLLABLE CONTENT
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
@@ -168,9 +168,10 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
                       controller: descCtrl,
                       decoration: InputDecoration(
                         labelText: 'Description (optional)',
-                        hintText: descriptionHint, // see note below
+                        hintText: descriptionHint,
                       ),
                       maxLines: 2,
+                      onChanged: (_) => setState(() {}),
                     ),
 
                     const SizedBox(height: 24),
@@ -190,7 +191,6 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
               ),
             ),
 
-            // FIXED BOTTOM ACTION
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: SizedBox(
