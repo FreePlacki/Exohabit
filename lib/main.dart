@@ -1,4 +1,7 @@
+import 'package:exohabit/database.dart';
 import 'package:exohabit/exoplanets/exoplanet_repository.dart';
+import 'package:exohabit/logger.dart';
+import 'package:exohabit/login/auth_repository.dart';
 import 'package:exohabit/router.dart';
 import 'package:exohabit/sync/merge_sync_service.dart';
 import 'package:exohabit/theme.dart';
@@ -30,7 +33,16 @@ class ExohabitApp extends ConsumerWidget {
     // pre-fetch exoplanets from remote if running for the first time
     ref.read(exoplanetRepositoryProvider).syncWithRemote();
 
-    ref.watch(syncListenerProvider);
+    ref
+      ..watch(syncListenerProvider)
+      ..listen(authStateProvider, (prev, next) async {
+        final event = next.value?.event;
+
+        if (event == AuthChangeEvent.signedOut) {
+          logger.i('Signed out, clearing local db...');
+          await ref.read(databaseProvider).deleteEverything();
+        }
+      });
 
     final theme = buildExoplanetTheme();
     return MaterialApp.router(

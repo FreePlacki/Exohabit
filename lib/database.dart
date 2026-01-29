@@ -27,4 +27,12 @@ class AppDatabase extends _$AppDatabase {
       ),
     );
   }
+
+  Future<void> deleteEverything() {
+    return transaction(() async {
+      for (final table in allTables) {
+        await delete(table).go();
+      }
+    });
+  }
 }

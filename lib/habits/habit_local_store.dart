@@ -50,7 +50,7 @@ class HabitLocalStore implements LocalSyncStore<Habit> {
   @override
   Future<void> upsert(Habit habit, {bool synced = false}) {
     final updatedRow = habit.copyRow(
-      updatedAt: DateTime.timestamp(),
+      updatedAt: DateTime.now(),
       synced: synced,
       hasBeenSynced: habit.row.hasBeenSynced || synced,
     );

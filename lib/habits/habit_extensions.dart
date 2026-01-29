@@ -19,8 +19,8 @@ extension HabitExtensions on Habit {
         title: title,
         description: description,
         frequencyPerWeek: frequencyPerWeek,
-        createdAt: DateTime.timestamp(),
-        updatedAt: DateTime.timestamp(),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
         category: category,
         deleted: false,
         synced: false,
@@ -36,8 +36,8 @@ extension HabitExtensions on Habit {
     'description': row.description,
     'frequencyPerWeek': row.frequencyPerWeek,
     'category': row.category.name,
-    'createdAt': toTimestampString(row.createdAt.toString()),
-    'updatedAt': toTimestampString(updatedAt.toString()),
+    'createdAt': toTimestampString(row.createdAt.toUtc().toString()),
+    'updatedAt': toTimestampString(updatedAt.toUtc().toString()),
     'deleted': deleted,
   };
 

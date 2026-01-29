@@ -49,7 +49,7 @@ class CompletionLocalStore implements LocalSyncStore<Completion> {
   @override
   Future<void> upsert(Completion completion, {bool synced = false}) {
     final updatedRow = completion.copyRow(
-      updatedAt: DateTime.timestamp(),
+      updatedAt: DateTime.now(),
       synced: synced,
     );
 
