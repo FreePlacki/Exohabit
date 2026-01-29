@@ -15,7 +15,7 @@ extension RewardExtensions on Reward {
   Map<String, dynamic> toRemote(String userId) => {
     'userId': userId,
     'pl_name': row.exoplanetName,
-    'createdAt': toTimestampString(row.createdAt.toString()),
+    'createdAt': toTimestampString(row.createdAt.toUtc().toString()),
     'deleted': deleted,
   };
 

@@ -104,16 +104,6 @@ class _AuthFormState extends ConsumerState<AuthForm> {
           onSubmitted: canSubmit() ? (_) => submit() : null,
         ),
         const SizedBox(height: 16),
-
-        if (state.error != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Text(
-              state.error.toString(),
-              style: const TextStyle(color: Colors.red, fontSize: 13),
-            ),
-          ),
-
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
@@ -130,6 +120,15 @@ class _AuthFormState extends ConsumerState<AuthForm> {
                   }),
           ),
         ),
+        const SizedBox(height: 16),
+        if (state.error != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              state.error.toString(),
+              style: const TextStyle(color: Colors.red, fontSize: 13),
+            ),
+          ),
       ],
     );
   }

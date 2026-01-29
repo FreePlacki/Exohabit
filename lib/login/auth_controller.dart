@@ -9,7 +9,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_controller.g.dart';
 
-@Riverpod(keepAlive: true)
+@riverpod
 class AuthController extends _$AuthController {
   @override
   Future<void> build() async {}
@@ -43,7 +43,6 @@ class AuthController extends _$AuthController {
     required SyncChoice choice,
   }) async {
     state = const AsyncLoading();
-    print('AA');
 
     state = await AsyncValue.guard(() async {
       final user = isLogin

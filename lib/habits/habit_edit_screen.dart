@@ -31,10 +31,11 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
     freq = 3;
     category = HabitCategory.other;
 
-    titleHint = _chooseRandom(['Meditate', 'Read', 'Run', 'Study', 'Stretch']);
-    descriptionHint = _chooseRandom([
+
+    T chooseRandom<T>(List<T> l) => l[Random().nextInt(l.length)];
+    titleHint = chooseRandom(['Meditate', 'Read', 'Run', 'Study', 'Stretch']);
+    descriptionHint = chooseRandom([
       'What motivates you?',
-      'Which fear would this habit quietly dissolve?',
       'Go on...',
       'One proud thing to tell your past self',
       'How does this make you feel?',
@@ -212,8 +213,6 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
       ),
     );
   }
-
-  T _chooseRandom<T>(List<T> l) => l[Random().nextInt(l.length)];
 
   Widget _buildCategorySelector() {
     final scheme = Theme.of(context).colorScheme;
