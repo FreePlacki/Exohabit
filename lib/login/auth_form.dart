@@ -101,11 +101,7 @@ class _AuthFormState extends ConsumerState<AuthForm> {
           textInputAction: TextInputAction.done,
           decoration: const InputDecoration(labelText: 'Password'),
           onChanged: (_) => setState(() {}),
-          onSubmitted: (_) async {
-            if (canSubmit()) {
-              await submit();
-            }
-          },
+          onSubmitted: canSubmit() ? (_) => submit() : null,
         ),
         const SizedBox(height: 16),
 
@@ -121,11 +117,7 @@ class _AuthFormState extends ConsumerState<AuthForm> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: () async {
-              if (canSubmit()) {
-                await submit();
-              }
-            },
+            onPressed: canSubmit() ? submit : null,
             child: state.isLoading
                 ? const SizedBox(
                     height: 16,

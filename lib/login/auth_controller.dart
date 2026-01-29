@@ -43,6 +43,7 @@ class AuthController extends _$AuthController {
     required SyncChoice choice,
   }) async {
     state = const AsyncLoading();
+    print('AA');
 
     state = await AsyncValue.guard(() async {
       final user = isLogin
