@@ -53,6 +53,7 @@ class HabitController extends _$HabitController {
             title: title,
             description: description,
             frequencyPerWeek: frequency,
+            category: category,
           ),
         );
         await repo.updateHabit(habit);
